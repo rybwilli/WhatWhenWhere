@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
@@ -14,6 +14,7 @@ import { Occasion } from '../../models/occasion.model';
 export class OccasionListComponent implements OnInit, OnDestroy {
   occasions: Occasion[] = [];
   userEmail = '';
+  loading = true;
   private sub: Subscription | undefined;
 
   constructor(
@@ -26,9 +27,17 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     this.sub = this.auth.user$.pipe(
       switchMap(user => {
         this.userEmail = user?.email ?? '';
-        return this.svc.getAccessibleOccasions(this.userEmail);
+        this.loading = true;
+        return this.svc.loaded.pipe(
+          filter(loaded => loaded),
+          take(1),
+          switchMap(() => this.svc.getAccessibleOccasions(this.userEmail))
+        );
       })
-    ).subscribe(o => (this.occasions = o));
+    ).subscribe(o => {
+      this.occasions = o;
+      this.loading = false;
+    });
   }
 
   ngOnDestroy(): void {
@@ -56,5 +65,17 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   statusColor(status: string): string {
     return status === 'finalized' ? 'accent' : status === 'polling' ? 'primary' : 'warn';
+  }
+
+  respondentsVoted(o: Occasion): number {
+    const voterIds = new Set<string>();
+    for (const opt of [...o.whenOptions, ...o.whereOptions]) {
+      for (const v of opt.votes) {
+        voterIds.add(v.voterId ?? v.voter);
+      }
+    }
+    return o.respondents.filter(r =>
+      voterIds.has(r.email) || voterIds.has(r.name)
+    ).length;
   }
 }

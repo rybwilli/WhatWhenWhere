@@ -40,7 +40,9 @@ export class AuthService {
       this.user$$.next({
         userId,
         email: attrs.email ?? '',
-        displayName: attrs.name || attrs.email || '',
+        displayName: attrs.name ||
+          [attrs.given_name, attrs.family_name].filter(Boolean).join(' ') ||
+          attrs.email || '',
         photoURL: attrs.picture ?? null,
       });
     } catch {

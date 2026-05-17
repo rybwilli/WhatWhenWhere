@@ -77,6 +77,6 @@
       "Ref": "AWS::StackId"
     },
     "permissions": [],
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:4200/\",\"http://localhost:4200/\",\"https://main.d1txc7h6y0u6pl.amplifyapp.com/\"],\"LogoutURLs\":[\"http://localhost:4200/\",\"http://localhost:4200/\",\"https://main.d1txc7h6y0u6pl.amplifyapp.com/\"]}"
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:4200/\",\"http://localhost:4200/\",\"https://main.d1txc7h6y0u6pl.amplifyapp.com/\",\"https://whatwhenwherewho.com/\"],\"LogoutURLs\":[\"http://localhost:4200/\",\"http://localhost:4200/\",\"https://main.d1txc7h6y0u6pl.amplifyapp.com/\",\"https://whatwhenwherewho.com/\"]}"
   }
 }

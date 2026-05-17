@@ -52,6 +52,8 @@ function fromRecord(r: OccasionRecord): Occasion {
 @Injectable({ providedIn: 'root' })
 export class OccasionService {
   private occasions$ = new BehaviorSubject<Occasion[]>([]);
+  private loaded$ = new BehaviorSubject<boolean>(false);
+  readonly loaded = this.loaded$.asObservable();
 
   constructor() {
     this.fetchAll();
@@ -65,6 +67,8 @@ export class OccasionService {
       this.occasions$.next(items.map(fromRecord));
     } catch (e) {
       console.error('fetchAll failed', e);
+    } finally {
+      this.loaded$.next(true);
     }
   }
 
@@ -160,52 +164,60 @@ export class OccasionService {
     }));
   }
 
-  addWhereOption(id: string, label: string): void {
+  addWhereOption(id: string, label: string, url?: string): void {
     this.updateFields(id, o => ({
-      whereOptions: [...o.whereOptions, { id: uuid(), label, votes: [] }],
+      whereOptions: [...o.whereOptions, { id: uuid(), label, url: url || undefined, votes: [] }],
     }));
   }
 
-  castWhenVote(id: string, optionId: string, voter: string, response: VoteResponse, comment: string): void {
+  updateWhereOption(id: string, optionId: string, label: string, url?: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: o.whereOptions.map(opt =>
+        opt.id !== optionId ? opt : { ...opt, label, url: url || undefined }
+      ),
+    }));
+  }
+
+  castWhenVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): void {
     this.updateFields(id, o => ({
       whenOptions: o.whenOptions.map(opt =>
         opt.id !== optionId ? opt : {
           ...opt,
           votes: [
-            ...opt.votes.filter(v => v.voter !== voter),
-            { voter, response, comment: comment.trim() || undefined },
+            ...opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId),
+            { voter, voterId, response, comment: comment.trim() || undefined },
           ],
         }
       ),
     }));
   }
 
-  castWhereVote(id: string, optionId: string, voter: string, response: VoteResponse, comment: string): void {
+  castWhereVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): void {
     this.updateFields(id, o => ({
       whereOptions: o.whereOptions.map(opt =>
         opt.id !== optionId ? opt : {
           ...opt,
           votes: [
-            ...opt.votes.filter(v => v.voter !== voter),
-            { voter, response, comment: comment.trim() || undefined },
+            ...opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId),
+            { voter, voterId, response, comment: comment.trim() || undefined },
           ],
         }
       ),
     }));
   }
 
-  clearWhenVote(id: string, optionId: string, voter: string): void {
+  clearWhenVote(id: string, optionId: string, voterId: string): void {
     this.updateFields(id, o => ({
       whenOptions: o.whenOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => v.voter !== voter) }
+        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
       ),
     }));
   }
 
-  clearWhereVote(id: string, optionId: string, voter: string): void {
+  clearWhereVote(id: string, optionId: string, voterId: string): void {
     this.updateFields(id, o => ({
       whereOptions: o.whereOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => v.voter !== voter) }
+        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
       ),
     }));
   }

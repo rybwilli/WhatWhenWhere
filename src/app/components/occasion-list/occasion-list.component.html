@@ -1,11 +1,15 @@
 <div class="list-container">
   <div class="list-header">
-    <img src="assets/Monkey2.png" class="page-logo" alt="What? When? Where?" />
+    <img src="assets/Monkey3.png" class="page-logo" alt="What? When? Where? Who?" />
     <p class="subtitle">Plan occasions with your group</p>
 
     <button mat-raised-button color="primary" (click)="create()">
       <mat-icon>add</mat-icon> New Occasion
     </button>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading">
+    <img src="assets/Snark.png" class="loading-spinner" alt="Loading..." />
   </div>
 
   <div *ngIf="occasions.length === 0" class="empty-state">
@@ -31,6 +35,7 @@
           <div class="stats" *ngIf="o.status !== 'draft'">
             <span><mat-icon>access_time</mat-icon> {{ o.whenOptions.length }} time options</span>
             <span><mat-icon>place</mat-icon> {{ o.whereOptions.length }} place options</span>
+            <span><mat-icon>how_to_vote</mat-icon> {{ respondentsVoted(o) }} / {{ o.respondents.length }} voted</span>
           </div>
           <div class="finalized-info" *ngIf="o.status === 'finalized'">
             <mat-icon>check_circle</mat-icon>

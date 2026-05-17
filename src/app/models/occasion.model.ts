@@ -2,7 +2,8 @@ export type OccasionStatus = 'draft' | 'polling' | 'finalized';
 export type VoteResponse = 'yes' | 'maybe' | 'no';
 
 export interface Vote {
-  voter: string;
+  voter: string;    // display name
+  voterId: string;  // email — unique key for deduplication
   response: VoteResponse;
   comment?: string;
 }
@@ -18,6 +19,7 @@ export interface WhenOption {
 export interface WhereOption {
   id: string;
   label: string;
+  url?: string;
   votes: Vote[];
 }
 

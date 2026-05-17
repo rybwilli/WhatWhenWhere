@@ -1,7 +1,110 @@
+.calendar {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+
+    .calendar-month-label {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+
+    .cal-header {
+      text-align: center;
+      padding: 6px 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #888;
+      background: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .cal-cell {
+      min-height: 64px;
+      padding: 4px;
+      border-right: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+
+      &.empty-cell { background: #fafafa; }
+
+      &.has-options {
+        background: #e8f5e9;
+      }
+
+      .cal-day {
+        font-size: 0.8rem;
+        color: #555;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .cal-options {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .cal-opt {
+        display: flex;
+        flex-direction: column;
+        background: #43a047;
+        border-radius: 4px;
+        padding: 2px 4px;
+
+        .cal-time {
+          font-size: 0.65rem;
+          color: white;
+          font-weight: 600;
+        }
+
+        .cal-tally {
+          display: flex;
+          gap: 3px;
+          font-size: 0.6rem;
+          font-weight: 600;
+
+          .tally-yes   { color: #c8e6c9; }
+          .tally-maybe { color: #ffe082; }
+          .tally-no    { color: #ffcdd2; }
+        }
+      }
+    }
+  }
+}
+
 .detail-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 16px;
+}
+
+.when-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  .options-list {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .calendar {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .detail-header {
@@ -210,9 +313,49 @@
     flex-shrink: 0;
   }
 
-  .option-label {
+  .option-label-group {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .option-label {
     font-weight: 500;
+  }
+
+  .option-url-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.75rem;
+    color: #1976d2;
+    background: #e3f2fd;
+    border-radius: 12px;
+    padding: 2px 8px 2px 6px;
+    text-decoration: none;
+    width: fit-content;
+
+    mat-icon { font-size: 13px; width: 13px; height: 13px; }
+    &:hover { background: #bbdefb; }
+  }
+
+  .where-edit-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px 0;
+
+    .edit-where-label { flex: 1; min-width: 160px; }
+    .edit-where-url   { flex: 2; min-width: 200px; }
+
+    .edit-where-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-top: 8px;
+    }
   }
 
   .tally {
@@ -353,15 +496,34 @@
 
 .respondent-status {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 12px;
 
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+  .vote-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 
-    &.voted   { color: #388e3c; }
-    &.unvoted { color: #ccc; }
+    .vote-group-label {
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: #888;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .vote-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 28px;
+    text-align: center;
+
+    &.yes   { color: #388e3c; }
+    &.maybe { color: #f57c00; }
+    &.no    { color: #c62828; }
   }
 }
 

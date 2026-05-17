@@ -17,8 +17,8 @@
       "profile",
       "aws.cognito.signin.user.admin"
     ],
-    "redirectSignIn": "http://localhost:4200/,https://main.d1txc7h6y0u6pl.amplifyapp.com/",
-    "redirectSignOut": "http://localhost:4200/,https://main.d1txc7h6y0u6pl.amplifyapp.com/",
+    "redirectSignIn": "http://localhost:4200/,http://localhost:4200/,https://main.d1txc7h6y0u6pl.amplifyapp.com/,https://whatwhenwherewho.com/",
+    "redirectSignOut": "http://localhost:4200/,http://localhost:4200/,https://main.d1txc7h6y0u6pl.amplifyapp.com/,https://whatwhenwherewho.com/",
     "responseType": "code"
   },
   "federationTarget": "COGNITO_USER_AND_IDENTITY_POOLS",

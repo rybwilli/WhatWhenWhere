@@ -36,6 +36,18 @@
       <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected>
         {{ occasion.status }}
       </mat-chip>
+      <button mat-stroked-button color="primary"
+        *ngIf="occasion.status === 'draft'"
+        (click)="openPolling()"
+        [disabled]="!occasion.whenOptions.length || !occasion.whereOptions.length"
+        matTooltip="Requires at least one when and where option">
+        <mat-icon>how_to_vote</mat-icon> Open Polling
+      </button>
+      <button mat-stroked-button color="accent"
+        *ngIf="occasion.status === 'polling'"
+        (click)="goFinalize()">
+        <mat-icon>done_all</mat-icon> Finalize
+      </button>
       <button mat-icon-button color="warn" (click)="delete()" matTooltip="Delete occasion">
         <mat-icon>delete</mat-icon>
       </button>
@@ -57,30 +69,8 @@
     </div>
   </mat-card>
 
-  <!-- Voter name input -->
-  <mat-card class="voter-card" *ngIf="occasion.status !== 'finalized'">
-    <mat-form-field appearance="outline">
-      <mat-label>Your Name</mat-label>
-      <input matInput [(ngModel)]="voterName" placeholder="Enter your name to vote or manage" />
-      <mat-icon matSuffix>person</mat-icon>
-    </mat-form-field>
-    <div class="voter-actions">
-      <button mat-raised-button color="primary"
-        *ngIf="occasion.status === 'draft' && isOwner()"
-        (click)="openPolling()"
-        [disabled]="!occasion.whenOptions.length || !occasion.whereOptions.length">
-        <mat-icon>how_to_vote</mat-icon> Open Polling
-      </button>
-      <button mat-raised-button color="accent"
-        *ngIf="occasion.status === 'polling' && isOwner()"
-        (click)="goFinalize()">
-        <mat-icon>done_all</mat-icon> Finalize Occasion
-      </button>
-    </div>
-  </mat-card>
-
   <!-- Tabs: When & Where -->
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [(selectedIndex)]="selectedTab">
 
     <!-- WHEN tab -->
     <mat-tab>
@@ -90,7 +80,7 @@
 
       <div class="tab-content">
         <!-- Add when option: date picker + time range -->
-        <div class="add-when" *ngIf="occasion.status === 'draft' && isOwner()">
+        <div class="add-when" *ngIf="occasion.status !== 'finalized' && isOwner()">
           <mat-form-field appearance="outline" class="date-field">
             <mat-label>Date</mat-label>
             <input matInput [matDatepicker]="picker" [(ngModel)]="newWhenDate" placeholder="Pick a date" />
@@ -118,10 +108,12 @@
 
         <div *ngIf="!occasion.whenOptions.length" class="empty-options">
           <mat-icon>schedule</mat-icon>
-          <p>No time options yet{{ isOwner() && occasion.status === 'draft' ? ' — add one above' : '' }}</p>
+          <p>No time options yet{{ isOwner() && occasion.status !== 'finalized' ? ' — add one above' : '' }}</p>
         </div>
 
-        <div class="options-list">
+        <div class="when-layout" *ngIf="occasion.whenOptions.length">
+
+          <div class="options-list">
           <div *ngFor="let opt of occasion.whenOptions" class="option-card"
             [class.leading]="isLeadingWhen(opt)">
             <div class="option-header">
@@ -164,6 +156,36 @@
             </div>
           </div>
         </div>
+
+          <!-- Calendar -->
+          <div class="calendar">
+            <div class="calendar-nav">
+              <button mat-icon-button (click)="prevMonth()"><mat-icon>chevron_left</mat-icon></button>
+              <span class="calendar-month-label">{{ calendarMonthLabel() }}</span>
+              <button mat-icon-button (click)="nextMonth()"><mat-icon>chevron_right</mat-icon></button>
+            </div>
+            <div class="calendar-grid">
+              <div class="cal-header" *ngFor="let d of weekDays">{{ d }}</div>
+              <div *ngFor="let cell of calendarDays()"
+                class="cal-cell"
+                [class.has-options]="cell.options.length > 0"
+                [class.empty-cell]="!cell.date">
+                <span class="cal-day" *ngIf="cell.date">{{ cell.date.getDate() }}</span>
+                <div class="cal-options" *ngIf="cell.options.length">
+                  <div *ngFor="let opt of cell.options" class="cal-opt">
+                    <span class="cal-time">{{ fmt12(opt.startTime) }}</span>
+                    <span class="cal-tally">
+                      <span class="tally-yes">✓{{ votesFor(opt.votes, 'yes').length }}</span>
+                      <span class="tally-maybe">~{{ votesFor(opt.votes, 'maybe').length }}</span>
+                      <span class="tally-no">✗{{ votesFor(opt.votes, 'no').length }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end when-layout -->
       </div>
     </mat-tab>
 
@@ -174,10 +196,15 @@
       </ng-template>
 
       <div class="tab-content">
-        <div class="add-option" *ngIf="occasion.status === 'draft' && isOwner()">
+        <div class="add-option" *ngIf="occasion.status !== 'finalized' && isOwner()">
           <mat-form-field appearance="outline">
-            <mat-label>Add a location option</mat-label>
+            <mat-label>Location</mat-label>
             <input matInput [(ngModel)]="newWhereOption" placeholder="e.g. Central Park, NYC" (keyup.enter)="addWhereOption()" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>URL (optional)</mat-label>
+            <input matInput [(ngModel)]="newWhereUrl" placeholder="https://maps.google.com/..." (keyup.enter)="addWhereOption()" />
+            <mat-icon matSuffix>link</mat-icon>
           </mat-form-field>
           <button mat-raised-button color="primary" (click)="addWhereOption()" [disabled]="!newWhereOption.trim()">
             <mat-icon>add</mat-icon> Add
@@ -186,19 +213,45 @@
 
         <div *ngIf="!occasion.whereOptions.length" class="empty-options">
           <mat-icon>location_off</mat-icon>
-          <p>No location options yet{{ isOwner() && occasion.status === 'draft' ? ' — add some above' : '' }}</p>
+          <p>No location options yet{{ isOwner() && occasion.status !== 'finalized' ? ' — add some above' : '' }}</p>
         </div>
 
         <div class="options-list">
           <div *ngFor="let opt of occasion.whereOptions" class="option-card"
             [class.leading]="isLeadingWhere(opt)">
-            <div class="option-header">
+            <!-- View mode -->
+            <div class="option-header" *ngIf="editingWhereId !== opt.id">
               <mat-icon>place</mat-icon>
-              <span class="option-label">{{ opt.label }}</span>
+              <div class="option-label-group">
+                <span class="option-label">{{ opt.label }}</span>
+                <a *ngIf="opt.url" [href]="opt.url" target="_blank" rel="noopener" class="option-url-chip" (click)="$event.stopPropagation()">
+                  <mat-icon>open_in_new</mat-icon>{{ getDomain(opt.url) }}
+                </a>
+              </div>
               <div class="tally">
                 <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
+              </div>
+              <button mat-icon-button *ngIf="isOwner()" (click)="startEditWhere(opt); $event.stopPropagation()" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+
+            <!-- Edit mode -->
+            <div class="where-edit-form" *ngIf="editingWhereId === opt.id" (click)="$event.stopPropagation()">
+              <mat-form-field appearance="outline" class="edit-where-label">
+                <mat-label>Location</mat-label>
+                <input matInput [(ngModel)]="editWhereLabel" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="edit-where-url">
+                <mat-label>URL (optional)</mat-label>
+                <input matInput [(ngModel)]="editWhereUrl" />
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+              <div class="edit-where-actions">
+                <button mat-raised-button color="primary" (click)="saveEditWhere()" [disabled]="!editWhereLabel.trim()">Save</button>
+                <button mat-button (click)="cancelEditWhere()">Cancel</button>
               </div>
             </div>
 
@@ -275,10 +328,20 @@
               <span class="respondent-email">{{ r.email }}</span>
             </div>
             <div class="respondent-status">
-              <mat-icon [class.voted]="respondentVotedWhen(r)" [class.unvoted]="!respondentVotedWhen(r)"
-                matTooltip="When vote">access_time</mat-icon>
-              <mat-icon [class.voted]="respondentVotedWhere(r)" [class.unvoted]="!respondentVotedWhere(r)"
-                matTooltip="Where vote">place</mat-icon>
+              <ng-container *ngIf="respondentVoteCounts(r) as counts">
+                <div class="vote-group">
+                  <span class="vote-group-label"><mat-icon>access_time</mat-icon></span>
+                  <span class="vote-count yes">✓ {{ counts.when.yes }}</span>
+                  <span class="vote-count maybe">~ {{ counts.when.maybe }}</span>
+                  <span class="vote-count no">✗ {{ counts.when.no }}</span>
+                </div>
+                <div class="vote-group">
+                  <span class="vote-group-label"><mat-icon>place</mat-icon></span>
+                  <span class="vote-count yes">✓ {{ counts.where.yes }}</span>
+                  <span class="vote-count maybe">~ {{ counts.where.maybe }}</span>
+                  <span class="vote-count no">✗ {{ counts.where.no }}</span>
+                </div>
+              </ng-container>
             </div>
             <button mat-icon-button color="warn" *ngIf="isOwner()"
               (click)="removeRespondent(r)"

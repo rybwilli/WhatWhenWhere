@@ -1,3 +1,21 @@
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+
+  .loading-spinner {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: spin 1.2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .list-container {
   max-width: 800px;
   margin: 0 auto;

@@ -19,6 +19,8 @@ export class OccasionDetailComponent implements OnInit {
   occasion: Occasion | undefined;
   voterName = '';
   userEmail = '';
+  selectedTab = 0;
+  calendarMonth: Date = new Date();
 
   // When form
   newWhenDate: Date | null = null;
@@ -27,6 +29,12 @@ export class OccasionDetailComponent implements OnInit {
 
   // Where form
   newWhereOption = '';
+  newWhereUrl = '';
+
+  // Where edit
+  editingWhereId: string | null = null;
+  editWhereLabel = '';
+  editWhereUrl = '';
 
   // Respondent form
   newRespondentName = '';
@@ -62,27 +70,27 @@ export class OccasionDetailComponent implements OnInit {
         this.router.navigate(['/']);
         return;
       }
+      const isFirst = !this.occasion;
       this.occasion = found;
+      if (isFirst) this.jumpToFirstOption();
       this.syncVoteState();
     });
   }
 
   private syncVoteState(): void {
     if (!this.occasion) return;
-    const name = this.voterName;
+    const id = this.userEmail;
     for (const opt of this.occasion.whenOptions) {
-      const existing = opt.votes.find(v => v.voter === name);
+      const existing = opt.votes.find(v => (v.voterId ?? v.voter) === id);
       const local = this.whenVotes[opt.id];
       const serverResponse = existing?.response ?? null;
       const serverComment  = existing?.comment  ?? '';
-      // Always sync unless the user has made a local change not yet saved to server.
-      // A local change is in-flight when the local response differs from what's on server.
       if (!local || local.response === serverResponse) {
         this.whenVotes[opt.id] = { response: serverResponse, comment: serverComment };
       }
     }
     for (const opt of this.occasion.whereOptions) {
-      const existing = opt.votes.find(v => v.voter === name);
+      const existing = opt.votes.find(v => (v.voterId ?? v.voter) === id);
       const local = this.whereVotes[opt.id];
       const serverResponse = existing?.response ?? null;
       const serverComment  = existing?.comment  ?? '';
@@ -138,16 +146,75 @@ export class OccasionDetailComponent implements OnInit {
     return `${datePart}  ·  ${this.fmt12(opt.startTime)} – ${this.fmt12(opt.endTime)}`;
   }
 
-  private fmt12(t: string): string {
+  fmt12(t: string): string {
     const [h, m] = t.split(':').map(Number);
     return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
+  // ---------- Calendar ----------
+  readonly weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  calendarDays(): Array<{ date: Date | null; options: WhenOption[] }> {
+    const year = this.calendarMonth.getFullYear();
+    const month = this.calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cells: Array<{ date: Date | null; options: WhenOption[] }> = [];
+    for (let i = 0; i < firstDay; i++) cells.push({ date: null, options: [] });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const iso = date.toISOString().split('T')[0];
+      const options = (this.occasion?.whenOptions ?? []).filter(o => o.date === iso);
+      cells.push({ date, options });
+    }
+    return cells;
+  }
+
+  calendarMonthLabel(): string {
+    return this.calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  prevMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() - 1, 1);
+  }
+
+  nextMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + 1, 1);
+  }
+
+  jumpToFirstOption(): void {
+    if (!this.occasion?.whenOptions.length) return;
+    const earliest = this.occasion.whenOptions.map(o => o.date).sort()[0];
+    const d = new Date(earliest + 'T00:00:00');
+    this.calendarMonth = new Date(d.getFullYear(), d.getMonth(), 1);
   }
 
   // ---------- Where options ----------
   addWhereOption(): void {
     if (!this.occasion || !this.newWhereOption.trim()) return;
-    this.svc.addWhereOption(this.occasion.id, this.newWhereOption.trim());
+    this.svc.addWhereOption(this.occasion.id, this.newWhereOption.trim(), this.newWhereUrl.trim());
     this.newWhereOption = '';
+    this.newWhereUrl = '';
+  }
+
+  startEditWhere(opt: { id: string; label: string; url?: string }): void {
+    this.editingWhereId = opt.id;
+    this.editWhereLabel = opt.label;
+    this.editWhereUrl = opt.url ?? '';
+  }
+
+  saveEditWhere(): void {
+    if (!this.occasion || !this.editingWhereId || !this.editWhereLabel.trim()) return;
+    this.svc.updateWhereOption(this.occasion.id, this.editingWhereId, this.editWhereLabel.trim(), this.editWhereUrl.trim());
+    this.editingWhereId = null;
+  }
+
+  cancelEditWhere(): void {
+    this.editingWhereId = null;
+  }
+
+  getDomain(url: string): string {
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
   }
 
   // ---------- Voting ----------
@@ -167,22 +234,22 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   saveWhenVote(optionId: string): void {
-    if (!this.occasion || !this.voterName.trim()) return;
+    if (!this.occasion || !this.userEmail) return;
     const state = this.whenVotes[optionId];
     if (!state?.response) {
-      this.svc.clearWhenVote(this.occasion.id, optionId, this.voterName);
+      this.svc.clearWhenVote(this.occasion.id, optionId, this.userEmail);
     } else {
-      this.svc.castWhenVote(this.occasion.id, optionId, this.voterName, state.response, state.comment);
+      this.svc.castWhenVote(this.occasion.id, optionId, this.voterName || this.userEmail, this.userEmail, state.response, state.comment);
     }
   }
 
   saveWhereVote(optionId: string): void {
-    if (!this.occasion || !this.voterName.trim()) return;
+    if (!this.occasion || !this.userEmail) return;
     const state = this.whereVotes[optionId];
     if (!state?.response) {
-      this.svc.clearWhereVote(this.occasion.id, optionId, this.voterName);
+      this.svc.clearWhereVote(this.occasion.id, optionId, this.userEmail);
     } else {
-      this.svc.castWhereVote(this.occasion.id, optionId, this.voterName, state.response, state.comment);
+      this.svc.castWhereVote(this.occasion.id, optionId, this.voterName || this.userEmail, this.userEmail, state.response, state.comment);
     }
   }
 
@@ -239,11 +306,25 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   respondentVotedWhen(r: Respondent): boolean {
-    return this.occasion?.whenOptions.some(o => o.votes.some(v => v.voter === r.name)) ?? false;
+    return this.occasion?.whenOptions.some(o => o.votes.some(v => (v.voterId ?? v.voter) === r.email)) ?? false;
   }
 
   respondentVotedWhere(r: Respondent): boolean {
-    return this.occasion?.whereOptions.some(o => o.votes.some(v => v.voter === r.name)) ?? false;
+    return this.occasion?.whereOptions.some(o => o.votes.some(v => (v.voterId ?? v.voter) === r.email)) ?? false;
+  }
+
+  respondentVoteCounts(r: Respondent): {
+    when: { yes: number; maybe: number; no: number };
+    where: { yes: number; maybe: number; no: number };
+  } {
+    const tally = (votes: Vote[]) => ({
+      yes:   votes.filter(v => v.response === 'yes').length,
+      maybe: votes.filter(v => v.response === 'maybe').length,
+      no:    votes.filter(v => v.response === 'no').length,
+    });
+    const whenVotes  = (this.occasion?.whenOptions  ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
+    const whereVotes = (this.occasion?.whereOptions ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
+    return { when: tally(whenVotes), where: tally(whereVotes) };
   }
 
   // ---------- Navigation ----------
