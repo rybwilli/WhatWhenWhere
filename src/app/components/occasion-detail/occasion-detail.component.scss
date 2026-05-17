@@ -1,0 +1,371 @@
+.detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .header-info {
+    flex: 1;
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.8rem;
+    }
+
+    .organizer {
+      color: #666;
+      margin: 0 0 8px;
+    }
+
+    .description {
+      color: #555;
+      margin: 0;
+    }
+
+    .header-title-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      h1 { margin: 0 0 4px; }
+    }
+
+    &.edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .edit-field { width: 100%; }
+
+      .edit-actions {
+        display: flex;
+        gap: 8px;
+      }
+    }
+  }
+
+  .status-chip {
+    flex-shrink: 0;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.finalized-banner {
+  background: #e8f5e9;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+
+  mat-icon {
+    color: #388e3c;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  strong {
+    font-size: 1.1rem;
+    color: #2e7d32;
+  }
+
+  p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0;
+    color: #444;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #555;
+    }
+  }
+}
+
+.voter-card {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: -1.25em;
+  }
+
+  .voter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+}
+
+.tab-content {
+  padding: 20px 0;
+}
+
+.add-when {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  .date-field {
+    flex: 2;
+    min-width: 160px;
+  }
+
+  .time-field {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .add-btn {
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.add-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  button {
+    margin-top: 4px;
+  }
+}
+
+.empty-options {
+  text-align: center;
+  padding: 32px;
+  color: #aaa;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+
+  &.leading {
+    border-color: #3f51b5;
+    background: #e8eaf6;
+  }
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+
+  mat-icon {
+    color: #666;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .option-label {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .tally {
+    display: flex;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    .tally-yes   { color: #388e3c; }
+    .tally-maybe { color: #f57c00; }
+    .tally-no    { color: #c62828; }
+  }
+}
+
+.vote-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 10px;
+}
+
+.vote-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+
+  &.chip-yes   { background: #e8f5e9; color: #2e7d32; }
+  &.chip-maybe { background: #fff3e0; color: #e65100; }
+  &.chip-no    { background: #ffebee; color: #b71c1c; }
+
+  .chip-icon  { font-weight: 700; }
+  .chip-voter { font-weight: 500; }
+  .chip-comment { color: inherit; opacity: 0.8; font-style: italic; }
+}
+
+.vote-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 14px;
+  flex-wrap: wrap;
+  border-top: 1px solid #ececec;
+
+  .your-vote-label {
+    font-size: 0.8rem;
+    color: #888;
+    white-space: nowrap;
+  }
+
+  .vote-btn {
+    min-width: 80px;
+    font-weight: 600;
+    border-radius: 20px !important;
+
+    &.yes   { color: #388e3c; border-color: #388e3c !important; }
+    &.maybe { color: #f57c00; border-color: #f57c00 !important; }
+    &.no    { color: #c62828; border-color: #c62828 !important; }
+
+    &.yes.selected   { background: #388e3c; color: #fff; }
+    &.maybe.selected { background: #f57c00; color: #fff; }
+    &.no.selected    { background: #c62828; color: #fff; }
+  }
+
+  .comment-field {
+    flex: 1;
+    min-width: 160px;
+    margin-bottom: -1.25em;
+  }
+}
+
+.add-respondent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  .name-field  { flex: 1; min-width: 140px; }
+  .email-field { flex: 2; min-width: 180px; }
+
+  .add-btn {
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.respondent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.respondent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.respondent-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #3f51b5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.respondent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .respondent-name {
+    font-weight: 500;
+  }
+
+  .respondent-email {
+    font-size: 0.8rem;
+    color: #888;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.respondent-status {
+  display: flex;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+
+    &.voted   { color: #388e3c; }
+    &.unvoted { color: #ccc; }
+  }
+}
+
+.not-found {
+  text-align: center;
+  padding: 64px;
+}

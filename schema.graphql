@@ -1,0 +1,19 @@
+type Occasion @model
+  @auth(rules: [
+    { allow: owner, ownerField: "ownerSub" },
+    { allow: private, operations: [read, update] }
+  ]) {
+  id: ID!
+  ownerSub: String!
+  ownerEmail: String!
+  ownerName: String!
+  title: String!
+  description: String!
+  status: String!
+  respondents: AWSJSON
+  whenOptions: AWSJSON
+  whereOptions: AWSJSON
+  finalDate: String
+  finalLocation: String
+  finalNotes: String
+}

@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-whatwhenwhere-dev-d4042-authRole",
+      "UnauthRoleArn": "arn:aws:iam::963108102266:role/amplify-whatwhenwhere-dev-d4042-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::963108102266:role/amplify-whatwhenwhere-dev-d4042-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-whatwhenwhere-dev-d4042-deployment",
+      "UnauthRoleName": "amplify-whatwhenwhere-dev-d4042-unauthRole",
+      "StackName": "amplify-whatwhenwhere-dev-d4042",
+      "StackId": "arn:aws:cloudformation:us-east-1:963108102266:stack/amplify-whatwhenwhere-dev-d4042/e3a4e320-4da6-11f1-a3d6-0affc9765659",
+      "AmplifyAppId": "d1txc7h6y0u6pl"
+    },
+    "categories": {
+      "api": {
+        "whatwhenwhere": {}
+      }
+    }
+  }
+}

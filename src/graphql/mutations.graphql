@@ -1,0 +1,73 @@
+# this is an auto generated file. This will be overwritten
+
+mutation CreateOccasion(
+  $input: CreateOccasionInput!
+  $condition: ModelOccasionConditionInput
+) {
+  createOccasion(input: $input, condition: $condition) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+mutation UpdateOccasion(
+  $input: UpdateOccasionInput!
+  $condition: ModelOccasionConditionInput
+) {
+  updateOccasion(input: $input, condition: $condition) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+mutation DeleteOccasion(
+  $input: DeleteOccasionInput!
+  $condition: ModelOccasionConditionInput
+) {
+  deleteOccasion(input: $input, condition: $condition) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}

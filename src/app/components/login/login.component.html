@@ -1,0 +1,79 @@
+<div class="login-container">
+  <mat-card class="login-card">
+
+    <div class="login-logo">
+      <img src="assets/logo.svg" class="logo-img" alt="logo" />
+      <h1>What? When? Where? Who?</h1>
+      <p>Sign in to create and manage occasions</p>
+    </div>
+
+    <mat-card-content>
+
+      <!-- ── Confirm email ── -->
+      <ng-container *ngIf="emailMode === 'confirm'">
+        <p class="confirm-hint">
+          Check your email at <strong>{{ email }}</strong> for a verification code.
+        </p>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Verification Code</mat-label>
+          <input matInput [(ngModel)]="confirmCode" placeholder="000000"
+            maxlength="6" inputmode="numeric" (keyup.enter)="submitConfirm()" />
+          <mat-icon matSuffix>sms</mat-icon>
+        </mat-form-field>
+        <button mat-raised-button color="primary" class="full-width submit-btn"
+          (click)="submitConfirm()" [disabled]="loading || confirmCode.length < 6">
+          Verify &amp; Sign In
+        </button>
+        <button mat-button class="full-width" (click)="emailMode = 'register'">
+          <mat-icon>arrow_back</mat-icon> Back
+        </button>
+      </ng-container>
+
+      <!-- ── Sign in / Register ── -->
+      <ng-container *ngIf="emailMode !== 'confirm'">
+
+        <!-- Google -->
+        <button mat-stroked-button class="provider-btn google" (click)="loginGoogle()" [disabled]="loading">
+          <img src="assets/google-logo.svg" class="btn-icon" /> Continue with Google
+        </button>
+
+        <div class="divider"><span>or</span></div>
+
+        <div class="mode-toggle">
+          <button [class.active]="emailMode === 'signin'"   (click)="emailMode = 'signin'">Sign In</button>
+          <button [class.active]="emailMode === 'register'" (click)="emailMode = 'register'">Create Account</button>
+        </div>
+
+        <mat-form-field *ngIf="emailMode === 'register'" appearance="outline" class="full-width">
+          <mat-label>Your Name</mat-label>
+          <input matInput [(ngModel)]="displayName" placeholder="Full name" />
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" placeholder="you@example.com" />
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" [(ngModel)]="password" (keyup.enter)="submitEmail()" />
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="full-width submit-btn"
+          (click)="submitEmail()" [disabled]="loading || !email || !password">
+          {{ emailMode === 'signin' ? 'Sign In' : 'Create Account' }}
+        </button>
+
+      </ng-container>
+
+      <mat-error *ngIf="error" class="error-msg">{{ error }}</mat-error>
+      <div *ngIf="loading" class="loading-row">
+        <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>

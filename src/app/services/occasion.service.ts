@@ -1,0 +1,225 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { generateClient } from 'aws-amplify/api';
+import * as queries from '../../graphql/queries';
+import * as mutations from '../../graphql/mutations';
+import * as subs from '../../graphql/subscriptions';
+import { Occasion, Respondent, VoteResponse } from '../models/occasion.model';
+
+const client = generateClient();
+
+function uuid(): string {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+interface OccasionRecord {
+  id: string;
+  ownerSub: string;
+  ownerEmail: string;
+  ownerName: string;
+  title: string;
+  description: string;
+  status: string;
+  respondents?: string | null;
+  whenOptions?: string | null;
+  whereOptions?: string | null;
+  finalDate?: string | null;
+  finalLocation?: string | null;
+  finalNotes?: string | null;
+  createdAt?: string;
+}
+
+function fromRecord(r: OccasionRecord): Occasion {
+  return {
+    id: r.id,
+    ownerId: r.ownerSub,
+    ownerEmail: r.ownerEmail,
+    ownerName: r.ownerName,
+    title: r.title,
+    description: r.description,
+    status: r.status as Occasion['status'],
+    respondents: JSON.parse(r.respondents || '[]'),
+    whenOptions: JSON.parse(r.whenOptions || '[]'),
+    whereOptions: JSON.parse(r.whereOptions || '[]'),
+    finalDate: r.finalDate ?? undefined,
+    finalLocation: r.finalLocation ?? undefined,
+    finalNotes: r.finalNotes ?? undefined,
+    createdAt: r.createdAt || new Date().toISOString(),
+  };
+}
+
+@Injectable({ providedIn: 'root' })
+export class OccasionService {
+  private occasions$ = new BehaviorSubject<Occasion[]>([]);
+
+  constructor() {
+    this.fetchAll();
+    this.subscribeRealtime();
+  }
+
+  private async fetchAll(): Promise<void> {
+    try {
+      const res: any = await (client.graphql as any)({ query: queries.listOccasions });
+      const items: OccasionRecord[] = res.data.listOccasions.items ?? [];
+      this.occasions$.next(items.map(fromRecord));
+    } catch (e) {
+      console.error('fetchAll failed', e);
+    }
+  }
+
+  private subscribeRealtime(): void {
+    const handle = (obs: any) =>
+      obs.subscribe({ next: () => this.fetchAll(), error: console.error });
+    handle((client.graphql as any)({ query: subs.onCreateOccasion }));
+    handle((client.graphql as any)({ query: subs.onUpdateOccasion }));
+    handle((client.graphql as any)({ query: subs.onDeleteOccasion }));
+  }
+
+  getOccasions(): Observable<Occasion[]> {
+    return this.occasions$.asObservable();
+  }
+
+  getAccessibleOccasions(userEmail: string): Observable<Occasion[]> {
+    const email = userEmail.toLowerCase();
+    return this.occasions$.pipe(
+      map(all => all.filter(o =>
+        o.ownerEmail?.toLowerCase() === email ||
+        o.respondents.some(r => r.email.toLowerCase() === email)
+      ))
+    );
+  }
+
+  canAccess(occasion: Occasion, userEmail: string): boolean {
+    const email = userEmail.toLowerCase();
+    return occasion.ownerEmail?.toLowerCase() === email ||
+      occasion.respondents.some(r => r.email.toLowerCase() === email);
+  }
+
+  async create(
+    title: string, description: string,
+    ownerName: string, ownerEmail: string, ownerSub: string
+  ): Promise<Occasion> {
+    const input = {
+      ownerSub,
+      ownerEmail,
+      ownerName,
+      title,
+      description,
+      status: 'draft',
+      respondents: JSON.stringify([{ id: uuid(), name: ownerName, email: ownerEmail }]),
+      whenOptions: JSON.stringify([]),
+      whereOptions: JSON.stringify([]),
+    };
+    const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
+    return fromRecord(res.data.createOccasion);
+  }
+
+  private async updateFields(occasionId: string, fn: (o: Occasion) => Partial<Occasion>): Promise<void> {
+    const occasion = this.occasions$.value.find(o => o.id === occasionId);
+    if (!occasion) return;
+    const changes = fn(occasion);
+    const updated = { ...occasion, ...changes };
+
+    // Optimistic update
+    this.occasions$.next(this.occasions$.value.map(o => o.id === occasionId ? updated : o));
+
+    const input: any = { id: occasionId };
+    if (changes.title        !== undefined) input.title        = changes.title;
+    if (changes.description  !== undefined) input.description  = changes.description;
+    if (changes.status       !== undefined) input.status       = changes.status;
+    if (changes.respondents  !== undefined) input.respondents  = JSON.stringify(changes.respondents);
+    if (changes.whenOptions  !== undefined) input.whenOptions  = JSON.stringify(changes.whenOptions);
+    if (changes.whereOptions !== undefined) input.whereOptions = JSON.stringify(changes.whereOptions);
+    if (changes.finalDate     !== undefined) input.finalDate     = changes.finalDate;
+    if (changes.finalLocation !== undefined) input.finalLocation = changes.finalLocation;
+    if (changes.finalNotes    !== undefined) input.finalNotes    = changes.finalNotes;
+
+    await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
+  }
+
+  updateDetails(id: string, title: string, description: string): void {
+    this.updateFields(id, () => ({ title, description }));
+  }
+
+  addRespondent(id: string, name: string, email: string): void {
+    this.updateFields(id, o => ({
+      respondents: [...o.respondents, { id: uuid(), name, email }],
+    }));
+  }
+
+  removeRespondent(id: string, respondentId: string): void {
+    this.updateFields(id, o => ({
+      respondents: o.respondents.filter(r => r.id !== respondentId),
+    }));
+  }
+
+  addWhenOption(id: string, date: string, startTime: string, endTime: string): void {
+    this.updateFields(id, o => ({
+      whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, votes: [] }],
+    }));
+  }
+
+  addWhereOption(id: string, label: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: [...o.whereOptions, { id: uuid(), label, votes: [] }],
+    }));
+  }
+
+  castWhenVote(id: string, optionId: string, voter: string, response: VoteResponse, comment: string): void {
+    this.updateFields(id, o => ({
+      whenOptions: o.whenOptions.map(opt =>
+        opt.id !== optionId ? opt : {
+          ...opt,
+          votes: [
+            ...opt.votes.filter(v => v.voter !== voter),
+            { voter, response, comment: comment.trim() || undefined },
+          ],
+        }
+      ),
+    }));
+  }
+
+  castWhereVote(id: string, optionId: string, voter: string, response: VoteResponse, comment: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: o.whereOptions.map(opt =>
+        opt.id !== optionId ? opt : {
+          ...opt,
+          votes: [
+            ...opt.votes.filter(v => v.voter !== voter),
+            { voter, response, comment: comment.trim() || undefined },
+          ],
+        }
+      ),
+    }));
+  }
+
+  clearWhenVote(id: string, optionId: string, voter: string): void {
+    this.updateFields(id, o => ({
+      whenOptions: o.whenOptions.map(opt =>
+        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => v.voter !== voter) }
+      ),
+    }));
+  }
+
+  clearWhereVote(id: string, optionId: string, voter: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: o.whereOptions.map(opt =>
+        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => v.voter !== voter) }
+      ),
+    }));
+  }
+
+  openPolling(id: string): void {
+    this.updateFields(id, () => ({ status: 'polling' }));
+  }
+
+  finalize(id: string, finalDate: string, finalLocation: string, finalNotes: string): void {
+    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalLocation, finalNotes }));
+  }
+
+  async delete(id: string): Promise<void> {
+    this.occasions$.next(this.occasions$.value.filter(o => o.id !== id));
+    await (client.graphql as any)({ query: mutations.deleteOccasion, variables: { input: { id } } });
+  }
+}

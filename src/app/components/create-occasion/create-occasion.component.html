@@ -1,0 +1,42 @@
+<div class="create-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>celebration</mat-icon> Create a New Occasion
+      </mat-card-title>
+      <mat-card-subtitle>Tell your group what you're planning</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Occasion Title</mat-label>
+          <input matInput formControlName="title" placeholder="e.g. Birthday Party, Team Lunch..." />
+          <mat-error *ngIf="form.get('title')?.hasError('required')">Title is required</mat-error>
+          <mat-error *ngIf="form.get('title')?.hasError('minlength')">At least 3 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3"
+            placeholder="Give a brief description of the occasion..."></textarea>
+          <mat-error *ngIf="form.get('description')?.hasError('required')">Description is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Name (Organizer)</mat-label>
+          <input matInput formControlName="ownerName" placeholder="Your name" />
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="form.get('ownerName')?.hasError('required')">Your name is required</mat-error>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancel()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid || saving">
+        {{ saving ? 'Creating...' : 'Create Occasion' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

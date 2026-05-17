@@ -1,0 +1,73 @@
+<div class="finalize-container">
+  <mat-card *ngIf="occasion; else notFound">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>done_all</mat-icon> Finalize: {{ occasion.title }}
+      </mat-card-title>
+      <mat-card-subtitle>Choose the final date and location for your occasion</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Poll summary -->
+      <div class="poll-summary" *ngIf="occasion.whenOptions.length || occasion.whereOptions.length">
+        <h3>Poll Summary</h3>
+
+        <div class="summary-section" *ngIf="occasion.whenOptions.length">
+          <h4><mat-icon>access_time</mat-icon> When Votes</h4>
+          <div *ngFor="let opt of occasion.whenOptions | slice:0:5" class="summary-row">
+            <span>{{ topWhenLabel(opt) }}</span>
+            <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+          </div>
+        </div>
+
+        <div class="summary-section" *ngIf="occasion.whereOptions.length">
+          <h4><mat-icon>place</mat-icon> Where Votes</h4>
+          <div *ngFor="let opt of occasion.whereOptions | slice:0:5" class="summary-row">
+            <span>{{ opt.label }}</span>
+            <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+          </div>
+        </div>
+
+        <button mat-stroked-button color="primary" (click)="prefillTop()" class="prefill-btn">
+          <mat-icon>auto_fix_high</mat-icon> Use Top Voted Options
+        </button>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <form [formGroup]="form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Final Date &amp; Time</mat-label>
+          <input matInput formControlName="finalDate" placeholder="e.g. Saturday June 14, 7pm" />
+          <mat-icon matSuffix>event</mat-icon>
+          <mat-error>Date is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Final Location</mat-label>
+          <input matInput formControlName="finalLocation" placeholder="e.g. Central Park, NYC" />
+          <mat-icon matSuffix>place</mat-icon>
+          <mat-error>Location is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Additional Notes (optional)</mat-label>
+          <textarea matInput formControlName="finalNotes" rows="3"
+            placeholder="Parking info, dress code, what to bring..."></textarea>
+          <mat-icon matSuffix>notes</mat-icon>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancel()">Cancel</button>
+      <button mat-raised-button color="accent" (click)="submit()" [disabled]="form.invalid">
+        <mat-icon>check</mat-icon> Confirm &amp; Finalize
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<ng-template #notFound>
+  <p>Occasion not found.</p>
+</ng-template>

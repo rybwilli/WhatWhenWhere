@@ -1,0 +1,64 @@
+# this is an auto generated file. This will be overwritten
+
+subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
+  onCreateOccasion(filter: $filter) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
+  onUpdateOccasion(filter: $filter) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
+  onDeleteOccasion(filter: $filter) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalLocation
+    finalNotes
+    createdAt
+    updatedAt
+    __typename
+  }
+}

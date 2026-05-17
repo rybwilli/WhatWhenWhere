@@ -1,0 +1,45 @@
+<div class="list-container">
+  <div class="list-header">
+    <img src="assets/logo.svg" class="page-logo" alt="What? When? Where?" />
+    <p class="subtitle">Plan occasions with your group</p>
+    <button mat-raised-button color="primary" (click)="create()">
+      <mat-icon>add</mat-icon> New Occasion
+    </button>
+  </div>
+
+  <div *ngIf="occasions.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">event_note</mat-icon>
+    <p>No occasions yet. Create one to get started!</p>
+  </div>
+
+  <mat-grid-list cols="1" rowHeight="fit" gutterSize="0" *ngIf="occasions.length > 0">
+    <div class="cards-grid">
+      <mat-card *ngFor="let o of occasions" class="occasion-card" (click)="open(o.id)">
+        <mat-card-header>
+          <mat-card-title>{{ o.title }}</mat-card-title>
+          <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
+          <span class="spacer"></span>
+          <mat-chip [color]="statusColor(o.status)" selected>{{ o.status }}</mat-chip>
+          <button mat-icon-button color="warn" *ngIf="isOwner(o)"
+            (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="description">{{ o.description }}</p>
+          <div class="stats" *ngIf="o.status !== 'draft'">
+            <span><mat-icon>access_time</mat-icon> {{ o.whenOptions.length }} time options</span>
+            <span><mat-icon>place</mat-icon> {{ o.whereOptions.length }} place options</span>
+          </div>
+          <div class="finalized-info" *ngIf="o.status === 'finalized'">
+            <mat-icon>check_circle</mat-icon>
+            <strong>{{ o.finalDate }}</strong> at <strong>{{ o.finalLocation }}</strong>
+          </div>
+        </mat-card-content>
+        <mat-card-footer>
+          <span class="created-at">Created {{ o.createdAt | date:'mediumDate' }}</span>
+        </mat-card-footer>
+      </mat-card>
+    </div>
+  </mat-grid-list>
+</div>

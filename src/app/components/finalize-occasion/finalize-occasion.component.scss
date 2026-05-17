@@ -1,0 +1,62 @@
+.finalize-container {
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 0 16px;
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+.poll-summary {
+  margin-bottom: 8px;
+
+  h3 {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 12px;
+  }
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #666;
+    margin: 12px 0 8px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.summary-section {
+  margin-bottom: 8px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.prefill-btn {
+  margin-top: 12px;
+}
+
+.divider {
+  margin: 16px 0;
+}

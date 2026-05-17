@@ -1,0 +1,303 @@
+<div class="detail-container" *ngIf="occasion; else notFound">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+
+    <!-- View mode -->
+    <div class="header-info" *ngIf="!editing">
+      <div class="header-title-row">
+        <h1>{{ occasion.title }}</h1>
+        <button mat-icon-button *ngIf="isOwner()" (click)="startEdit()" matTooltip="Edit occasion">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+      <p class="organizer">Organized by <strong>{{ occasion.ownerName }}</strong></p>
+      <p class="description">{{ occasion.description }}</p>
+    </div>
+
+    <!-- Edit mode (owner only) -->
+    <div class="header-info edit-form" *ngIf="editing">
+      <mat-form-field appearance="outline" class="edit-field">
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="editTitle" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="edit-field">
+        <mat-label>Description</mat-label>
+        <textarea matInput [(ngModel)]="editDescription" rows="2"></textarea>
+      </mat-form-field>
+      <div class="edit-actions">
+        <button mat-raised-button color="primary" (click)="saveEdit()" [disabled]="!editTitle.trim()">Save</button>
+        <button mat-button (click)="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="header-actions" *ngIf="isOwner() && !editing">
+      <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected>
+        {{ occasion.status }}
+      </mat-chip>
+      <button mat-icon-button color="warn" (click)="delete()" matTooltip="Delete occasion">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <mat-chip *ngIf="!isOwner()"
+      [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected class="status-chip">
+      {{ occasion.status }}
+    </mat-chip>
+  </div>
+
+  <!-- Finalized banner -->
+  <mat-card class="finalized-banner" *ngIf="occasion.status === 'finalized'">
+    <mat-icon>check_circle</mat-icon>
+    <div>
+      <strong>This occasion is confirmed!</strong>
+      <p><mat-icon>event</mat-icon> {{ occasion.finalDate }}</p>
+      <p><mat-icon>place</mat-icon> {{ occasion.finalLocation }}</p>
+      <p *ngIf="occasion.finalNotes"><mat-icon>notes</mat-icon> {{ occasion.finalNotes }}</p>
+    </div>
+  </mat-card>
+
+  <!-- Voter name input -->
+  <mat-card class="voter-card" *ngIf="occasion.status !== 'finalized'">
+    <mat-form-field appearance="outline">
+      <mat-label>Your Name</mat-label>
+      <input matInput [(ngModel)]="voterName" placeholder="Enter your name to vote or manage" />
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+    <div class="voter-actions">
+      <button mat-raised-button color="primary"
+        *ngIf="occasion.status === 'draft' && isOwner()"
+        (click)="openPolling()"
+        [disabled]="!occasion.whenOptions.length || !occasion.whereOptions.length">
+        <mat-icon>how_to_vote</mat-icon> Open Polling
+      </button>
+      <button mat-raised-button color="accent"
+        *ngIf="occasion.status === 'polling' && isOwner()"
+        (click)="goFinalize()">
+        <mat-icon>done_all</mat-icon> Finalize Occasion
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Tabs: When & Where -->
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+
+    <!-- WHEN tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>access_time</mat-icon>&nbsp;When
+      </ng-template>
+
+      <div class="tab-content">
+        <!-- Add when option: date picker + time range -->
+        <div class="add-when" *ngIf="occasion.status === 'draft' && isOwner()">
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="newWhenDate" placeholder="Pick a date" />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Start Time</mat-label>
+            <input matInput type="time" [(ngModel)]="newWhenStart" />
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>End Time</mat-label>
+            <input matInput type="time" [(ngModel)]="newWhenEnd" />
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="add-btn"
+            (click)="addWhenOption()" [disabled]="!canAddWhen()">
+            <mat-icon>add</mat-icon> Add
+          </button>
+        </div>
+
+        <div *ngIf="!occasion.whenOptions.length" class="empty-options">
+          <mat-icon>schedule</mat-icon>
+          <p>No time options yet{{ isOwner() && occasion.status === 'draft' ? ' — add one above' : '' }}</p>
+        </div>
+
+        <div class="options-list">
+          <div *ngFor="let opt of occasion.whenOptions" class="option-card"
+            [class.leading]="isLeadingWhen(opt)">
+            <div class="option-header">
+              <mat-icon>event</mat-icon>
+              <span class="option-label">{{ formatWhen(opt) }}</span>
+              <div class="tally">
+                <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
+                <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
+                <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
+              </div>
+            </div>
+
+            <!-- Voter responses summary -->
+            <div class="vote-details" *ngIf="opt.votes.length">
+              <div *ngFor="let v of opt.votes" class="vote-chip" [class]="'chip-' + v.response">
+                <span class="chip-icon">{{ v.response === 'yes' ? '✓' : v.response === 'maybe' ? '~' : '✗' }}</span>
+                <span class="chip-voter">{{ v.voter }}</span>
+                <span class="chip-comment" *ngIf="v.comment">— {{ v.comment }}</span>
+              </div>
+            </div>
+
+            <!-- Vote buttons (polling mode) -->
+            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim()">
+              <span class="your-vote-label">Your vote:</span>
+              <button mat-stroked-button class="vote-btn yes"
+                [class.selected]="myWhenVote(opt.id) === 'yes'"
+                (click)="setWhenVote(opt.id, 'yes')">✓ Yes</button>
+              <button mat-stroked-button class="vote-btn maybe"
+                [class.selected]="myWhenVote(opt.id) === 'maybe'"
+                (click)="setWhenVote(opt.id, 'maybe')">~ Maybe</button>
+              <button mat-stroked-button class="vote-btn no"
+                [class.selected]="myWhenVote(opt.id) === 'no'"
+                (click)="setWhenVote(opt.id, 'no')">✗ No</button>
+              <mat-form-field appearance="outline" class="comment-field">
+                <mat-label>Comment (optional)</mat-label>
+                <input matInput [(ngModel)]="whenVotes[opt.id].comment"
+                  (blur)="saveWhenVote(opt.id)" (keyup.enter)="saveWhenVote(opt.id)"
+                  [disabled]="!myWhenVote(opt.id)" />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- WHERE tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>place</mat-icon>&nbsp;Where
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="add-option" *ngIf="occasion.status === 'draft' && isOwner()">
+          <mat-form-field appearance="outline">
+            <mat-label>Add a location option</mat-label>
+            <input matInput [(ngModel)]="newWhereOption" placeholder="e.g. Central Park, NYC" (keyup.enter)="addWhereOption()" />
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="addWhereOption()" [disabled]="!newWhereOption.trim()">
+            <mat-icon>add</mat-icon> Add
+          </button>
+        </div>
+
+        <div *ngIf="!occasion.whereOptions.length" class="empty-options">
+          <mat-icon>location_off</mat-icon>
+          <p>No location options yet{{ isOwner() && occasion.status === 'draft' ? ' — add some above' : '' }}</p>
+        </div>
+
+        <div class="options-list">
+          <div *ngFor="let opt of occasion.whereOptions" class="option-card"
+            [class.leading]="isLeadingWhere(opt)">
+            <div class="option-header">
+              <mat-icon>place</mat-icon>
+              <span class="option-label">{{ opt.label }}</span>
+              <div class="tally">
+                <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
+                <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
+                <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
+              </div>
+            </div>
+
+            <div class="vote-details" *ngIf="opt.votes.length">
+              <div *ngFor="let v of opt.votes" class="vote-chip" [class]="'chip-' + v.response">
+                <span class="chip-icon">{{ v.response === 'yes' ? '✓' : v.response === 'maybe' ? '~' : '✗' }}</span>
+                <span class="chip-voter">{{ v.voter }}</span>
+                <span class="chip-comment" *ngIf="v.comment">— {{ v.comment }}</span>
+              </div>
+            </div>
+
+            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim()">
+              <span class="your-vote-label">Your vote:</span>
+              <button mat-stroked-button class="vote-btn yes"
+                [class.selected]="myWhereVote(opt.id) === 'yes'"
+                (click)="setWhereVote(opt.id, 'yes')">✓ Yes</button>
+              <button mat-stroked-button class="vote-btn maybe"
+                [class.selected]="myWhereVote(opt.id) === 'maybe'"
+                (click)="setWhereVote(opt.id, 'maybe')">~ Maybe</button>
+              <button mat-stroked-button class="vote-btn no"
+                [class.selected]="myWhereVote(opt.id) === 'no'"
+                (click)="setWhereVote(opt.id, 'no')">✗ No</button>
+              <mat-form-field appearance="outline" class="comment-field">
+                <mat-label>Comment (optional)</mat-label>
+                <input matInput [(ngModel)]="whereVotes[opt.id].comment"
+                  (blur)="saveWhereVote(opt.id)" (keyup.enter)="saveWhereVote(opt.id)"
+                  [disabled]="!myWhereVote(opt.id)" />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- WHO tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>group</mat-icon>&nbsp;Who
+      </ng-template>
+
+      <div class="tab-content">
+
+        <!-- Add respondent form (owner only) -->
+        <div class="add-respondent" *ngIf="isOwner()">
+          <mat-form-field appearance="outline" class="name-field">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="newRespondentName" placeholder="Jane Smith"
+              (keyup.enter)="newRespondentEmail && addRespondent()" />
+            <mat-icon matSuffix>person</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="email-field">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" [(ngModel)]="newRespondentEmail" placeholder="jane@example.com"
+              (keyup.enter)="newRespondentName && addRespondent()" />
+            <mat-icon matSuffix>email</mat-icon>
+          </mat-form-field>
+          <button mat-raised-button color="primary" class="add-btn"
+            (click)="addRespondent()"
+            [disabled]="!newRespondentName.trim() || !newRespondentEmail.trim()">
+            <mat-icon>person_add</mat-icon> Add
+          </button>
+        </div>
+
+        <div *ngIf="!(occasion.respondents?.length)" class="empty-options">
+          <mat-icon>group_off</mat-icon>
+          <p>No respondents yet{{ isOwner() ? ' — add some above' : '' }}</p>
+        </div>
+
+        <div class="respondent-list">
+          <div *ngFor="let r of occasion.respondents" class="respondent-row">
+            <div class="respondent-avatar">{{ r.name[0].toUpperCase() }}</div>
+            <div class="respondent-info">
+              <span class="respondent-name">{{ r.name }}</span>
+              <span class="respondent-email">{{ r.email }}</span>
+            </div>
+            <div class="respondent-status">
+              <mat-icon [class.voted]="respondentVotedWhen(r)" [class.unvoted]="!respondentVotedWhen(r)"
+                matTooltip="When vote">access_time</mat-icon>
+              <mat-icon [class.voted]="respondentVotedWhere(r)" [class.unvoted]="!respondentVotedWhere(r)"
+                matTooltip="Where vote">place</mat-icon>
+            </div>
+            <button mat-icon-button color="warn" *ngIf="isOwner()"
+              (click)="removeRespondent(r)"
+              [disabled]="isOwnerRespondent(r)"
+              [matTooltip]="isOwnerRespondent(r) ? 'Cannot remove organizer' : 'Remove'">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>
+
+<ng-template #notFound>
+  <div class="not-found">
+    <p>Occasion not found.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Go Home</button>
+  </div>
+</ng-template>

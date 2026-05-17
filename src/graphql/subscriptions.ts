@@ -1,0 +1,17 @@
+const occasionFields = `
+  id ownerSub ownerEmail ownerName title description status
+  respondents whenOptions whereOptions
+  finalDate finalLocation finalNotes createdAt updatedAt
+`;
+
+export const onCreateOccasion = /* GraphQL */ `
+  subscription OnCreateOccasion { onCreateOccasion { ${occasionFields} } }
+`;
+
+export const onUpdateOccasion = /* GraphQL */ `
+  subscription OnUpdateOccasion { onUpdateOccasion { ${occasionFields} } }
+`;
+
+export const onDeleteOccasion = /* GraphQL */ `
+  subscription OnDeleteOccasion { onDeleteOccasion { id } }
+`;
