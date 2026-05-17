@@ -14,6 +14,18 @@
     "categories": {
       "api": {
         "whatwhenwhere": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d1txc7h6y0u6pl",
+          "type": "cicd"
+        }
+      },
+      "auth": {
+        "whatwhenwhere48814f85": {
+          "googleClientId": "787062307765-96h7n5o51fesgghr1betjp1s8c70evfa.apps.googleusercontent.com"
+        },
+        "userPoolGroups": {}
       }
     }
   }

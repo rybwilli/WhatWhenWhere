@@ -14,10 +14,12 @@
   }
 
   .brand-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 120px;
+    height: 40px;
+    object-fit: contain;
     background: white;
+    border-radius: 6px;
+    padding: 4px 8px;
   }
 }
 
