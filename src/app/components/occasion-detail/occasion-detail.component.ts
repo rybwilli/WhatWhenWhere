@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, WhenOption, Respondent, VoteResponse, Vote } from '../../models/occasion.model';
@@ -17,7 +18,7 @@ interface VoteState {
 export class OccasionDetailComponent implements OnInit {
   occasion: Occasion | undefined;
   voterName = '';
-  private userEmail = '';
+  userEmail = '';
 
   // When form
   newWhenDate: Date | null = null;
@@ -48,12 +49,14 @@ export class OccasionDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const u = this.auth.getCurrentUser();
-    this.voterName = u?.displayName || u?.email || '';
-    this.userEmail = u?.email ?? '';
-
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.svc.getOccasions().subscribe(occasions => {
+    this.auth.user$.pipe(
+      switchMap(user => {
+        this.voterName = user?.displayName || user?.email || '';
+        this.userEmail = user?.email ?? '';
+        return this.svc.getOccasions();
+      })
+    ).subscribe(occasions => {
       const found = occasions.find(o => o.id === id);
       if (!found || !this.svc.canAccess(found, this.userEmail)) {
         this.router.navigate(['/']);

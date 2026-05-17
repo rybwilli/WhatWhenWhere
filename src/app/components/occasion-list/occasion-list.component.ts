@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion } from '../../models/occasion.model';
@@ -9,9 +11,10 @@ import { Occasion } from '../../models/occasion.model';
   templateUrl: './occasion-list.component.html',
   styleUrls: ['./occasion-list.component.scss'],
 })
-export class OccasionListComponent implements OnInit {
+export class OccasionListComponent implements OnInit, OnDestroy {
   occasions: Occasion[] = [];
-  private userEmail = '';
+  userEmail = '';
+  private sub: Subscription | undefined;
 
   constructor(
     private svc: OccasionService,
@@ -20,8 +23,16 @@ export class OccasionListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userEmail = this.auth.getCurrentUser()?.email ?? '';
-    this.svc.getAccessibleOccasions(this.userEmail).subscribe(o => (this.occasions = o));
+    this.sub = this.auth.user$.pipe(
+      switchMap(user => {
+        this.userEmail = user?.email ?? '';
+        return this.svc.getAccessibleOccasions(this.userEmail);
+      })
+    ).subscribe(o => (this.occasions = o));
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
   open(id: string): void {
