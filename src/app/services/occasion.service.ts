@@ -158,6 +158,18 @@ export class OccasionService {
     }));
   }
 
+  removeWhenOption(id: string, optionId: string): void {
+    this.updateFields(id, o => ({
+      whenOptions: o.whenOptions.filter(opt => opt.id !== optionId),
+    }));
+  }
+
+  removeWhereOption(id: string, optionId: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: o.whereOptions.filter(opt => opt.id !== optionId),
+    }));
+  }
+
   addWhenOption(id: string, date: string, startTime: string, endTime: string): void {
     this.updateFields(id, o => ({
       whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, votes: [] }],

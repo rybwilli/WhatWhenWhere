@@ -190,6 +190,16 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   // ---------- Where options ----------
+  removeWhenOption(optionId: string): void {
+    if (!this.occasion) return;
+    this.svc.removeWhenOption(this.occasion.id, optionId);
+  }
+
+  removeWhereOption(optionId: string): void {
+    if (!this.occasion) return;
+    this.svc.removeWhereOption(this.occasion.id, optionId);
+  }
+
   addWhereOption(): void {
     if (!this.occasion || !this.newWhereOption.trim()) return;
     this.svc.addWhereOption(this.occasion.id, this.newWhereOption.trim(), this.newWhereUrl.trim());

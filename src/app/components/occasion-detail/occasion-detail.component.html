@@ -124,6 +124,10 @@
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
+              <button mat-icon-button color="warn" *ngIf="isOwner() && occasion.status !== 'finalized'"
+                (click)="removeWhenOption(opt.id)" matTooltip="Remove">
+                <mat-icon>close</mat-icon>
+              </button>
             </div>
 
             <!-- Voter responses summary -->
@@ -233,8 +237,11 @@
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
-              <button mat-icon-button *ngIf="isOwner()" (click)="startEditWhere(opt); $event.stopPropagation()" matTooltip="Edit">
+              <button mat-icon-button *ngIf="isOwner() && occasion.status !== 'finalized'" (click)="startEditWhere(opt); $event.stopPropagation()" matTooltip="Edit">
                 <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" *ngIf="isOwner() && occasion.status !== 'finalized'" (click)="removeWhereOption(opt.id); $event.stopPropagation()" matTooltip="Remove">
+                <mat-icon>close</mat-icon>
               </button>
             </div>
 
