@@ -91,6 +91,45 @@
   padding: 16px;
 }
 
+.when-view-toggle {
+  display: none;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #666;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+    &.active {
+      background: #3f51b5;
+      color: white;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .when-view-toggle { display: flex; }
+  .hidden-mobile { display: none !important; }
+
+  .when-layout {
+    display: block;
+
+    .options-list, .calendar { flex: none; width: 100%; }
+  }
+}
+
 .when-layout {
   display: flex;
   gap: 16px;

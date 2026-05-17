@@ -111,9 +111,18 @@
           <p>No time options yet{{ isOwner() && occasion.status !== 'finalized' ? ' — add one above' : '' }}</p>
         </div>
 
+        <div class="when-view-toggle" *ngIf="occasion.whenOptions.length">
+          <button [class.active]="whenView === 'list'" (click)="whenView = 'list'">
+            <mat-icon>list</mat-icon> Responses
+          </button>
+          <button [class.active]="whenView === 'calendar'" (click)="whenView = 'calendar'">
+            <mat-icon>calendar_month</mat-icon> Calendar
+          </button>
+        </div>
+
         <div class="when-layout" *ngIf="occasion.whenOptions.length">
 
-          <div class="options-list">
+          <div class="options-list" [class.hidden-mobile]="whenView === 'calendar'">
           <div *ngFor="let opt of occasion.whenOptions" class="option-card"
             [class.leading]="isLeadingWhen(opt)">
             <div class="option-header">
@@ -162,7 +171,7 @@
         </div>
 
           <!-- Calendar -->
-          <div class="calendar">
+          <div class="calendar" [class.hidden-mobile]="whenView === 'list'">
             <div class="calendar-nav">
               <button mat-icon-button (click)="prevMonth()"><mat-icon>chevron_left</mat-icon></button>
               <span class="calendar-month-label">{{ calendarMonthLabel() }}</span>

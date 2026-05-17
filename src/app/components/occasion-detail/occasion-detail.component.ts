@@ -21,6 +21,7 @@ export class OccasionDetailComponent implements OnInit {
   userEmail = '';
   selectedTab = 0;
   calendarMonth: Date = new Date();
+  whenView: 'list' | 'calendar' = 'list';
 
   // When form
   newWhenDate: Date | null = null;
