@@ -35,6 +35,15 @@
           <mat-option value="finalized">Finalized</mat-option>
         </mat-select>
       </mat-form-field>
+      <mat-form-field appearance="outline" class="filter-vote-status">
+        <mat-label>My Votes</mat-label>
+        <mat-select [(ngModel)]="filterVoteStatus">
+          <mat-option value="">All</mat-option>
+          <mat-option value="pending">Pending</mat-option>
+          <mat-option value="incomplete">Incomplete</mat-option>
+          <mat-option value="complete">Complete</mat-option>
+        </mat-select>
+      </mat-form-field>
       <mat-form-field appearance="outline" class="filter-type">
         <mat-label>Type</mat-label>
         <mat-select [(ngModel)]="filterTypes" multiple>
@@ -53,8 +62,8 @@
         <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
         <mat-datepicker #endPicker></mat-datepicker>
       </mat-form-field>
-      <button mat-stroked-button (click)="clearFilters()" class="reset-btn" matTooltip="Reset filters">
-        <mat-icon>clear</mat-icon> Reset
+      <button mat-icon-button (click)="clearFilters()" class="reset-btn" matTooltip="Reset filters">
+        <mat-icon>clear</mat-icon>
       </button>
       <button mat-raised-button color="primary" (click)="create()" class="new-occasion-btn">
         <mat-icon>add</mat-icon> New Occasion

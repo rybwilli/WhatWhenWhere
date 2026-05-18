@@ -74,9 +74,12 @@
     flex-wrap: nowrap;
   }
 
-  .filter-status    { width: 140px; flex-shrink: 0; }
-  .filter-type      { width: 180px; flex-shrink: 0; }
-  .filter-date      { width: 175px; flex-shrink: 0; }
+  .filter-status,
+  .filter-vote-status,
+  .filter-type,
+  .filter-date        { width: 140px; flex-shrink: 0; }
+
+  .filter-date ::ng-deep input.mat-mdc-input-element { font-size: 13px; }
   .reset-btn        { flex-shrink: 0; }
   .new-occasion-btn { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
 
@@ -95,9 +98,9 @@
       &.mobile-hidden { display: none; }
 
       .filter-status,
+      .filter-vote-status,
       .filter-type,
       .filter-date  { width: 100%; }
-      .reset-btn    { width: 100%; }
       .new-occasion-btn { margin-left: 0; width: 100%; }
     }
   }

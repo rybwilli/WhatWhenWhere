@@ -18,6 +18,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
   private sub: Subscription | undefined;
 
   filterStatus = '';
+  filterVoteStatus = '';
   filterStartDate: Date | null = new Date();
   filterEndDate: Date | null = null;
   filterTypes: string[] = [];
@@ -93,6 +94,15 @@ export class OccasionListComponent implements OnInit, OnDestroy {
       .filter(o => {
         if (this.filterStatus && o.status !== this.filterStatus) return false;
         if (this.filterTypes.length && !this.filterTypes.includes(o.occasionType ?? '')) return false;
+        if (this.filterVoteStatus) {
+          const vs = this.userVoteSummary(o);
+          if (!vs) return false;
+          const total = vs.whenTotal + vs.whereTotal;
+          const voted = vs.when + vs.where;
+          if (this.filterVoteStatus === 'pending'    && !(total > 0 && voted === 0)) return false;
+          if (this.filterVoteStatus === 'incomplete' && !(voted > 0 && voted < total)) return false;
+          if (this.filterVoteStatus === 'complete'   && !(total > 0 && voted === total)) return false;
+        }
         const date = this.occasionDate(o);
         if (startIso && date && date < startIso) return false;
         if (endIso   && date && date > endIso)   return false;
@@ -103,6 +113,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   clearFilters(): void {
     this.filterStatus = '';
+    this.filterVoteStatus = '';
     this.filterTypes = [];
     this.filterStartDate = new Date();
     this.filterEndDate = null;
