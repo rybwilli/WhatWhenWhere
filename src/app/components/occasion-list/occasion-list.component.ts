@@ -108,13 +108,26 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     this.filterEndDate = null;
   }
 
-  hasUserVoted(o: Occasion): boolean {
+  userVoteSummary(o: Occasion): { when: number; whenTotal: number; where: number; whereTotal: number } | null {
     const email = this.userEmail.toLowerCase();
-    const isRespondent = o.respondents.some(r => r.email.toLowerCase() === email);
-    if (!isRespondent) return true;
-    return [...o.whenOptions, ...o.whereOptions].some(opt =>
-      opt.votes.some(v => (v.voterId ?? v.voter)?.toLowerCase() === email)
-    );
+    if (!o.respondents.some(r => r.email.toLowerCase() === email)) return null;
+    const voted = (opts: { votes: { voterId?: string; voter?: string }[] }[]) =>
+      opts.filter(opt => opt.votes.some(v => (v.voterId ?? v.voter)?.toLowerCase() === email)).length;
+    return {
+      when: voted(o.whenOptions),
+      whenTotal: o.whenOptions.length,
+      where: voted(o.whereOptions),
+      whereTotal: o.whereOptions.length,
+    };
+  }
+
+  voteChipClass(when: number, whenTotal: number, where: number, whereTotal: number): string {
+    const total = whenTotal + whereTotal;
+    const voted = when + where;
+    if (total === 0) return '';
+    if (voted === 0) return 'vote-chip-none';
+    if (voted < total) return 'vote-chip-partial';
+    return 'vote-chip-complete';
   }
 
   fmtTime(t: string): string {

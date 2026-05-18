@@ -16,17 +16,41 @@
   to   { transform: rotate(360deg); }
 }
 
-.vote-needed-chip {
-  background: #fff3e0 !important;
-  color: #e65100 !important;
+.vote-status-chip {
   font-size: 0.75rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+
+  &.vote-chip-none {
+    background: #ffebee !important;
+    color: #c62828 !important;
+  }
+  &.vote-chip-partial {
+    background: #fff8e1 !important;
+    color: #f57f17 !important;
+  }
+  &.vote-chip-complete {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+  }
 
   mat-icon {
     font-size: 14px;
     height: 14px;
     width: 14px;
-    vertical-align: middle;
-    margin-right: 2px;
+  }
+
+  .vote-tally {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    .mini-icon {
+      font-size: 12px;
+      height: 12px;
+      width: 12px;
+    }
   }
 }
 

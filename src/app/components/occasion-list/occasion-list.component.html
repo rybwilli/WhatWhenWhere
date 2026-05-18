@@ -81,9 +81,16 @@
           <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
           <span class="spacer"></span>
           <mat-chip *ngIf="o.occasionType" class="type-chip">{{ o.occasionType }}</mat-chip>
-          <mat-chip *ngIf="o.status === 'polling' && !hasUserVoted(o)" class="vote-needed-chip" matTooltip="You haven't voted yet">
-            <mat-icon>how_to_vote</mat-icon> Vote needed
-          </mat-chip>
+          <ng-container *ngIf="o.status === 'polling' && userVoteSummary(o) as vs">
+            <mat-chip *ngIf="vs.whenTotal + vs.whereTotal > 0"
+              class="vote-status-chip"
+              [ngClass]="voteChipClass(vs.when, vs.whenTotal, vs.where, vs.whereTotal)"
+              matTooltip="Your when and where votes for this occasion">
+              <mat-icon>how_to_vote</mat-icon>
+              <span class="vote-tally"><mat-icon class="mini-icon">access_time</mat-icon>{{ vs.when }}/{{ vs.whenTotal }}</span>
+              <span class="vote-tally"><mat-icon class="mini-icon">place</mat-icon>{{ vs.where }}/{{ vs.whereTotal }}</span>
+            </mat-chip>
+          </ng-container>
           <mat-chip [color]="statusColor(o.status)" selected>{{ o.status }}</mat-chip>
           <button mat-icon-button color="warn" *ngIf="isOwner(o)"
             (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">
