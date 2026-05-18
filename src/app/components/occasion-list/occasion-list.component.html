@@ -2,28 +2,85 @@
   <div class="list-header">
     <img src="assets/Monkey3.png" class="page-logo" alt="What? When? Where? Who?" />
     <p class="subtitle">Plan occasions with your group</p>
-
-    <button mat-raised-button color="primary" (click)="create()">
-      <mat-icon>add</mat-icon> New Occasion
-    </button>
   </div>
 
   <div class="loading-overlay" *ngIf="loading">
     <img src="assets/Snark.png" class="loading-spinner" alt="Loading..." />
   </div>
 
-  <div *ngIf="occasions.length === 0" class="empty-state">
+  <div class="filter-bar" *ngIf="!loading">
+
+    <!-- Mobile icon bar -->
+    <div class="mobile-icon-bar">
+      <button mat-icon-button (click)="showMobileFilters = !showMobileFilters"
+        [color]="showMobileFilters ? 'primary' : ''" matTooltip="Filters">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+      <button mat-icon-button (click)="clearFilters()" matTooltip="Reset filters">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" (click)="create()" matTooltip="New Occasion">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <!-- Filter fields (always visible on wide screens, toggled on mobile) -->
+    <div class="filter-fields" [class.mobile-hidden]="!showMobileFilters">
+      <mat-form-field appearance="outline" class="filter-status">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="filterStatus">
+          <mat-option value="">All</mat-option>
+          <mat-option value="draft">Draft</mat-option>
+          <mat-option value="polling">Polling</mat-option>
+          <mat-option value="finalized">Finalized</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="filter-type">
+        <mat-label>Type</mat-label>
+        <mat-select [(ngModel)]="filterTypes" multiple>
+          <mat-option *ngFor="let t of occasionTypes" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="filter-date">
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="filterStartDate" placeholder="Start date" />
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="filter-date">
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="filterEndDate" placeholder="End date" />
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+      <button mat-stroked-button (click)="clearFilters()" class="reset-btn" matTooltip="Reset filters">
+        <mat-icon>clear</mat-icon> Reset
+      </button>
+      <button mat-raised-button color="primary" (click)="create()" class="new-occasion-btn">
+        <mat-icon>add</mat-icon> New Occasion
+      </button>
+    </div>
+
+  </div>
+
+  <div *ngIf="!loading && occasions.length === 0" class="empty-state">
     <mat-icon class="empty-icon">event_note</mat-icon>
     <p>No occasions yet. Create one to get started!</p>
   </div>
 
-  <mat-grid-list cols="1" rowHeight="fit" gutterSize="0" *ngIf="occasions.length > 0">
+  <div *ngIf="!loading && occasions.length > 0 && filteredOccasions.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">search_off</mat-icon>
+    <p>No occasions match your filters.</p>
+  </div>
+
+  <mat-grid-list cols="1" rowHeight="fit" gutterSize="0" *ngIf="filteredOccasions.length > 0">
     <div class="cards-grid">
-      <mat-card *ngFor="let o of occasions" class="occasion-card" (click)="open(o.id)">
+      <mat-card *ngFor="let o of filteredOccasions" class="occasion-card" (click)="open(o.id)">
         <mat-card-header>
           <mat-card-title>{{ o.title }}</mat-card-title>
           <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
           <span class="spacer"></span>
+          <mat-chip *ngIf="o.occasionType" class="type-chip">{{ o.occasionType }}</mat-chip>
           <mat-chip [color]="statusColor(o.status)" selected>{{ o.status }}</mat-chip>
           <button mat-icon-button color="warn" *ngIf="isOwner(o)"
             (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">

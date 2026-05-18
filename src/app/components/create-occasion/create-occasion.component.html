@@ -24,6 +24,14 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="occasionType">
+            <mat-option value="">— None —</mat-option>
+            <mat-option *ngFor="let t of occasionTypes" [value]="t">{{ t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Your Name (Organizer)</mat-label>
           <input matInput formControlName="ownerName" placeholder="Your name" />
           <mat-icon matSuffix>person</mat-icon>

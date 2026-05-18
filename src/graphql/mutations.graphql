@@ -12,6 +12,7 @@ mutation CreateOccasion(
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions
@@ -36,6 +37,7 @@ mutation UpdateOccasion(
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions
@@ -60,6 +62,7 @@ mutation DeleteOccasion(
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions

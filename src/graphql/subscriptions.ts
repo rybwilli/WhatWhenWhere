@@ -1,5 +1,5 @@
 const occasionFields = `
-  id ownerSub ownerEmail ownerName title description status
+  id ownerSub ownerEmail ownerName title description status occasionType
   respondents whenOptions whereOptions
   finalDate finalLocation finalNotes createdAt updatedAt
 `;

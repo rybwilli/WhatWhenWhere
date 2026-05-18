@@ -9,6 +9,7 @@ subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions
@@ -30,6 +31,7 @@ subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions
@@ -51,6 +53,7 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions

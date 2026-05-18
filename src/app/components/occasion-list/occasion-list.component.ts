@@ -4,7 +4,7 @@ import { switchMap, filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
-import { Occasion } from '../../models/occasion.model';
+import { Occasion, OCCASION_TYPES } from '../../models/occasion.model';
 
 @Component({
   selector: 'app-occasion-list',
@@ -16,6 +16,13 @@ export class OccasionListComponent implements OnInit, OnDestroy {
   userEmail = '';
   loading = true;
   private sub: Subscription | undefined;
+
+  filterStatus = '';
+  filterStartDate: Date | null = new Date();
+  filterEndDate: Date | null = null;
+  filterTypes: string[] = [];
+  readonly occasionTypes = OCCASION_TYPES;
+  showMobileFilters = false;
 
   constructor(
     private svc: OccasionService,
@@ -65,6 +72,32 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   statusColor(status: string): string {
     return status === 'finalized' ? 'accent' : status === 'polling' ? 'primary' : 'warn';
+  }
+
+  occasionDate(o: Occasion): string {
+    if (o.status === 'finalized' && o.finalDate) return o.finalDate;
+    const dates = o.whenOptions.map(w => w.date).filter(Boolean).sort();
+    return dates.length ? dates[dates.length - 1] : '';
+  }
+
+  get filteredOccasions(): Occasion[] {
+    const startIso = this.filterStartDate ? this.filterStartDate.toISOString().split('T')[0] : '';
+    const endIso   = this.filterEndDate   ? this.filterEndDate.toISOString().split('T')[0]   : '';
+    return this.occasions.filter(o => {
+      if (this.filterStatus && o.status !== this.filterStatus) return false;
+      if (this.filterTypes.length && !this.filterTypes.includes(o.occasionType ?? '')) return false;
+      const date = this.occasionDate(o);
+      if (startIso && date && date < startIso) return false;
+      if (endIso   && date && date > endIso)   return false;
+      return true;
+    });
+  }
+
+  clearFilters(): void {
+    this.filterStatus = '';
+    this.filterTypes = [];
+    this.filterStartDate = new Date();
+    this.filterEndDate = null;
   }
 
   respondentsVoted(o: Occasion): number {

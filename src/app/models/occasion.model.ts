@@ -1,4 +1,6 @@
 export type OccasionStatus = 'draft' | 'polling' | 'finalized';
+export type OccasionType = 'Rehearsal' | 'Performance' | 'Meeting' | 'Party' | 'Ride' | 'Run' | 'Practice' | 'Scrimmage' | 'Lecture';
+export const OCCASION_TYPES: OccasionType[] = ['Rehearsal', 'Performance', 'Meeting', 'Party', 'Ride', 'Run', 'Practice', 'Scrimmage', 'Lecture'];
 export type VoteResponse = 'yes' | 'maybe' | 'no';
 
 export interface Vote {
@@ -33,6 +35,7 @@ export interface Occasion {
   id: string;
   title: string;
   description: string;
+  occasionType?: OccasionType;
   ownerId: string;
   ownerEmail: string;
   ownerName: string;

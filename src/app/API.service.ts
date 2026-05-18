@@ -23,6 +23,7 @@ export type CreateOccasionInput = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -38,6 +39,7 @@ export type ModelOccasionConditionInput = {
   title?: ModelStringInput | null;
   description?: ModelStringInput | null;
   status?: ModelStringInput | null;
+  occasionType?: ModelStringInput | null;
   respondents?: ModelStringInput | null;
   whenOptions?: ModelStringInput | null;
   whereOptions?: ModelStringInput | null;
@@ -99,6 +101,7 @@ export type Occasion = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -117,6 +120,7 @@ export type UpdateOccasionInput = {
   title?: string | null;
   description?: string | null;
   status?: string | null;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -137,6 +141,7 @@ export type ModelOccasionFilterInput = {
   title?: ModelStringInput | null;
   description?: ModelStringInput | null;
   status?: ModelStringInput | null;
+  occasionType?: ModelStringInput | null;
   respondents?: ModelStringInput | null;
   whenOptions?: ModelStringInput | null;
   whereOptions?: ModelStringInput | null;
@@ -180,6 +185,7 @@ export type ModelSubscriptionOccasionFilterInput = {
   title?: ModelSubscriptionStringInput | null;
   description?: ModelSubscriptionStringInput | null;
   status?: ModelSubscriptionStringInput | null;
+  occasionType?: ModelSubscriptionStringInput | null;
   respondents?: ModelSubscriptionStringInput | null;
   whenOptions?: ModelSubscriptionStringInput | null;
   whereOptions?: ModelSubscriptionStringInput | null;
@@ -231,6 +237,7 @@ export type CreateOccasionMutation = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -250,6 +257,7 @@ export type UpdateOccasionMutation = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -269,6 +277,7 @@ export type DeleteOccasionMutation = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -288,6 +297,7 @@ export type GetOccasionQuery = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -309,6 +319,7 @@ export type ListOccasionsQuery = {
     title: string;
     description: string;
     status: string;
+    occasionType?: string | null;
     respondents?: string | null;
     whenOptions?: string | null;
     whereOptions?: string | null;
@@ -330,6 +341,7 @@ export type OnCreateOccasionSubscription = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -349,6 +361,7 @@ export type OnUpdateOccasionSubscription = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -368,6 +381,7 @@ export type OnDeleteOccasionSubscription = {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -396,6 +410,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -431,6 +446,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -466,6 +482,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -498,6 +515,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -533,6 +551,7 @@ export class APIService {
             title
             description
             status
+            occasionType
             respondents
             whenOptions
             whereOptions
@@ -575,6 +594,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -611,6 +631,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions
@@ -647,6 +668,7 @@ export class APIService {
           title
           description
           status
+          occasionType
           respondents
           whenOptions
           whereOptions

@@ -5,7 +5,7 @@ import { generateClient } from 'aws-amplify/api';
 import * as queries from '../../graphql/queries';
 import * as mutations from '../../graphql/mutations';
 import * as subs from '../../graphql/subscriptions';
-import { Occasion, Respondent, VoteResponse } from '../models/occasion.model';
+import { Occasion, OccasionType, Respondent, VoteResponse } from '../models/occasion.model';
 
 const client = generateClient();
 
@@ -21,6 +21,7 @@ interface OccasionRecord {
   title: string;
   description: string;
   status: string;
+  occasionType?: string | null;
   respondents?: string | null;
   whenOptions?: string | null;
   whereOptions?: string | null;
@@ -39,6 +40,7 @@ function fromRecord(r: OccasionRecord): Occasion {
     title: r.title,
     description: r.description,
     status: r.status as Occasion['status'],
+    occasionType: r.occasionType as OccasionType ?? undefined,
     respondents: JSON.parse(r.respondents || '[]'),
     whenOptions: JSON.parse(r.whenOptions || '[]'),
     whereOptions: JSON.parse(r.whereOptions || '[]'),
@@ -102,18 +104,53 @@ export class OccasionService {
 
   async create(
     title: string, description: string,
-    ownerName: string, ownerEmail: string, ownerSub: string
+    ownerName: string, ownerEmail: string, ownerSub: string,
+    occasionType?: string
   ): Promise<Occasion> {
-    const input = {
+    const input: any = {
       ownerSub,
       ownerEmail,
       ownerName,
       title,
       description,
       status: 'draft',
+      occasionType: occasionType || null,
       respondents: JSON.stringify([{ id: uuid(), name: ownerName, email: ownerEmail }]),
       whenOptions: JSON.stringify([]),
       whereOptions: JSON.stringify([]),
+    };
+    const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
+    return fromRecord(res.data.createOccasion);
+  }
+
+  async copyOccasion(
+    source: Occasion,
+    ownerName: string, ownerEmail: string, ownerSub: string,
+    includeWhen: boolean, includeWhere: boolean, includeWho: boolean
+  ): Promise<Occasion> {
+    const input = {
+      ownerSub,
+      ownerEmail,
+      ownerName,
+      title: `${source.title} (copy)`,
+      description: source.description,
+      status: 'draft',
+      occasionType: source.occasionType || null,
+      respondents: JSON.stringify(
+        includeWho
+          ? source.respondents.map(r => ({ ...r, id: uuid() }))
+          : [{ id: uuid(), name: ownerName, email: ownerEmail }]
+      ),
+      whenOptions: JSON.stringify(
+        includeWhen
+          ? source.whenOptions.map(o => ({ ...o, id: uuid(), votes: [] }))
+          : []
+      ),
+      whereOptions: JSON.stringify(
+        includeWhere
+          ? source.whereOptions.map(o => ({ ...o, id: uuid(), votes: [] }))
+          : []
+      ),
     };
     const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
     return fromRecord(res.data.createOccasion);
@@ -129,9 +166,10 @@ export class OccasionService {
     this.occasions$.next(this.occasions$.value.map(o => o.id === occasionId ? updated : o));
 
     const input: any = { id: occasionId };
-    if (changes.title        !== undefined) input.title        = changes.title;
-    if (changes.description  !== undefined) input.description  = changes.description;
-    if (changes.status       !== undefined) input.status       = changes.status;
+    if (changes.title         !== undefined) input.title         = changes.title;
+    if (changes.description   !== undefined) input.description   = changes.description;
+    if (changes.status        !== undefined) input.status        = changes.status;
+    if (changes.occasionType  !== undefined) input.occasionType  = changes.occasionType ?? null;
     if (changes.respondents  !== undefined) input.respondents  = JSON.stringify(changes.respondents);
     if (changes.whenOptions  !== undefined) input.whenOptions  = JSON.stringify(changes.whenOptions);
     if (changes.whereOptions !== undefined) input.whereOptions = JSON.stringify(changes.whereOptions);
@@ -144,6 +182,10 @@ export class OccasionService {
 
   updateDetails(id: string, title: string, description: string): void {
     this.updateFields(id, () => ({ title, description }));
+  }
+
+  updateType(id: string, occasionType: OccasionType | undefined): void {
+    this.updateFields(id, () => ({ occasionType }));
   }
 
   addRespondent(id: string, name: string, email: string): void {

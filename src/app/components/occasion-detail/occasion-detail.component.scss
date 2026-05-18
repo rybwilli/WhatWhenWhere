@@ -85,6 +85,42 @@
   }
 }
 
+.type-chip-detail {
+  background: #e8eaf6 !important;
+  color: #3f51b5 !important;
+  font-size: 0.8rem !important;
+  margin-left: 8px;
+}
+
+.edit-field-sm {
+  width: 160px;
+}
+
+.copy-panel {
+  margin-bottom: 16px;
+
+  .copy-options {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+
+    mat-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      mat-icon { font-size: 18px; width: 18px; height: 18px; vertical-align: middle; }
+    }
+  }
+}
+
+.non-owner-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .detail-container {
   max-width: 1200px;
   margin: 0 auto;

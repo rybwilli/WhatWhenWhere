@@ -9,6 +9,7 @@ query GetOccasion($id: ID!) {
     title
     description
     status
+    occasionType
     respondents
     whenOptions
     whereOptions
@@ -35,6 +36,7 @@ query ListOccasions(
       title
       description
       status
+      occasionType
       respondents
       whenOptions
       whereOptions

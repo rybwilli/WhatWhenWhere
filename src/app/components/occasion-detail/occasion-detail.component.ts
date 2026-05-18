@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
-import { Occasion, WhenOption, Respondent, VoteResponse, Vote } from '../../models/occasion.model';
+import { Occasion, WhenOption, Respondent, VoteResponse, Vote, OccasionType, OCCASION_TYPES } from '../../models/occasion.model';
 
 interface VoteState {
   response: VoteResponse | null;
@@ -45,6 +45,15 @@ export class OccasionDetailComponent implements OnInit {
   editing = false;
   editTitle = '';
   editDescription = '';
+  editOccasionType: OccasionType | '' = '';
+  readonly occasionTypes = OCCASION_TYPES;
+
+  // Copy occasion
+  showCopyPanel = false;
+  copyIncludeWhen = true;
+  copyIncludeWhere = true;
+  copyIncludeWho = true;
+  copying = false;
 
   // Vote state keyed by optionId
   whenVotes: Record<string, VoteState> = {};
@@ -111,12 +120,14 @@ export class OccasionDetailComponent implements OnInit {
     if (!this.occasion) return;
     this.editTitle = this.occasion.title;
     this.editDescription = this.occasion.description;
+    this.editOccasionType = this.occasion.occasionType ?? '';
     this.editing = true;
   }
 
   saveEdit(): void {
     if (!this.occasion || !this.editTitle.trim()) return;
     this.svc.updateDetails(this.occasion.id, this.editTitle.trim(), this.editDescription.trim());
+    this.svc.updateType(this.occasion.id, this.editOccasionType as OccasionType || undefined);
     this.editing = false;
   }
 
@@ -336,6 +347,28 @@ export class OccasionDetailComponent implements OnInit {
     const whenVotes  = (this.occasion?.whenOptions  ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
     const whereVotes = (this.occasion?.whereOptions ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
     return { when: tally(whenVotes), where: tally(whereVotes) };
+  }
+
+  // ---------- Copy ----------
+  async confirmCopy(): Promise<void> {
+    if (!this.occasion) return;
+    this.copying = true;
+    const user = this.auth.getCurrentUser();
+    try {
+      const copy = await this.svc.copyOccasion(
+        this.occasion,
+        user?.displayName || user?.email || '',
+        user?.email || '',
+        user?.userId || '',
+        this.copyIncludeWhen,
+        this.copyIncludeWhere,
+        this.copyIncludeWho
+      );
+      this.router.navigate(['/occasion', copy.id]);
+    } finally {
+      this.copying = false;
+      this.showCopyPanel = false;
+    }
   }
 
   // ---------- Navigation ----------

@@ -10,6 +10,7 @@ type Occasion @model {
   title: String!
   description: String!
   status: String!
+  occasionType: String
   respondents: AWSJSON
   whenOptions: AWSJSON
   whereOptions: AWSJSON
