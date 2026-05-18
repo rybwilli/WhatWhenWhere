@@ -173,11 +173,25 @@
 
   mat-card-footer {
     padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .created-at {
     font-size: 0.75rem;
     color: #aaa;
+  }
+
+  .occasion-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
+
+    mat-icon { font-size: 15px; width: 15px; height: 15px; }
   }
 }
 

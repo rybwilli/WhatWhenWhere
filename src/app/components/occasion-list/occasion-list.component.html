@@ -101,6 +101,9 @@
         </mat-card-content>
         <mat-card-footer>
           <span class="created-at">Created {{ o.createdAt | date:'mediumDate' }}</span>
+          <span class="occasion-date" *ngIf="sortDate(o) !== '9999-99-99'">
+            <mat-icon>event</mat-icon>{{ sortDate(o) | date:'mediumDate' }}
+          </span>
         </mat-card-footer>
       </mat-card>
     </div>

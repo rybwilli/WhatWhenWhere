@@ -80,7 +80,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     return dates.length ? dates[dates.length - 1] : '';
   }
 
-  private sortDate(o: Occasion): string {
+  sortDate(o: Occasion): string {
     if (o.status === 'finalized' && o.finalDate) return o.finalDate;
     const dates = o.whenOptions.map(w => w.date).filter(Boolean).sort();
     return dates.length ? dates[0] : '9999-99-99';
