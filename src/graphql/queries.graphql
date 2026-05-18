@@ -14,6 +14,8 @@ query GetOccasion($id: ID!) {
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt
@@ -41,6 +43,8 @@ query ListOccasions(
       whenOptions
       whereOptions
       finalDate
+      finalStartTime
+      finalEndTime
       finalLocation
       finalNotes
       createdAt

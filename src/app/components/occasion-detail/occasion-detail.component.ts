@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, WhenOption, Respondent, VoteResponse, Vote, OccasionType, OCCASION_TYPES } from '../../models/occasion.model';
@@ -17,6 +17,7 @@ interface VoteState {
 })
 export class OccasionDetailComponent implements OnInit {
   occasion: Occasion | undefined;
+  private allOccasions: Occasion[] = [];
   voterName = '';
   userEmail = '';
   selectedTab = 0;
@@ -68,21 +69,31 @@ export class OccasionDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
+    const openEdit = this.route.snapshot.queryParamMap.get('edit') === 'true';
     this.auth.user$.pipe(
+      filter(user => !!user),
       switchMap(user => {
-        this.voterName = user?.displayName || user?.email || '';
-        this.userEmail = user?.email ?? '';
+        this.voterName = user!.displayName || user!.email || '';
+        this.userEmail = user!.email ?? '';
         return this.svc.getOccasions();
       })
     ).subscribe(occasions => {
       const found = occasions.find(o => o.id === id);
-      if (!found || !this.svc.canAccess(found, this.userEmail)) {
+      if (found && !this.svc.canAccess(found, this.userEmail)) {
         this.router.navigate(['/']);
         return;
       }
+      if (!found) {
+        if (this.occasion) this.router.navigate(['/']);
+        return;
+      }
+      this.allOccasions = occasions;
       const isFirst = !this.occasion;
       this.occasion = found;
-      if (isFirst) this.jumpToFirstOption();
+      if (isFirst) {
+        this.jumpToFirstOption();
+        if (openEdit) this.startEdit();
+      }
       this.syncVoteState();
     });
   }
@@ -110,9 +121,22 @@ export class OccasionDetailComponent implements OnInit {
     }
   }
 
+  fmtTime(t: string): string {
+    const [h, m] = t.split(':').map(Number);
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
   isOwner(): boolean {
     if (!this.occasion) return false;
     return this.occasion.ownerEmail?.toLowerCase() === this.userEmail.toLowerCase();
+  }
+
+  canEdit(): boolean {
+    if (!this.occasion) return false;
+    if (this.isOwner()) return true;
+    return this.occasion.respondents.some(
+      r => r.email.toLowerCase() === this.userEmail.toLowerCase() && r.coOrganizer
+    );
   }
 
   // ---------- Edit occasion ----------
@@ -310,12 +334,40 @@ export class OccasionDetailComponent implements OnInit {
     return this.optionScore(opt.votes) > 0 && this.optionScore(opt.votes) === this.maxWhereScore();
   }
 
+  get pastRespondentSuggestions(): Respondent[] {
+    if (!this.occasion) return [];
+    const currentEmails = new Set(this.occasion.respondents.map(r => r.email.toLowerCase()));
+    const seen = new Set<string>();
+    const suggestions: Respondent[] = [];
+    for (const occ of this.allOccasions) {
+      if (occ.id === this.occasion.id) continue;
+      for (const r of occ.respondents) {
+        const key = r.email.toLowerCase();
+        if (!currentEmails.has(key) && !seen.has(key)) {
+          seen.add(key);
+          suggestions.push(r);
+        }
+      }
+    }
+    return suggestions;
+  }
+
   // ---------- Respondents ----------
   addRespondent(): void {
     if (!this.occasion || !this.newRespondentName.trim() || !this.newRespondentEmail.trim()) return;
     this.svc.addRespondent(this.occasion.id, this.newRespondentName.trim(), this.newRespondentEmail.trim());
     this.newRespondentName = '';
     this.newRespondentEmail = '';
+  }
+
+  addSuggestedRespondent(r: Respondent): void {
+    if (!this.occasion) return;
+    this.svc.addRespondent(this.occasion.id, r.name, r.email);
+  }
+
+  toggleCoOrganizer(r: Respondent): void {
+    if (!this.occasion) return;
+    this.svc.setCoOrganizer(this.occasion.id, r.id, !r.coOrganizer);
   }
 
   removeRespondent(r: Respondent): void {
@@ -364,7 +416,8 @@ export class OccasionDetailComponent implements OnInit {
         this.copyIncludeWhere,
         this.copyIncludeWho
       );
-      this.router.navigate(['/occasion', copy.id]);
+      await this.router.navigate(['/']);
+      this.router.navigate(['/occasion', copy.id], { queryParams: { edit: 'true' } });
     } finally {
       this.copying = false;
       this.showCopyPanel = false;

@@ -17,6 +17,8 @@ mutation CreateOccasion(
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt
@@ -42,6 +44,8 @@ mutation UpdateOccasion(
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt
@@ -67,6 +71,8 @@ mutation DeleteOccasion(
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt

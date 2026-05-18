@@ -9,7 +9,7 @@
       <div class="header-title-row">
         <h1>{{ occasion.title }}</h1>
         <mat-chip *ngIf="occasion.occasionType" class="type-chip-detail">{{ occasion.occasionType }}</mat-chip>
-        <button mat-icon-button *ngIf="isOwner()" (click)="startEdit()" matTooltip="Edit occasion">
+        <button mat-icon-button *ngIf="canEdit()" (click)="startEdit()" matTooltip="Edit occasion">
           <mat-icon>edit</mat-icon>
         </button>
       </div>
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div class="header-actions" *ngIf="isOwner() && !editing">
+    <div class="header-actions" *ngIf="canEdit() && !editing">
       <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected>
         {{ occasion.status }}
       </mat-chip>
@@ -59,11 +59,11 @@
       <button mat-icon-button (click)="showCopyPanel = !showCopyPanel" matTooltip="Copy occasion">
         <mat-icon>content_copy</mat-icon>
       </button>
-      <button mat-icon-button color="warn" (click)="delete()" matTooltip="Delete occasion">
+      <button mat-icon-button color="warn" *ngIf="isOwner()" (click)="delete()" matTooltip="Delete occasion">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
-    <div *ngIf="!isOwner()" class="non-owner-actions">
+    <div *ngIf="!canEdit()" class="non-owner-actions">
       <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected class="status-chip">
         {{ occasion.status }}
       </mat-chip>
@@ -103,7 +103,7 @@
     <mat-icon>check_circle</mat-icon>
     <div>
       <strong>This occasion is confirmed!</strong>
-      <p><mat-icon>event</mat-icon> {{ occasion.finalDate }}</p>
+      <p><mat-icon>event</mat-icon> {{ occasion.finalDate | date:'mediumDate' }}<ng-container *ngIf="occasion.finalStartTime"> · {{ fmtTime(occasion.finalStartTime) }}<ng-container *ngIf="occasion.finalEndTime"> – {{ fmtTime(occasion.finalEndTime) }}</ng-container></ng-container></p>
       <p><mat-icon>place</mat-icon> {{ occasion.finalLocation }}</p>
       <p *ngIf="occasion.finalNotes"><mat-icon>notes</mat-icon> {{ occasion.finalNotes }}</p>
     </div>
@@ -120,7 +120,7 @@
 
       <div class="tab-content">
         <!-- Add when option: date picker + time range -->
-        <div class="add-when" *ngIf="occasion.status !== 'finalized' && isOwner()">
+        <div class="add-when" *ngIf="occasion.status !== 'finalized' && canEdit()">
           <mat-form-field appearance="outline" class="date-field">
             <mat-label>Date</mat-label>
             <input matInput [matDatepicker]="picker" [(ngModel)]="newWhenDate" placeholder="Pick a date" />
@@ -148,7 +148,7 @@
 
         <div *ngIf="!occasion.whenOptions.length" class="empty-options">
           <mat-icon>schedule</mat-icon>
-          <p>No time options yet{{ isOwner() && occasion.status !== 'finalized' ? ' — add one above' : '' }}</p>
+          <p>No time options yet{{ canEdit() && occasion.status !== 'finalized' ? ' — add one above' : '' }}</p>
         </div>
 
         <div class="when-view-toggle" *ngIf="occasion.whenOptions.length">
@@ -173,7 +173,7 @@
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
-              <button mat-icon-button color="warn" *ngIf="isOwner() && occasion.status !== 'finalized'"
+              <button mat-icon-button color="warn" *ngIf="canEdit() && occasion.status !== 'finalized'"
                 (click)="removeWhenOption(opt.id)" matTooltip="Remove">
                 <mat-icon>close</mat-icon>
               </button>
@@ -249,7 +249,7 @@
       </ng-template>
 
       <div class="tab-content">
-        <div class="add-option" *ngIf="occasion.status !== 'finalized' && isOwner()">
+        <div class="add-option" *ngIf="occasion.status !== 'finalized' && canEdit()">
           <mat-form-field appearance="outline">
             <mat-label>Location</mat-label>
             <input matInput [(ngModel)]="newWhereOption" placeholder="e.g. Central Park, NYC" (keyup.enter)="addWhereOption()" />
@@ -266,7 +266,7 @@
 
         <div *ngIf="!occasion.whereOptions.length" class="empty-options">
           <mat-icon>location_off</mat-icon>
-          <p>No location options yet{{ isOwner() && occasion.status !== 'finalized' ? ' — add some above' : '' }}</p>
+          <p>No location options yet{{ canEdit() && occasion.status !== 'finalized' ? ' — add some above' : '' }}</p>
         </div>
 
         <div class="options-list">
@@ -286,10 +286,10 @@
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
-              <button mat-icon-button *ngIf="isOwner() && occasion.status !== 'finalized'" (click)="startEditWhere(opt); $event.stopPropagation()" matTooltip="Edit">
+              <button mat-icon-button *ngIf="canEdit() && occasion.status !== 'finalized'" (click)="startEditWhere(opt); $event.stopPropagation()" matTooltip="Edit">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" *ngIf="isOwner() && occasion.status !== 'finalized'" (click)="removeWhereOption(opt.id); $event.stopPropagation()" matTooltip="Remove">
+              <button mat-icon-button color="warn" *ngIf="canEdit() && occasion.status !== 'finalized'" (click)="removeWhereOption(opt.id); $event.stopPropagation()" matTooltip="Remove">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
@@ -350,8 +350,17 @@
 
       <div class="tab-content">
 
-        <!-- Add respondent form (owner only) -->
-        <div class="add-respondent" *ngIf="isOwner()">
+        <!-- Previously invited suggestions -->
+        <div class="past-respondents" *ngIf="canEdit() && pastRespondentSuggestions.length">
+          <span class="past-respondents-label">Previously invited:</span>
+          <button *ngFor="let r of pastRespondentSuggestions" mat-stroked-button class="past-respondent-chip"
+            (click)="addSuggestedRespondent(r)" [matTooltip]="r.email">
+            {{ r.name }}
+          </button>
+        </div>
+
+        <!-- Add respondent form -->
+        <div class="add-respondent" *ngIf="canEdit()">
           <mat-form-field appearance="outline" class="name-field">
             <mat-label>Name</mat-label>
             <input matInput [(ngModel)]="newRespondentName" placeholder="Jane Smith"
@@ -373,14 +382,19 @@
 
         <div *ngIf="!(occasion.respondents?.length)" class="empty-options">
           <mat-icon>group_off</mat-icon>
-          <p>No respondents yet{{ isOwner() ? ' — add some above' : '' }}</p>
+          <p>No respondents yet{{ canEdit() ? ' — add some above' : '' }}</p>
         </div>
 
         <div class="respondent-list">
           <div *ngFor="let r of occasion.respondents" class="respondent-row">
             <div class="respondent-avatar">{{ r.name[0].toUpperCase() }}</div>
             <div class="respondent-info">
-              <span class="respondent-name">{{ r.name }}</span>
+              <span class="respondent-name">
+                {{ r.name }}
+                <span *ngIf="r.coOrganizer" class="co-org-badge" matTooltip="Co-organizer">
+                  <mat-icon>star</mat-icon>
+                </span>
+              </span>
               <span class="respondent-email">{{ r.email }}</span>
             </div>
             <div class="respondent-status">
@@ -399,7 +413,11 @@
                 </div>
               </ng-container>
             </div>
-            <button mat-icon-button color="warn" *ngIf="isOwner()"
+            <button mat-icon-button [color]="r.coOrganizer ? 'primary' : ''" *ngIf="isOwner() && !isOwnerRespondent(r)"
+              (click)="toggleCoOrganizer(r)" [matTooltip]="r.coOrganizer ? 'Remove co-organizer' : 'Make co-organizer'">
+              <mat-icon>{{ r.coOrganizer ? 'star' : 'star_border' }}</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" *ngIf="canEdit()"
               (click)="removeRespondent(r)"
               [disabled]="isOwnerRespondent(r)"
               [matTooltip]="isOwnerRespondent(r) ? 'Cannot remove organizer' : 'Remove'">

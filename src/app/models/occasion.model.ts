@@ -29,6 +29,7 @@ export interface Respondent {
   id: string;
   name: string;
   email: string;
+  coOrganizer?: boolean;
 }
 
 export interface Occasion {
@@ -44,6 +45,8 @@ export interface Occasion {
   whenOptions: WhenOption[];
   whereOptions: WhereOption[];
   finalDate?: string;
+  finalStartTime?: string;
+  finalEndTime?: string;
   finalLocation?: string;
   finalNotes?: string;
   createdAt: string;

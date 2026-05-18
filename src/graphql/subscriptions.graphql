@@ -14,6 +14,8 @@ subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt
@@ -36,6 +38,8 @@ subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt
@@ -58,6 +62,8 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     whenOptions
     whereOptions
     finalDate
+    finalStartTime
+    finalEndTime
     finalLocation
     finalNotes
     createdAt

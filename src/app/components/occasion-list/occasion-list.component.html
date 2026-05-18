@@ -81,6 +81,9 @@
           <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
           <span class="spacer"></span>
           <mat-chip *ngIf="o.occasionType" class="type-chip">{{ o.occasionType }}</mat-chip>
+          <mat-chip *ngIf="o.status === 'polling' && !hasUserVoted(o)" class="vote-needed-chip" matTooltip="You haven't voted yet">
+            <mat-icon>how_to_vote</mat-icon> Vote needed
+          </mat-chip>
           <mat-chip [color]="statusColor(o.status)" selected>{{ o.status }}</mat-chip>
           <button mat-icon-button color="warn" *ngIf="isOwner(o)"
             (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">
@@ -96,7 +99,7 @@
           </div>
           <div class="finalized-info" *ngIf="o.status === 'finalized'">
             <mat-icon>check_circle</mat-icon>
-            <strong>{{ o.finalDate }}</strong> at <strong>{{ o.finalLocation }}</strong>
+            <strong>{{ o.finalDate | date:'mediumDate' }}</strong><ng-container *ngIf="o.finalStartTime"> · {{ fmtTime(o.finalStartTime) }}<ng-container *ngIf="o.finalEndTime"> – {{ fmtTime(o.finalEndTime) }}</ng-container></ng-container> at <strong>{{ o.finalLocation }}</strong>
           </div>
         </mat-card-content>
         <mat-card-footer>

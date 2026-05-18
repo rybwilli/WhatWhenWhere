@@ -108,6 +108,20 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     this.filterEndDate = null;
   }
 
+  hasUserVoted(o: Occasion): boolean {
+    const email = this.userEmail.toLowerCase();
+    const isRespondent = o.respondents.some(r => r.email.toLowerCase() === email);
+    if (!isRespondent) return true;
+    return [...o.whenOptions, ...o.whereOptions].some(opt =>
+      opt.votes.some(v => (v.voterId ?? v.voter)?.toLowerCase() === email)
+    );
+  }
+
+  fmtTime(t: string): string {
+    const [h, m] = t.split(':').map(Number);
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
   respondentsVoted(o: Occasion): number {
     const voterIds = new Set<string>();
     for (const opt of [...o.whenOptions, ...o.whereOptions]) {

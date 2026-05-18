@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
-import { Occasion, WhenOption } from '../../models/occasion.model';
+import { Occasion, WhenOption, WhereOption } from '../../models/occasion.model';
 
 @Component({
   selector: 'app-finalize-occasion',
@@ -13,6 +13,8 @@ import { Occasion, WhenOption } from '../../models/occasion.model';
 export class FinalizeOccasionComponent implements OnInit {
   occasion: Occasion | undefined;
   form: FormGroup;
+  selectedWhenId: string | null = null;
+  selectedWhereId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,6 +25,8 @@ export class FinalizeOccasionComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       finalDate: ['', Validators.required],
+      finalStartTime: [''],
+      finalEndTime: [''],
       finalLocation: ['', Validators.required],
       finalNotes: [''],
     });
@@ -68,17 +72,38 @@ export class FinalizeOccasionComponent implements OnInit {
     return [...this.occasion.whereOptions].sort((a, b) => b.votes.length - a.votes.length)[0].label;
   }
 
-  prefillTop(): void {
+  selectWhen(opt: WhenOption): void {
+    this.selectedWhenId = opt.id;
     this.form.patchValue({
-      finalDate: this.topWhenOption(),
-      finalLocation: this.topWhereOption(),
+      finalDate: new Date(opt.date + 'T00:00:00'),
+      finalStartTime: opt.startTime,
+      finalEndTime: opt.endTime,
     });
+  }
+
+  selectWhere(opt: WhereOption): void {
+    this.selectedWhereId = opt.id;
+    this.form.patchValue({ finalLocation: opt.label });
+  }
+
+  prefillTop(): void {
+    if (!this.occasion?.whenOptions.length) return;
+    const topWhen = [...this.occasion.whenOptions].sort((a, b) => b.votes.length - a.votes.length)[0];
+    this.selectWhen(topWhen);
+    if (this.occasion.whereOptions.length) {
+      const topWhere = [...this.occasion.whereOptions].sort((a, b) => b.votes.length - a.votes.length)[0];
+      this.selectWhere(topWhere);
+    }
   }
 
   submit(): void {
     if (this.form.invalid || !this.occasion) return;
-    const { finalDate, finalLocation, finalNotes } = this.form.value;
-    this.svc.finalize(this.occasion.id, finalDate, finalLocation, finalNotes);
+    const { finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes } = this.form.value;
+    const dateValue: Date | string = finalDate;
+    const isoDate = dateValue instanceof Date
+      ? dateValue.toISOString().split('T')[0]
+      : dateValue;
+    this.svc.finalize(this.occasion.id, isoDate, finalStartTime ?? '', finalEndTime ?? '', finalLocation, finalNotes);
     this.router.navigate(['/occasion', this.occasion.id]);
   }
 

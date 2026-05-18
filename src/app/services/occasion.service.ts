@@ -26,6 +26,8 @@ interface OccasionRecord {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt?: string;
@@ -45,6 +47,8 @@ function fromRecord(r: OccasionRecord): Occasion {
     whenOptions: JSON.parse(r.whenOptions || '[]'),
     whereOptions: JSON.parse(r.whereOptions || '[]'),
     finalDate: r.finalDate ?? undefined,
+    finalStartTime: r.finalStartTime ?? undefined,
+    finalEndTime: r.finalEndTime ?? undefined,
     finalLocation: r.finalLocation ?? undefined,
     finalNotes: r.finalNotes ?? undefined,
     createdAt: r.createdAt || new Date().toISOString(),
@@ -120,7 +124,9 @@ export class OccasionService {
       whereOptions: JSON.stringify([]),
     };
     const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
-    return fromRecord(res.data.createOccasion);
+    const occasion = fromRecord(res.data.createOccasion);
+    this.occasions$.next([...this.occasions$.value, occasion]);
+    return occasion;
   }
 
   async copyOccasion(
@@ -153,7 +159,9 @@ export class OccasionService {
       ),
     };
     const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
-    return fromRecord(res.data.createOccasion);
+    const copy = fromRecord(res.data.createOccasion);
+    this.occasions$.next([...this.occasions$.value, copy]);
+    return copy;
   }
 
   private async updateFields(occasionId: string, fn: (o: Occasion) => Partial<Occasion>): Promise<void> {
@@ -173,9 +181,11 @@ export class OccasionService {
     if (changes.respondents  !== undefined) input.respondents  = JSON.stringify(changes.respondents);
     if (changes.whenOptions  !== undefined) input.whenOptions  = JSON.stringify(changes.whenOptions);
     if (changes.whereOptions !== undefined) input.whereOptions = JSON.stringify(changes.whereOptions);
-    if (changes.finalDate     !== undefined) input.finalDate     = changes.finalDate;
-    if (changes.finalLocation !== undefined) input.finalLocation = changes.finalLocation;
-    if (changes.finalNotes    !== undefined) input.finalNotes    = changes.finalNotes;
+    if (changes.finalDate      !== undefined) input.finalDate      = changes.finalDate;
+    if (changes.finalStartTime !== undefined) input.finalStartTime = changes.finalStartTime;
+    if (changes.finalEndTime   !== undefined) input.finalEndTime   = changes.finalEndTime;
+    if (changes.finalLocation  !== undefined) input.finalLocation  = changes.finalLocation;
+    if (changes.finalNotes     !== undefined) input.finalNotes     = changes.finalNotes;
 
     await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
   }
@@ -197,6 +207,12 @@ export class OccasionService {
   removeRespondent(id: string, respondentId: string): void {
     this.updateFields(id, o => ({
       respondents: o.respondents.filter(r => r.id !== respondentId),
+    }));
+  }
+
+  setCoOrganizer(id: string, respondentId: string, value: boolean): void {
+    this.updateFields(id, o => ({
+      respondents: o.respondents.map(r => r.id === respondentId ? { ...r, coOrganizer: value } : r),
     }));
   }
 
@@ -280,8 +296,8 @@ export class OccasionService {
     this.updateFields(id, () => ({ status: 'polling' }));
   }
 
-  finalize(id: string, finalDate: string, finalLocation: string, finalNotes: string): void {
-    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalLocation, finalNotes }));
+  finalize(id: string, finalDate: string, finalStartTime: string, finalEndTime: string, finalLocation: string, finalNotes: string): void {
+    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes }));
   }
 
   async delete(id: string): Promise<void> {

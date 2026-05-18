@@ -39,7 +39,8 @@ export class CreateOccasionComponent {
       const occasion = await this.svc.create(
         title, description, ownerName, u?.email ?? '', u?.userId ?? '', occasionType || undefined
       );
-      this.router.navigate(['/occasion', occasion.id]);
+      await this.router.navigate(['/']);
+      this.router.navigate(['/occasion', occasion.id], { queryParams: { edit: 'true' } });
     } finally {
       this.saving = false;
     }

@@ -1,7 +1,7 @@
 const occasionFields = `
   id ownerSub ownerEmail ownerName title description status occasionType
   respondents whenOptions whereOptions
-  finalDate finalLocation finalNotes createdAt updatedAt
+  finalDate finalStartTime finalEndTime finalLocation finalNotes createdAt updatedAt
 `;
 
 export const createOccasion = /* GraphQL */ `

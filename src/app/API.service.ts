@@ -28,6 +28,8 @@ export type CreateOccasionInput = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
 };
@@ -44,6 +46,8 @@ export type ModelOccasionConditionInput = {
   whenOptions?: ModelStringInput | null;
   whereOptions?: ModelStringInput | null;
   finalDate?: ModelStringInput | null;
+  finalStartTime?: ModelStringInput | null;
+  finalEndTime?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
   and?: Array<ModelOccasionConditionInput | null> | null;
@@ -106,6 +110,8 @@ export type Occasion = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -125,6 +131,8 @@ export type UpdateOccasionInput = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
 };
@@ -146,6 +154,8 @@ export type ModelOccasionFilterInput = {
   whenOptions?: ModelStringInput | null;
   whereOptions?: ModelStringInput | null;
   finalDate?: ModelStringInput | null;
+  finalStartTime?: ModelStringInput | null;
+  finalEndTime?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
   createdAt?: ModelStringInput | null;
@@ -190,6 +200,8 @@ export type ModelSubscriptionOccasionFilterInput = {
   whenOptions?: ModelSubscriptionStringInput | null;
   whereOptions?: ModelSubscriptionStringInput | null;
   finalDate?: ModelSubscriptionStringInput | null;
+  finalStartTime?: ModelSubscriptionStringInput | null;
+  finalEndTime?: ModelSubscriptionStringInput | null;
   finalLocation?: ModelSubscriptionStringInput | null;
   finalNotes?: ModelSubscriptionStringInput | null;
   createdAt?: ModelSubscriptionStringInput | null;
@@ -242,6 +254,8 @@ export type CreateOccasionMutation = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -262,6 +276,8 @@ export type UpdateOccasionMutation = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -282,6 +298,8 @@ export type DeleteOccasionMutation = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -302,6 +320,8 @@ export type GetOccasionQuery = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -324,6 +344,8 @@ export type ListOccasionsQuery = {
     whenOptions?: string | null;
     whereOptions?: string | null;
     finalDate?: string | null;
+    finalStartTime?: string | null;
+    finalEndTime?: string | null;
     finalLocation?: string | null;
     finalNotes?: string | null;
     createdAt: string;
@@ -346,6 +368,8 @@ export type OnCreateOccasionSubscription = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -366,6 +390,8 @@ export type OnUpdateOccasionSubscription = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -386,6 +412,8 @@ export type OnDeleteOccasionSubscription = {
   whenOptions?: string | null;
   whereOptions?: string | null;
   finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   createdAt: string;
@@ -415,6 +443,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -451,6 +481,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -487,6 +519,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -520,6 +554,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -556,6 +592,8 @@ export class APIService {
             whenOptions
             whereOptions
             finalDate
+            finalStartTime
+            finalEndTime
             finalLocation
             finalNotes
             createdAt
@@ -599,6 +637,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -636,6 +676,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt
@@ -673,6 +715,8 @@ export class APIService {
           whenOptions
           whereOptions
           finalDate
+          finalStartTime
+          finalEndTime
           finalLocation
           finalNotes
           createdAt

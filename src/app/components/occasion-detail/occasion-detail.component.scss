@@ -504,6 +504,27 @@
   }
 }
 
+.past-respondents {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .past-respondents-label {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant, #666);
+    white-space: nowrap;
+  }
+
+  .past-respondent-chip {
+    font-size: 13px;
+    height: 32px;
+    padding: 0 12px;
+    min-width: unset;
+  }
+}
+
 .add-respondent {
   display: flex;
   gap: 12px;
@@ -558,6 +579,15 @@
 
   .respondent-name {
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .co-org-badge {
+      display: inline-flex;
+      color: #f9a825;
+      mat-icon { font-size: 14px; height: 14px; width: 14px; }
+    }
   }
 
   .respondent-email {

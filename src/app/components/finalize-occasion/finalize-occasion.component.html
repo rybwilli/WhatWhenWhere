@@ -14,17 +14,29 @@
 
         <div class="summary-section" *ngIf="occasion.whenOptions.length">
           <h4><mat-icon>access_time</mat-icon> When Votes</h4>
-          <div *ngFor="let opt of occasion.whenOptions | slice:0:5" class="summary-row">
+          <div *ngFor="let opt of occasion.whenOptions | slice:0:5"
+            class="summary-row selectable"
+            [class.selected]="opt.id === selectedWhenId"
+            (click)="selectWhen(opt)">
             <span>{{ topWhenLabel(opt) }}</span>
-            <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+            <div class="row-right">
+              <mat-icon class="check-icon" *ngIf="opt.id === selectedWhenId">check_circle</mat-icon>
+              <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+            </div>
           </div>
         </div>
 
         <div class="summary-section" *ngIf="occasion.whereOptions.length">
           <h4><mat-icon>place</mat-icon> Where Votes</h4>
-          <div *ngFor="let opt of occasion.whereOptions | slice:0:5" class="summary-row">
+          <div *ngFor="let opt of occasion.whereOptions | slice:0:5"
+            class="summary-row selectable"
+            [class.selected]="opt.id === selectedWhereId"
+            (click)="selectWhere(opt)">
             <span>{{ opt.label }}</span>
-            <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+            <div class="row-right">
+              <mat-icon class="check-icon" *ngIf="opt.id === selectedWhereId">check_circle</mat-icon>
+              <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+            </div>
           </div>
         </div>
 
@@ -37,11 +49,25 @@
 
       <form [formGroup]="form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Final Date &amp; Time</mat-label>
-          <input matInput formControlName="finalDate" placeholder="e.g. Saturday June 14, 7pm" />
-          <mat-icon matSuffix>event</mat-icon>
+          <mat-label>Final Date</mat-label>
+          <input matInput [matDatepicker]="finalDatePicker" formControlName="finalDate" placeholder="Pick a date" />
+          <mat-datepicker-toggle matSuffix [for]="finalDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #finalDatePicker></mat-datepicker>
           <mat-error>Date is required</mat-error>
         </mat-form-field>
+
+        <div class="time-row">
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Start Time</mat-label>
+            <input matInput type="time" formControlName="finalStartTime" />
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>End Time</mat-label>
+            <input matInput type="time" formControlName="finalEndTime" />
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Final Location</mat-label>

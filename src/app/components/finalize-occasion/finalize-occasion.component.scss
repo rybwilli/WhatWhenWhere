@@ -48,9 +48,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
+  padding: 6px 8px;
   font-size: 0.9rem;
   border-bottom: 1px solid #f0f0f0;
+  border-radius: 4px;
+
+  &.selectable {
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover { background: #f5f5f5; }
+
+    &.selected {
+      background: #e8f5e9;
+      border-color: #a5d6a7;
+    }
+  }
+
+  .row-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .check-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #43a047;
+  }
 }
 
 .prefill-btn {
@@ -59,4 +85,10 @@
 
 .divider {
   margin: 16px 0;
+}
+
+.time-row {
+  display: flex;
+  gap: 12px;
+  .time-field { flex: 1; }
 }
