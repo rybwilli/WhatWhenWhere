@@ -80,17 +80,25 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     return dates.length ? dates[dates.length - 1] : '';
   }
 
+  private sortDate(o: Occasion): string {
+    if (o.status === 'finalized' && o.finalDate) return o.finalDate;
+    const dates = o.whenOptions.map(w => w.date).filter(Boolean).sort();
+    return dates.length ? dates[0] : '9999-99-99';
+  }
+
   get filteredOccasions(): Occasion[] {
     const startIso = this.filterStartDate ? this.filterStartDate.toISOString().split('T')[0] : '';
     const endIso   = this.filterEndDate   ? this.filterEndDate.toISOString().split('T')[0]   : '';
-    return this.occasions.filter(o => {
-      if (this.filterStatus && o.status !== this.filterStatus) return false;
-      if (this.filterTypes.length && !this.filterTypes.includes(o.occasionType ?? '')) return false;
-      const date = this.occasionDate(o);
-      if (startIso && date && date < startIso) return false;
-      if (endIso   && date && date > endIso)   return false;
-      return true;
-    });
+    return this.occasions
+      .filter(o => {
+        if (this.filterStatus && o.status !== this.filterStatus) return false;
+        if (this.filterTypes.length && !this.filterTypes.includes(o.occasionType ?? '')) return false;
+        const date = this.occasionDate(o);
+        if (startIso && date && date < startIso) return false;
+        if (endIso   && date && date > endIso)   return false;
+        return true;
+      })
+      .sort((a, b) => this.sortDate(a).localeCompare(this.sortDate(b)));
   }
 
   clearFilters(): void {
