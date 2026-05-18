@@ -163,7 +163,7 @@
         <div class="when-layout" *ngIf="occasion.whenOptions.length">
 
           <div class="options-list" [class.hidden-mobile]="whenView === 'calendar'">
-          <div *ngFor="let opt of occasion.whenOptions" class="option-card"
+          <div *ngFor="let opt of sortedWhenOptions" class="option-card"
             [class.leading]="isLeadingWhen(opt)">
             <div class="option-header">
               <mat-icon>event</mat-icon>
@@ -383,6 +383,13 @@
         <div *ngIf="!(occasion.respondents?.length)" class="empty-options">
           <mat-icon>group_off</mat-icon>
           <p>No respondents yet{{ canEdit() ? ' — add some above' : '' }}</p>
+        </div>
+
+        <div class="respondent-list-header" *ngIf="occasion.respondents?.length">
+          <span class="respondent-count">{{ occasion.respondents.length }} respondent{{ occasion.respondents.length !== 1 ? 's' : '' }}</span>
+          <button mat-icon-button (click)="copyEmails()" matTooltip="Copy all emails (semicolon-separated)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
         </div>
 
         <div class="respondent-list">

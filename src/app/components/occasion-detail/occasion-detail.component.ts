@@ -326,6 +326,13 @@ export class OccasionDetailComponent implements OnInit {
            votes.filter(v => v.response === 'maybe').length;
   }
 
+  get sortedWhenOptions(): WhenOption[] {
+    return [...(this.occasion?.whenOptions ?? [])].sort((a, b) => {
+      const d = a.date.localeCompare(b.date);
+      return d !== 0 ? d : a.startTime.localeCompare(b.startTime);
+    });
+  }
+
   isLeadingWhen(opt: WhenOption): boolean {
     return this.optionScore(opt.votes) > 0 && this.optionScore(opt.votes) === this.maxWhenScore();
   }
@@ -358,6 +365,11 @@ export class OccasionDetailComponent implements OnInit {
     this.svc.addRespondent(this.occasion.id, this.newRespondentName.trim(), this.newRespondentEmail.trim());
     this.newRespondentName = '';
     this.newRespondentEmail = '';
+  }
+
+  copyEmails(): void {
+    const emails = (this.occasion?.respondents ?? []).map(r => r.email).join(';');
+    navigator.clipboard.writeText(emails);
   }
 
   addSuggestedRespondent(r: Respondent): void {
