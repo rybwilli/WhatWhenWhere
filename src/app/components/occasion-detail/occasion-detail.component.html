@@ -121,10 +121,10 @@
     <!-- WHEN tab -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <mat-icon>access_time</mat-icon>&nbsp;When
+        <span class="tab-label tab-when"><mat-icon>access_time</mat-icon>&nbsp;When</span>
       </ng-template>
 
-      <div class="tab-content">
+      <div class="tab-content tab-content-when">
         <!-- Add when option: date picker + time range -->
         <div class="add-when" *ngIf="occasion.status !== 'finalized' && canEdit()">
           <mat-form-field appearance="outline" class="date-field">
@@ -251,10 +251,10 @@
     <!-- WHERE tab -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <mat-icon>place</mat-icon>&nbsp;Where
+        <span class="tab-label tab-where"><mat-icon>place</mat-icon>&nbsp;Where</span>
       </ng-template>
 
-      <div class="tab-content">
+      <div class="tab-content tab-content-where">
         <div class="add-option" *ngIf="occasion.status !== 'finalized' && canEdit()">
           <mat-form-field appearance="outline">
             <mat-label>Location</mat-label>
@@ -351,10 +351,10 @@
     <!-- WHO tab -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <mat-icon>group</mat-icon>&nbsp;Who
+        <span class="tab-label tab-who"><mat-icon>group</mat-icon>&nbsp;Who</span>
       </ng-template>
 
-      <div class="tab-content">
+      <div class="tab-content tab-content-who">
 
         <!-- Previously invited suggestions -->
         <div class="past-respondents" *ngIf="canEdit() && pastRespondentSuggestions.length">
