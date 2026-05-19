@@ -296,6 +296,17 @@ export class OccasionService {
     this.updateFields(id, () => ({ status: 'polling' }));
   }
 
+  reopenPolling(id: string): void {
+    this.updateFields(id, () => ({
+      status: 'polling',
+      finalDate: '',
+      finalStartTime: '',
+      finalEndTime: '',
+      finalLocation: '',
+      finalNotes: '',
+    }));
+  }
+
   finalize(id: string, finalDate: string, finalStartTime: string, finalEndTime: string, finalLocation: string, finalNotes: string): void {
     this.updateFields(id, () => ({ status: 'finalized', finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes }));
   }

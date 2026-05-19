@@ -56,6 +56,12 @@
         (click)="goFinalize()">
         <mat-icon>done_all</mat-icon> Finalize
       </button>
+      <button mat-stroked-button color="warn"
+        *ngIf="occasion.status === 'finalized' && isOwner()"
+        (click)="reopenPolling()"
+        matTooltip="Revert to polling and clear final details">
+        <mat-icon>undo</mat-icon> Reopen Polling
+      </button>
       <button mat-icon-button (click)="showCopyPanel = !showCopyPanel" matTooltip="Copy occasion">
         <mat-icon>content_copy</mat-icon>
       </button>

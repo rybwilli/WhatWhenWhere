@@ -438,6 +438,11 @@ export class OccasionDetailComponent implements OnInit {
 
   // ---------- Navigation ----------
   goFinalize(): void { this.router.navigate(['/occasion', this.occasion!.id, 'finalize']); }
+
+  reopenPolling(): void {
+    if (!this.occasion || !confirm('Reopen polling? This will clear the finalized date, time, and location.')) return;
+    this.svc.reopenPolling(this.occasion.id);
+  }
   goBack(): void { this.router.navigate(['/']); }
 
   delete(): void {
