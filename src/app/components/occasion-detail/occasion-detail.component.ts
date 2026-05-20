@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { filter, switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
@@ -69,7 +70,8 @@ export class OccasionDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private svc: OccasionService,
-    private auth: AuthService
+    private auth: AuthService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -124,6 +126,10 @@ export class OccasionDetailComponent implements OnInit {
         this.whereVotes[opt.id] = { response: serverResponse, comment: serverComment };
       }
     }
+  }
+
+  get safeInfoHtml(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.occasion?.infoText ?? '');
   }
 
   fmtTime(t: string): string {

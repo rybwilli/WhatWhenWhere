@@ -309,6 +309,19 @@
     font-size: 0.9rem;
     line-height: 1.6;
     padding: 0;
+    overflow-x: auto;
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85rem;
+    }
+    td, th {
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+    }
+    ul, ol { padding-left: 20px; }
+    a { color: #1565c0; }
   }
 
   .info-empty {

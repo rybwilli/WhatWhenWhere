@@ -131,7 +131,7 @@
         <a *ngIf="occasion.infoUrl" [href]="occasion.infoUrl" target="_blank" rel="noopener" class="info-url">
           <mat-icon>link</mat-icon> {{ occasion.infoUrl }}
         </a>
-        <div *ngIf="occasion.infoText" class="info-text ql-editor" [innerHTML]="occasion.infoText"></div>
+        <div *ngIf="occasion.infoText" class="info-text" [innerHTML]="safeInfoHtml"></div>
         <p *ngIf="!occasion.infoText && !occasion.infoUrl && canEdit()" class="info-empty">
           No information yet — click edit to add details.
         </p>
