@@ -49,5 +49,7 @@ export interface Occasion {
   finalEndTime?: string;
   finalLocation?: string;
   finalNotes?: string;
+  infoText?: string;
+  infoUrl?: string;
   createdAt: string;
 }

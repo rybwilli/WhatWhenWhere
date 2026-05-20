@@ -87,6 +87,16 @@
   margin: 16px 0;
 }
 
+.info-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0 0 12px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
 .time-row {
   display: flex;
   gap: 12px;

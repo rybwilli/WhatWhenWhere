@@ -1,0 +1,21 @@
+<div class="rich-editor">
+  <div class="toolbar">
+    <button type="button" (click)="exec('bold')" [class.active]="isActive('bold')" title="Bold"><b>B</b></button>
+    <button type="button" (click)="exec('italic')" [class.active]="isActive('italic')" title="Italic"><i>I</i></button>
+    <button type="button" (click)="exec('underline')" [class.active]="isActive('underline')" title="Underline"><u>U</u></button>
+    <span class="sep"></span>
+    <button type="button" (click)="exec('insertUnorderedList')" title="Bullet list">&#8226;&#8212;</button>
+    <button type="button" (click)="exec('insertOrderedList')" title="Numbered list">1&#8212;</button>
+    <span class="sep"></span>
+    <button type="button" (click)="insertLink()" title="Insert link">&#128279;</button>
+    <button type="button" (click)="exec('unlink')" title="Remove link">&#10008;</button>
+  </div>
+  <div #editor
+    class="editor-body"
+    contenteditable="true"
+    [attr.data-placeholder]="placeholder"
+    [style.minHeight]="minHeight"
+    (input)="onInput()"
+    (blur)="onBlur()">
+  </div>
+</div>

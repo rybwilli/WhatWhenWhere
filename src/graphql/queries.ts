@@ -4,7 +4,7 @@ export const listOccasions = /* GraphQL */ `
       items {
         id ownerSub ownerEmail ownerName title description status occasionType
         respondents whenOptions whereOptions
-        finalDate finalStartTime finalEndTime finalLocation finalNotes createdAt updatedAt
+        finalDate finalStartTime finalEndTime finalLocation finalNotes infoText infoUrl createdAt updatedAt
       }
     }
   }
@@ -15,7 +15,7 @@ export const getOccasion = /* GraphQL */ `
     getOccasion(id: $id) {
       id ownerSub ownerEmail ownerName title description status
       respondents whenOptions whereOptions
-      finalDate finalStartTime finalEndTime finalLocation finalNotes createdAt updatedAt
+      finalDate finalStartTime finalEndTime finalLocation finalNotes infoText infoUrl createdAt updatedAt
     }
   }
 `;

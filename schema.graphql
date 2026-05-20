@@ -18,4 +18,6 @@ type Occasion @model
   finalEndTime: String
   finalLocation: String
   finalNotes: String
+  infoText: String
+  infoUrl: String
 }

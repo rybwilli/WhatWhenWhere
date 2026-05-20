@@ -29,6 +29,8 @@ export class FinalizeOccasionComponent implements OnInit {
       finalEndTime: [''],
       finalLocation: ['', Validators.required],
       finalNotes: [''],
+      infoUrl: [''],
+      infoText: [''],
     });
   }
 
@@ -41,7 +43,14 @@ export class FinalizeOccasionComponent implements OnInit {
         this.router.navigate(['/']);
         return;
       }
+      const isFirst = !this.occasion;
       this.occasion = found;
+      if (isFirst) {
+        this.form.patchValue({
+          infoUrl: found.infoUrl ?? '',
+          infoText: found.infoText ?? '',
+        });
+      }
     });
   }
 
@@ -98,12 +107,13 @@ export class FinalizeOccasionComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid || !this.occasion) return;
-    const { finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes } = this.form.value;
+    const { finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes, infoUrl, infoText } = this.form.value;
     const dateValue: Date | string = finalDate;
     const isoDate = dateValue instanceof Date
       ? dateValue.toISOString().split('T')[0]
       : dateValue;
     this.svc.finalize(this.occasion.id, isoDate, finalStartTime ?? '', finalEndTime ?? '', finalLocation, finalNotes);
+    this.svc.saveInfo(this.occasion.id, infoText ?? '', infoUrl ?? '');
     this.router.navigate(['/occasion', this.occasion.id]);
   }
 

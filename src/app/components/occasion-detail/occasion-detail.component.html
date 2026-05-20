@@ -115,6 +115,45 @@
     </div>
   </mat-card>
 
+  <!-- Info section (finalized or editing) -->
+  <mat-card class="info-section" *ngIf="occasion.status === 'finalized' || occasion.infoText || occasion.infoUrl || editingInfo">
+    <mat-card-header>
+      <mat-card-title><mat-icon>info</mat-icon> Information</mat-card-title>
+      <span class="spacer"></span>
+      <button mat-icon-button *ngIf="canEdit() && !editingInfo" (click)="startEditInfo()" matTooltip="Edit information">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- View mode -->
+      <ng-container *ngIf="!editingInfo">
+        <a *ngIf="occasion.infoUrl" [href]="occasion.infoUrl" target="_blank" rel="noopener" class="info-url">
+          <mat-icon>link</mat-icon> {{ occasion.infoUrl }}
+        </a>
+        <div *ngIf="occasion.infoText" class="info-text ql-editor" [innerHTML]="occasion.infoText"></div>
+        <p *ngIf="!occasion.infoText && !occasion.infoUrl && canEdit()" class="info-empty">
+          No information yet — click edit to add details.
+        </p>
+      </ng-container>
+
+      <!-- Edit mode -->
+      <ng-container *ngIf="editingInfo">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Information URL</mat-label>
+          <input matInput [(ngModel)]="editInfoUrl" placeholder="https://..." />
+          <mat-icon matSuffix>link</mat-icon>
+        </mat-form-field>
+        <app-rich-editor [(ngModel)]="editInfoText" [minHeight]="'150px'" [placeholder]="'Add information, instructions, or details...'"></app-rich-editor>
+        <div class="info-edit-actions">
+          <button mat-raised-button color="primary" (click)="saveInfo()">Save</button>
+          <button mat-button (click)="cancelEditInfo()">Cancel</button>
+        </div>
+      </ng-container>
+
+    </mat-card-content>
+  </mat-card>
+
   <!-- Tabs: When & Where -->
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [(selectedIndex)]="selectedTab">
 

@@ -21,6 +21,8 @@ mutation CreateOccasion(
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename
@@ -48,6 +50,8 @@ mutation UpdateOccasion(
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename
@@ -75,6 +79,8 @@ mutation DeleteOccasion(
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename

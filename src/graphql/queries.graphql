@@ -18,6 +18,8 @@ query GetOccasion($id: ID!) {
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename
@@ -47,6 +49,8 @@ query ListOccasions(
       finalEndTime
       finalLocation
       finalNotes
+      infoText
+      infoUrl
       createdAt
       updatedAt
       __typename

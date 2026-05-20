@@ -49,6 +49,11 @@ export class OccasionDetailComponent implements OnInit {
   editOccasionType: OccasionType | '' = '';
   readonly occasionTypes = OCCASION_TYPES;
 
+  // Info section
+  editingInfo = false;
+  editInfoText = '';
+  editInfoUrl = '';
+
   // Copy occasion
   showCopyPanel = false;
   copyIncludeWhen = true;
@@ -156,6 +161,21 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   cancelEdit(): void { this.editing = false; }
+
+  // ---------- Info section ----------
+  startEditInfo(): void {
+    this.editInfoText = this.occasion?.infoText ?? '';
+    this.editInfoUrl = this.occasion?.infoUrl ?? '';
+    this.editingInfo = true;
+  }
+
+  saveInfo(): void {
+    if (!this.occasion) return;
+    this.svc.saveInfo(this.occasion.id, this.editInfoText, this.editInfoUrl);
+    this.editingInfo = false;
+  }
+
+  cancelEditInfo(): void { this.editingInfo = false; }
 
   // ---------- Polling ----------
   openPolling(): void {

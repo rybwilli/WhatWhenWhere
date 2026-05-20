@@ -82,6 +82,17 @@
             placeholder="Parking info, dress code, what to bring..."></textarea>
           <mat-icon matSuffix>notes</mat-icon>
         </mat-form-field>
+
+        <mat-divider class="divider"></mat-divider>
+        <h3 class="info-heading"><mat-icon>info</mat-icon> Information (optional)</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Information URL</mat-label>
+          <input matInput formControlName="infoUrl" placeholder="https://..." />
+          <mat-icon matSuffix>link</mat-icon>
+        </mat-form-field>
+
+        <app-rich-editor formControlName="infoText" [minHeight]="'150px'" [placeholder]="'Add information, instructions, or details...'"></app-rich-editor>
       </form>
     </mat-card-content>
 

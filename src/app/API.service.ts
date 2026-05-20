@@ -32,6 +32,8 @@ export type CreateOccasionInput = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
 };
 
 export type ModelOccasionConditionInput = {
@@ -50,6 +52,8 @@ export type ModelOccasionConditionInput = {
   finalEndTime?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
+  infoText?: ModelStringInput | null;
+  infoUrl?: ModelStringInput | null;
   and?: Array<ModelOccasionConditionInput | null> | null;
   or?: Array<ModelOccasionConditionInput | null> | null;
   not?: ModelOccasionConditionInput | null;
@@ -114,6 +118,8 @@ export type Occasion = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -135,6 +141,8 @@ export type UpdateOccasionInput = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
 };
 
 export type DeleteOccasionInput = {
@@ -158,6 +166,8 @@ export type ModelOccasionFilterInput = {
   finalEndTime?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
+  infoText?: ModelStringInput | null;
+  infoUrl?: ModelStringInput | null;
   createdAt?: ModelStringInput | null;
   updatedAt?: ModelStringInput | null;
   and?: Array<ModelOccasionFilterInput | null> | null;
@@ -204,6 +214,8 @@ export type ModelSubscriptionOccasionFilterInput = {
   finalEndTime?: ModelSubscriptionStringInput | null;
   finalLocation?: ModelSubscriptionStringInput | null;
   finalNotes?: ModelSubscriptionStringInput | null;
+  infoText?: ModelSubscriptionStringInput | null;
+  infoUrl?: ModelSubscriptionStringInput | null;
   createdAt?: ModelSubscriptionStringInput | null;
   updatedAt?: ModelSubscriptionStringInput | null;
   and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
@@ -258,6 +270,8 @@ export type CreateOccasionMutation = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -280,6 +294,8 @@ export type UpdateOccasionMutation = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -302,6 +318,8 @@ export type DeleteOccasionMutation = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -324,6 +342,8 @@ export type GetOccasionQuery = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -348,6 +368,8 @@ export type ListOccasionsQuery = {
     finalEndTime?: string | null;
     finalLocation?: string | null;
     finalNotes?: string | null;
+    infoText?: string | null;
+    infoUrl?: string | null;
     createdAt: string;
     updatedAt: string;
   } | null>;
@@ -372,6 +394,8 @@ export type OnCreateOccasionSubscription = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -394,6 +418,8 @@ export type OnUpdateOccasionSubscription = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -416,6 +442,8 @@ export type OnDeleteOccasionSubscription = {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -447,6 +475,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -485,6 +515,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -523,6 +555,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -558,6 +592,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -596,6 +632,8 @@ export class APIService {
             finalEndTime
             finalLocation
             finalNotes
+            infoText
+            infoUrl
             createdAt
             updatedAt
           }
@@ -641,6 +679,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -680,6 +720,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }
@@ -719,6 +761,8 @@ export class APIService {
           finalEndTime
           finalLocation
           finalNotes
+          infoText
+          infoUrl
           createdAt
           updatedAt
         }

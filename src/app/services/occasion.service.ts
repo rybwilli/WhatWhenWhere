@@ -30,6 +30,8 @@ interface OccasionRecord {
   finalEndTime?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
   createdAt?: string;
 }
 
@@ -51,6 +53,8 @@ function fromRecord(r: OccasionRecord): Occasion {
     finalEndTime: r.finalEndTime ?? undefined,
     finalLocation: r.finalLocation ?? undefined,
     finalNotes: r.finalNotes ?? undefined,
+    infoText: r.infoText ?? undefined,
+    infoUrl: r.infoUrl ?? undefined,
     createdAt: r.createdAt || new Date().toISOString(),
   };
 }
@@ -186,6 +190,8 @@ export class OccasionService {
     if (changes.finalEndTime   !== undefined) input.finalEndTime   = changes.finalEndTime;
     if (changes.finalLocation  !== undefined) input.finalLocation  = changes.finalLocation;
     if (changes.finalNotes     !== undefined) input.finalNotes     = changes.finalNotes;
+    if (changes.infoText       !== undefined) input.infoText       = changes.infoText;
+    if (changes.infoUrl        !== undefined) input.infoUrl        = changes.infoUrl;
 
     await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
   }
@@ -290,6 +296,10 @@ export class OccasionService {
         opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
       ),
     }));
+  }
+
+  saveInfo(id: string, infoText: string, infoUrl: string): void {
+    this.updateFields(id, () => ({ infoText, infoUrl }));
   }
 
   openPolling(id: string): void {

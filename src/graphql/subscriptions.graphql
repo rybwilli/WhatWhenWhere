@@ -18,6 +18,8 @@ subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename
@@ -42,6 +44,8 @@ subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename
@@ -66,6 +70,8 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalEndTime
     finalLocation
     finalNotes
+    infoText
+    infoUrl
     createdAt
     updatedAt
     __typename

@@ -277,6 +277,57 @@
   }
 }
 
+.info-section {
+  margin-bottom: 16px;
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1rem;
+    }
+    .spacer { flex: 1; }
+  }
+
+  .info-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #1565c0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    word-break: break-all;
+    &:hover { text-decoration: underline; }
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+
+  .info-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .info-empty {
+    color: #999;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .full-width { width: 100%; margin-bottom: 12px; }
+
+  .info-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  app-rich-editor { display: block; margin-bottom: 4px; }
+}
+
 .voter-card {
   margin-bottom: 16px;
   display: flex;
