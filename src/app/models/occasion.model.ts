@@ -51,5 +51,6 @@ export interface Occasion {
   finalNotes?: string;
   infoText?: string;
   infoUrl?: string;
+  allowPublic?: boolean;
   createdAt: string;
 }

@@ -240,6 +240,30 @@
   }
 }
 
+.join-banner {
+  background: #e8eaf6;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  flex-wrap: wrap;
+
+  mat-icon:first-child {
+    color: #283593;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  div {
+    flex: 1;
+    strong { font-size: 1rem; color: #1a237e; }
+    p { margin: 4px 0 0; font-size: 0.85rem; color: #444; }
+  }
+}
+
 .finalized-banner {
   background: #e8f5e9;
   margin-bottom: 16px;

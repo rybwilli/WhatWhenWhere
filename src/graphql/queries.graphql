@@ -20,6 +20,7 @@ query GetOccasion($id: ID!) {
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
@@ -51,6 +52,7 @@ query ListOccasions(
       finalNotes
       infoText
       infoUrl
+      allowPublic
       createdAt
       updatedAt
       __typename

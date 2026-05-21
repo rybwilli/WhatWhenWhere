@@ -34,6 +34,7 @@ export type CreateOccasionInput = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
 };
 
 export type ModelOccasionConditionInput = {
@@ -54,6 +55,7 @@ export type ModelOccasionConditionInput = {
   finalNotes?: ModelStringInput | null;
   infoText?: ModelStringInput | null;
   infoUrl?: ModelStringInput | null;
+  allowPublic?: ModelBooleanInput | null;
   and?: Array<ModelOccasionConditionInput | null> | null;
   or?: Array<ModelOccasionConditionInput | null> | null;
   not?: ModelOccasionConditionInput | null;
@@ -100,6 +102,13 @@ export type ModelSizeInput = {
   between?: Array<number | null> | null;
 };
 
+export type ModelBooleanInput = {
+  ne?: boolean | null;
+  eq?: boolean | null;
+  attributeExists?: boolean | null;
+  attributeType?: ModelAttributeTypes | null;
+};
+
 export type Occasion = {
   __typename: "Occasion";
   id: string;
@@ -120,6 +129,7 @@ export type Occasion = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -143,6 +153,7 @@ export type UpdateOccasionInput = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
 };
 
 export type DeleteOccasionInput = {
@@ -168,6 +179,7 @@ export type ModelOccasionFilterInput = {
   finalNotes?: ModelStringInput | null;
   infoText?: ModelStringInput | null;
   infoUrl?: ModelStringInput | null;
+  allowPublic?: ModelBooleanInput | null;
   createdAt?: ModelStringInput | null;
   updatedAt?: ModelStringInput | null;
   and?: Array<ModelOccasionFilterInput | null> | null;
@@ -216,6 +228,7 @@ export type ModelSubscriptionOccasionFilterInput = {
   finalNotes?: ModelSubscriptionStringInput | null;
   infoText?: ModelSubscriptionStringInput | null;
   infoUrl?: ModelSubscriptionStringInput | null;
+  allowPublic?: ModelSubscriptionBooleanInput | null;
   createdAt?: ModelSubscriptionStringInput | null;
   updatedAt?: ModelSubscriptionStringInput | null;
   and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
@@ -252,6 +265,11 @@ export type ModelSubscriptionStringInput = {
   notIn?: Array<string | null> | null;
 };
 
+export type ModelSubscriptionBooleanInput = {
+  ne?: boolean | null;
+  eq?: boolean | null;
+};
+
 export type CreateOccasionMutation = {
   __typename: "Occasion";
   id: string;
@@ -272,6 +290,7 @@ export type CreateOccasionMutation = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -296,6 +315,7 @@ export type UpdateOccasionMutation = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -320,6 +340,7 @@ export type DeleteOccasionMutation = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -344,6 +365,7 @@ export type GetOccasionQuery = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -370,6 +392,7 @@ export type ListOccasionsQuery = {
     finalNotes?: string | null;
     infoText?: string | null;
     infoUrl?: string | null;
+    allowPublic?: boolean | null;
     createdAt: string;
     updatedAt: string;
   } | null>;
@@ -396,6 +419,7 @@ export type OnCreateOccasionSubscription = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -420,6 +444,7 @@ export type OnUpdateOccasionSubscription = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -444,6 +469,7 @@ export type OnDeleteOccasionSubscription = {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -477,6 +503,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -517,6 +544,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -557,6 +585,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -594,6 +623,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -634,6 +664,7 @@ export class APIService {
             finalNotes
             infoText
             infoUrl
+            allowPublic
             createdAt
             updatedAt
           }
@@ -681,6 +712,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -722,6 +754,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }
@@ -763,6 +796,7 @@ export class APIService {
           finalNotes
           infoText
           infoUrl
+          allowPublic
           createdAt
           updatedAt
         }

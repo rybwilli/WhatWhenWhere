@@ -54,6 +54,13 @@
   }
 }
 
+.public-chip {
+  background: #e8eaf6 !important;
+  color: #283593 !important;
+  font-size: 0.75rem !important;
+  mat-icon { font-size: 14px; height: 14px; width: 14px; vertical-align: middle; margin-right: 2px; }
+}
+
 .type-chip {
   background: #e8eaf6 !important;
   color: #3f51b5 !important;

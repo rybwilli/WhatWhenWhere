@@ -51,6 +51,8 @@ export class OccasionDetailComponent implements OnInit {
   editOccasionType: OccasionType | '' = '';
   readonly occasionTypes = OCCASION_TYPES;
 
+  joiningOccasion = false;
+
   // Info section
   editingInfo = false;
   editInfoText = '';
@@ -487,6 +489,23 @@ export class OccasionDetailComponent implements OnInit {
 
   // ---------- Navigation ----------
   goFinalize(): void { this.router.navigate(['/occasion', this.occasion!.id, 'finalize']); }
+
+  isRespondent(): boolean {
+    return !!this.occasion?.respondents.some(r => r.email.toLowerCase() === this.userEmail.toLowerCase());
+  }
+
+  toggleAllowPublic(): void {
+    if (!this.occasion) return;
+    this.svc.setAllowPublic(this.occasion.id, !this.occasion.allowPublic);
+  }
+
+  joinOccasion(): void {
+    if (!this.occasion || this.joiningOccasion) return;
+    this.joiningOccasion = true;
+    this.svc.joinOccasion(this.occasion.id, this.voterName || this.userEmail, this.userEmail);
+    this.selectedTab = 1; // jump to When tab to start voting
+    this.joiningOccasion = false;
+  }
 
   reopenPolling(): void {
     if (!this.occasion || !confirm('Reopen polling? This will clear the finalized date, time, and location.')) return;

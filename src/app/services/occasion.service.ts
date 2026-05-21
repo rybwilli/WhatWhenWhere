@@ -32,6 +32,7 @@ interface OccasionRecord {
   finalNotes?: string | null;
   infoText?: string | null;
   infoUrl?: string | null;
+  allowPublic?: boolean | null;
   createdAt?: string;
 }
 
@@ -55,6 +56,7 @@ function fromRecord(r: OccasionRecord): Occasion {
     finalNotes: r.finalNotes ?? undefined,
     infoText: r.infoText ?? undefined,
     infoUrl: r.infoUrl ?? undefined,
+    allowPublic: r.allowPublic ?? false,
     createdAt: r.createdAt || new Date().toISOString(),
   };
 }
@@ -98,6 +100,7 @@ export class OccasionService {
     const email = userEmail.toLowerCase();
     return this.occasions$.pipe(
       map(all => all.filter(o =>
+        o.allowPublic ||
         o.ownerEmail?.toLowerCase() === email ||
         o.respondents.some(r => r.email.toLowerCase() === email)
       ))
@@ -105,6 +108,7 @@ export class OccasionService {
   }
 
   canAccess(occasion: Occasion, userEmail: string): boolean {
+    if (occasion.allowPublic) return true;
     const email = userEmail.toLowerCase();
     return occasion.ownerEmail?.toLowerCase() === email ||
       occasion.respondents.some(r => r.email.toLowerCase() === email);
@@ -192,6 +196,7 @@ export class OccasionService {
     if (changes.finalNotes     !== undefined) input.finalNotes     = changes.finalNotes;
     if (changes.infoText       !== undefined) input.infoText       = changes.infoText;
     if (changes.infoUrl        !== undefined) input.infoUrl        = changes.infoUrl;
+    if (changes.allowPublic    !== undefined) input.allowPublic    = changes.allowPublic;
 
     await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
   }
@@ -295,6 +300,16 @@ export class OccasionService {
       whereOptions: o.whereOptions.map(opt =>
         opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
       ),
+    }));
+  }
+
+  setAllowPublic(id: string, value: boolean): void {
+    this.updateFields(id, () => ({ allowPublic: value }));
+  }
+
+  joinOccasion(id: string, name: string, email: string): void {
+    this.updateFields(id, o => ({
+      respondents: [...o.respondents, { id: Math.random().toString(36).slice(2) + Date.now().toString(36), name, email }],
     }));
   }
 

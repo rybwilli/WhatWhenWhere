@@ -62,6 +62,11 @@
         matTooltip="Revert to polling and clear final details">
         <mat-icon>undo</mat-icon> Reopen Polling
       </button>
+      <button mat-icon-button [color]="occasion.allowPublic ? 'primary' : ''" *ngIf="canEdit()"
+        (click)="toggleAllowPublic()"
+        [matTooltip]="occasion.allowPublic ? 'Public: any logged-in user can see and join' : 'Private: only invited respondents'">
+        <mat-icon>{{ occasion.allowPublic ? 'public' : 'lock' }}</mat-icon>
+      </button>
       <button mat-icon-button (click)="showCopyPanel = !showCopyPanel" matTooltip="Copy occasion">
         <mat-icon>content_copy</mat-icon>
       </button>
@@ -102,6 +107,18 @@
       </button>
       <button mat-button (click)="showCopyPanel = false">Cancel</button>
     </mat-card-actions>
+  </mat-card>
+
+  <!-- Join & Vote banner for non-respondents on public occasions -->
+  <mat-card class="join-banner" *ngIf="occasion.allowPublic && !isRespondent() && !canEdit() && occasion.status === 'polling'">
+    <mat-icon>groups</mat-icon>
+    <div>
+      <strong>This is a public occasion</strong>
+      <p>You're not listed as a respondent yet. Join to cast your votes for when and where.</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="joinOccasion()" [disabled]="joiningOccasion">
+      <mat-icon>person_add</mat-icon> Join &amp; Vote
+    </button>
   </mat-card>
 
   <!-- Finalized banner -->

@@ -90,6 +90,9 @@
           <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
           <span class="spacer"></span>
           <mat-chip *ngIf="o.occasionType" class="type-chip">{{ o.occasionType }}</mat-chip>
+          <mat-chip *ngIf="o.allowPublic" class="public-chip" matTooltip="Open to all logged-in users">
+            <mat-icon>public</mat-icon> Public
+          </mat-chip>
           <ng-container *ngIf="o.status === 'polling' && userVoteSummary(o) as vs">
             <mat-chip *ngIf="vs.whenTotal + vs.whereTotal > 0"
               class="vote-status-chip"

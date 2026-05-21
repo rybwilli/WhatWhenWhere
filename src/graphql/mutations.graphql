@@ -23,6 +23,7 @@ mutation CreateOccasion(
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
@@ -52,6 +53,7 @@ mutation UpdateOccasion(
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
@@ -81,6 +83,7 @@ mutation DeleteOccasion(
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename

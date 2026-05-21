@@ -21,4 +21,5 @@ type Occasion @model {
   finalNotes: String
   infoText: String
   infoUrl: String
+  allowPublic: Boolean
 }

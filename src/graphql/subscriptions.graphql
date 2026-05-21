@@ -20,6 +20,7 @@ subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
@@ -46,6 +47,7 @@ subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
@@ -72,6 +74,7 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     finalNotes
     infoText
     infoUrl
+    allowPublic
     createdAt
     updatedAt
     __typename
