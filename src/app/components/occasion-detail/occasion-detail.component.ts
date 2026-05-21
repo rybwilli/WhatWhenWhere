@@ -30,15 +30,22 @@ export class OccasionDetailComponent implements OnInit {
   newWhenDate: Date | null = null;
   newWhenStart = '18:00';
   newWhenEnd = '20:00';
+  newWhenNotes = '';
+
+  // When notes inline edit
+  editingWhenNotesId: string | null = null;
+  editWhenNotes = '';
 
   // Where form
   newWhereOption = '';
   newWhereUrl = '';
+  newWhereNotes = '';
 
   // Where edit
   editingWhereId: string | null = null;
   editWhereLabel = '';
   editWhereUrl = '';
+  editWhereNotes = '';
 
   // Respondent form
   newRespondentName = '';
@@ -221,11 +228,25 @@ export class OccasionDetailComponent implements OnInit {
   addWhenOption(): void {
     if (!this.occasion || !this.canAddWhen()) return;
     const iso = this.newWhenDate!.toISOString().split('T')[0];
-    this.svc.addWhenOption(this.occasion.id, iso, this.newWhenStart, this.newWhenEnd);
+    this.svc.addWhenOption(this.occasion.id, iso, this.newWhenStart, this.newWhenEnd, this.newWhenNotes.trim() || undefined);
     this.newWhenDate = null;
     this.newWhenStart = '18:00';
     this.newWhenEnd = '20:00';
+    this.newWhenNotes = '';
   }
+
+  startEditWhenNotes(opt: WhenOption): void {
+    this.editingWhenNotesId = opt.id;
+    this.editWhenNotes = opt.notes ?? '';
+  }
+
+  saveWhenNotes(optId: string): void {
+    if (!this.occasion) return;
+    this.svc.updateWhenNotes(this.occasion.id, optId, this.editWhenNotes.trim());
+    this.editingWhenNotesId = null;
+  }
+
+  cancelEditWhenNotes(): void { this.editingWhenNotesId = null; }
 
   formatWhen(opt: WhenOption): string {
     const date = new Date(opt.date + 'T00:00:00');
@@ -289,20 +310,22 @@ export class OccasionDetailComponent implements OnInit {
 
   addWhereOption(): void {
     if (!this.occasion || !this.newWhereOption.trim()) return;
-    this.svc.addWhereOption(this.occasion.id, this.newWhereOption.trim(), this.newWhereUrl.trim());
+    this.svc.addWhereOption(this.occasion.id, this.newWhereOption.trim(), this.newWhereUrl.trim(), this.newWhereNotes.trim() || undefined);
     this.newWhereOption = '';
     this.newWhereUrl = '';
+    this.newWhereNotes = '';
   }
 
-  startEditWhere(opt: { id: string; label: string; url?: string }): void {
+  startEditWhere(opt: { id: string; label: string; url?: string; notes?: string }): void {
     this.editingWhereId = opt.id;
     this.editWhereLabel = opt.label;
     this.editWhereUrl = opt.url ?? '';
+    this.editWhereNotes = opt.notes ?? '';
   }
 
   saveEditWhere(): void {
     if (!this.occasion || !this.editingWhereId || !this.editWhereLabel.trim()) return;
-    this.svc.updateWhereOption(this.occasion.id, this.editingWhereId, this.editWhereLabel.trim(), this.editWhereUrl.trim());
+    this.svc.updateWhereOption(this.occasion.id, this.editingWhereId, this.editWhereLabel.trim(), this.editWhereUrl.trim(), this.editWhereNotes.trim() || undefined);
     this.editingWhereId = null;
   }
 

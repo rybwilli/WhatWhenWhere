@@ -239,22 +239,30 @@ export class OccasionService {
     }));
   }
 
-  addWhenOption(id: string, date: string, startTime: string, endTime: string): void {
+  addWhenOption(id: string, date: string, startTime: string, endTime: string, notes?: string): void {
     this.updateFields(id, o => ({
-      whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, votes: [] }],
+      whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, notes: notes || undefined, votes: [] }],
     }));
   }
 
-  addWhereOption(id: string, label: string, url?: string): void {
+  updateWhenNotes(id: string, optionId: string, notes: string): void {
     this.updateFields(id, o => ({
-      whereOptions: [...o.whereOptions, { id: uuid(), label, url: url || undefined, votes: [] }],
+      whenOptions: o.whenOptions.map(opt =>
+        opt.id !== optionId ? opt : { ...opt, notes: notes || undefined }
+      ),
     }));
   }
 
-  updateWhereOption(id: string, optionId: string, label: string, url?: string): void {
+  addWhereOption(id: string, label: string, url?: string, notes?: string): void {
+    this.updateFields(id, o => ({
+      whereOptions: [...o.whereOptions, { id: uuid(), label, url: url || undefined, notes: notes || undefined, votes: [] }],
+    }));
+  }
+
+  updateWhereOption(id: string, optionId: string, label: string, url?: string, notes?: string): void {
     this.updateFields(id, o => ({
       whereOptions: o.whereOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, label, url: url || undefined }
+        opt.id !== optionId ? opt : { ...opt, label, url: url || undefined, notes: notes || undefined }
       ),
     }));
   }

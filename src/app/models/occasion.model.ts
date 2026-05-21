@@ -15,6 +15,7 @@ export interface WhenOption {
   date: string;      // ISO date e.g. "2026-06-14"
   startTime: string; // 24h e.g. "19:00"
   endTime: string;   // 24h e.g. "21:00"
+  notes?: string;
   votes: Vote[];
 }
 
@@ -22,6 +23,7 @@ export interface WhereOption {
   id: string;
   label: string;
   url?: string;
+  notes?: string;
   votes: Vote[];
 }
 

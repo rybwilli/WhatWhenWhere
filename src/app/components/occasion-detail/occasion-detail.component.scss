@@ -428,6 +428,11 @@
     min-width: 120px;
   }
 
+  .notes-field {
+    flex: 3;
+    min-width: 200px;
+  }
+
   .add-btn {
     margin-top: 4px;
     flex-shrink: 0;
@@ -508,6 +513,32 @@
     font-weight: 500;
   }
 
+  .option-notes {
+    font-size: 0.78rem;
+    color: #666;
+    font-style: italic;
+  }
+
+  .inline-notes-edit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .inline-notes-input {
+      flex: 1;
+      font-size: 0.82rem;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      padding: 3px 6px;
+      outline: none;
+      &:focus { border-color: #3f51b5; }
+    }
+
+    button { width: 28px; height: 28px; line-height: 28px;
+      mat-icon { font-size: 16px; }
+    }
+  }
+
   .option-url-chip {
     display: inline-flex;
     align-items: center;
@@ -526,13 +557,13 @@
 
   .where-edit-form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
     padding: 8px 0;
 
-    .edit-where-label { flex: 1; min-width: 160px; }
-    .edit-where-url   { flex: 2; min-width: 200px; }
+    .edit-where-label,
+    .edit-where-url,
+    .edit-where-notes { width: 100%; }
 
     .edit-where-actions {
       display: flex;

@@ -206,6 +206,11 @@
             <mat-icon matSuffix>schedule</mat-icon>
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="notes-field">
+            <mat-label>Notes (optional)</mat-label>
+            <input matInput [(ngModel)]="newWhenNotes" placeholder="e.g. outdoor venue, bring rain gear" />
+            <mat-icon matSuffix>notes</mat-icon>
+          </mat-form-field>
           <button mat-raised-button color="primary" class="add-btn"
             (click)="addWhenOption()" [disabled]="!canAddWhen()">
             <mat-icon>add</mat-icon> Add
@@ -233,12 +238,26 @@
             [class.leading]="isLeadingWhen(opt)">
             <div class="option-header">
               <mat-icon>event</mat-icon>
-              <span class="option-label">{{ formatWhen(opt) }}</span>
+              <div class="option-label-group">
+                <span class="option-label">{{ formatWhen(opt) }}</span>
+                <span *ngIf="opt.notes && editingWhenNotesId !== opt.id" class="option-notes">{{ opt.notes }}</span>
+                <div *ngIf="editingWhenNotesId === opt.id" class="inline-notes-edit" (click)="$event.stopPropagation()">
+                  <input class="inline-notes-input" [(ngModel)]="editWhenNotes" placeholder="Add notes..."
+                    (keyup.enter)="saveWhenNotes(opt.id)" (keyup.escape)="cancelEditWhenNotes()" />
+                  <button mat-icon-button color="primary" (click)="saveWhenNotes(opt.id)" matTooltip="Save"><mat-icon>check</mat-icon></button>
+                  <button mat-icon-button (click)="cancelEditWhenNotes()" matTooltip="Cancel"><mat-icon>close</mat-icon></button>
+                </div>
+              </div>
               <div class="tally">
                 <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
                 <span class="tally-maybe">~ {{ votesFor(opt.votes, 'maybe').length }}</span>
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
+              <button mat-icon-button *ngIf="canEdit() && occasion.status !== 'finalized'"
+                (click)="startEditWhenNotes(opt); $event.stopPropagation()"
+                [matTooltip]="opt.notes ? 'Edit notes' : 'Add notes'">
+                <mat-icon>{{ opt.notes ? 'edit_note' : 'note_add' }}</mat-icon>
+              </button>
               <button mat-icon-button color="warn" *ngIf="canEdit() && occasion.status !== 'finalized'"
                 (click)="removeWhenOption(opt.id)" matTooltip="Remove">
                 <mat-icon>close</mat-icon>
@@ -325,6 +344,11 @@
             <input matInput [(ngModel)]="newWhereUrl" placeholder="https://maps.google.com/..." (keyup.enter)="addWhereOption()" />
             <mat-icon matSuffix>link</mat-icon>
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Notes (optional)</mat-label>
+            <input matInput [(ngModel)]="newWhereNotes" placeholder="e.g. parking available, accessible" />
+            <mat-icon matSuffix>notes</mat-icon>
+          </mat-form-field>
           <button mat-raised-button color="primary" (click)="addWhereOption()" [disabled]="!newWhereOption.trim()">
             <mat-icon>add</mat-icon> Add
           </button>
@@ -346,6 +370,7 @@
                 <a *ngIf="opt.url" [href]="opt.url" target="_blank" rel="noopener" class="option-url-chip" (click)="$event.stopPropagation()">
                   <mat-icon>open_in_new</mat-icon>{{ getDomain(opt.url) }}
                 </a>
+                <span *ngIf="opt.notes" class="option-notes">{{ opt.notes }}</span>
               </div>
               <div class="tally">
                 <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
@@ -362,14 +387,19 @@
 
             <!-- Edit mode -->
             <div class="where-edit-form" *ngIf="editingWhereId === opt.id" (click)="$event.stopPropagation()">
-              <mat-form-field appearance="outline" class="edit-where-label">
+              <mat-form-field appearance="outline" style="width:100%">
                 <mat-label>Location</mat-label>
                 <input matInput [(ngModel)]="editWhereLabel" />
               </mat-form-field>
-              <mat-form-field appearance="outline" class="edit-where-url">
+              <mat-form-field appearance="outline" style="width:100%">
                 <mat-label>URL (optional)</mat-label>
                 <input matInput [(ngModel)]="editWhereUrl" />
                 <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" style="width:100%">
+                <mat-label>Notes (optional)</mat-label>
+                <input matInput [(ngModel)]="editWhereNotes" placeholder="e.g. parking available" />
+                <mat-icon matSuffix>notes</mat-icon>
               </mat-form-field>
               <div class="edit-where-actions">
                 <button mat-raised-button color="primary" (click)="saveEditWhere()" [disabled]="!editWhereLabel.trim()">Save</button>
