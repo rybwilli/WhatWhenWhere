@@ -555,6 +555,20 @@
     &:hover { background: #bbdefb; }
   }
 
+  .when-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0;
+
+    .edit-when-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+  }
+
   .where-edit-form {
     display: flex;
     flex-direction: column;

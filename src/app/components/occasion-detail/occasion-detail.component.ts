@@ -32,8 +32,11 @@ export class OccasionDetailComponent implements OnInit {
   newWhenEnd = '20:00';
   newWhenNotes = '';
 
-  // When notes inline edit
-  editingWhenNotesId: string | null = null;
+  // When edit
+  editingWhenId: string | null = null;
+  editWhenDate: Date | null = null;
+  editWhenStart = '';
+  editWhenEnd = '';
   editWhenNotes = '';
 
   // Where form
@@ -235,18 +238,22 @@ export class OccasionDetailComponent implements OnInit {
     this.newWhenNotes = '';
   }
 
-  startEditWhenNotes(opt: WhenOption): void {
-    this.editingWhenNotesId = opt.id;
+  startEditWhen(opt: WhenOption): void {
+    this.editingWhenId = opt.id;
+    this.editWhenDate = new Date(opt.date + 'T00:00:00');
+    this.editWhenStart = opt.startTime;
+    this.editWhenEnd = opt.endTime;
     this.editWhenNotes = opt.notes ?? '';
   }
 
-  saveWhenNotes(optId: string): void {
-    if (!this.occasion) return;
-    this.svc.updateWhenNotes(this.occasion.id, optId, this.editWhenNotes.trim());
-    this.editingWhenNotesId = null;
+  saveEditWhen(): void {
+    if (!this.occasion || !this.editingWhenId || !this.editWhenDate) return;
+    const iso = this.editWhenDate.toISOString().split('T')[0];
+    this.svc.updateWhenOption(this.occasion.id, this.editingWhenId, iso, this.editWhenStart, this.editWhenEnd, this.editWhenNotes.trim() || undefined);
+    this.editingWhenId = null;
   }
 
-  cancelEditWhenNotes(): void { this.editingWhenNotesId = null; }
+  cancelEditWhen(): void { this.editingWhenId = null; }
 
   formatWhen(opt: WhenOption): string {
     const date = new Date(opt.date + 'T00:00:00');

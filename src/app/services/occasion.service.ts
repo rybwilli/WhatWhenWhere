@@ -245,10 +245,10 @@ export class OccasionService {
     }));
   }
 
-  updateWhenNotes(id: string, optionId: string, notes: string): void {
+  updateWhenOption(id: string, optionId: string, date: string, startTime: string, endTime: string, notes?: string): void {
     this.updateFields(id, o => ({
       whenOptions: o.whenOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, notes: notes || undefined }
+        opt.id !== optionId ? opt : { ...opt, date, startTime, endTime, notes: notes || undefined }
       ),
     }));
   }

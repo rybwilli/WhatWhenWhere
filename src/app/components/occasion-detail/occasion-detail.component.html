@@ -236,17 +236,13 @@
           <div class="options-list" [class.hidden-mobile]="whenView === 'calendar'">
           <div *ngFor="let opt of sortedWhenOptions" class="option-card"
             [class.leading]="isLeadingWhen(opt)">
-            <div class="option-header">
+
+            <!-- View mode -->
+            <div class="option-header" *ngIf="editingWhenId !== opt.id">
               <mat-icon>event</mat-icon>
               <div class="option-label-group">
                 <span class="option-label">{{ formatWhen(opt) }}</span>
-                <span *ngIf="opt.notes && editingWhenNotesId !== opt.id" class="option-notes">{{ opt.notes }}</span>
-                <div *ngIf="editingWhenNotesId === opt.id" class="inline-notes-edit" (click)="$event.stopPropagation()">
-                  <input class="inline-notes-input" [(ngModel)]="editWhenNotes" placeholder="Add notes..."
-                    (keyup.enter)="saveWhenNotes(opt.id)" (keyup.escape)="cancelEditWhenNotes()" />
-                  <button mat-icon-button color="primary" (click)="saveWhenNotes(opt.id)" matTooltip="Save"><mat-icon>check</mat-icon></button>
-                  <button mat-icon-button (click)="cancelEditWhenNotes()" matTooltip="Cancel"><mat-icon>close</mat-icon></button>
-                </div>
+                <span *ngIf="opt.notes" class="option-notes">{{ opt.notes }}</span>
               </div>
               <div class="tally">
                 <span class="tally-yes">✓ {{ votesFor(opt.votes, 'yes').length }}</span>
@@ -254,9 +250,8 @@
                 <span class="tally-no">✗ {{ votesFor(opt.votes, 'no').length }}</span>
               </div>
               <button mat-icon-button *ngIf="canEdit() && occasion.status !== 'finalized'"
-                (click)="startEditWhenNotes(opt); $event.stopPropagation()"
-                [matTooltip]="opt.notes ? 'Edit notes' : 'Add notes'">
-                <mat-icon>{{ opt.notes ? 'edit_note' : 'note_add' }}</mat-icon>
+                (click)="startEditWhen(opt); $event.stopPropagation()" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
               </button>
               <button mat-icon-button color="warn" *ngIf="canEdit() && occasion.status !== 'finalized'"
                 (click)="removeWhenOption(opt.id)" matTooltip="Remove">
@@ -264,8 +259,37 @@
               </button>
             </div>
 
+            <!-- Edit mode -->
+            <div class="when-edit-form" *ngIf="editingWhenId === opt.id" (click)="$event.stopPropagation()">
+              <mat-form-field appearance="outline" style="width:100%">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="editPicker" [(ngModel)]="editWhenDate" />
+                <mat-datepicker-toggle matSuffix [for]="editPicker"></mat-datepicker-toggle>
+                <mat-datepicker #editPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline" style="width:100%">
+                <mat-label>Start Time</mat-label>
+                <input matInput type="time" [(ngModel)]="editWhenStart" />
+                <mat-icon matSuffix>schedule</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" style="width:100%">
+                <mat-label>End Time</mat-label>
+                <input matInput type="time" [(ngModel)]="editWhenEnd" />
+                <mat-icon matSuffix>schedule</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" style="width:100%">
+                <mat-label>Notes (optional)</mat-label>
+                <input matInput [(ngModel)]="editWhenNotes" placeholder="e.g. outdoor venue" />
+                <mat-icon matSuffix>notes</mat-icon>
+              </mat-form-field>
+              <div class="edit-when-actions">
+                <button mat-raised-button color="primary" (click)="saveEditWhen()" [disabled]="!editWhenDate">Save</button>
+                <button mat-button (click)="cancelEditWhen()">Cancel</button>
+              </div>
+            </div>
+
             <!-- Voter responses summary -->
-            <div class="vote-details" *ngIf="opt.votes.length">
+            <div class="vote-details" *ngIf="opt.votes.length && editingWhenId !== opt.id">
               <div *ngFor="let v of opt.votes" class="vote-chip" [class]="'chip-' + v.response">
                 <span class="chip-icon">{{ v.response === 'yes' ? '✓' : v.response === 'maybe' ? '~' : '✗' }}</span>
                 <span class="chip-voter">{{ v.voter }}</span>
@@ -274,7 +298,7 @@
             </div>
 
             <!-- Vote buttons (polling mode) -->
-            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim()">
+            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim() && editingWhenId !== opt.id">
               <span class="your-vote-label">Your vote:</span>
               <button mat-stroked-button class="vote-btn yes"
                 [class.selected]="myWhenVote(opt.id) === 'yes'"
