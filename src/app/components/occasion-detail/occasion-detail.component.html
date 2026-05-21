@@ -302,12 +302,15 @@
               <span class="your-vote-label">Your vote:</span>
               <button mat-stroked-button class="vote-btn yes"
                 [class.selected]="myWhenVote(opt.id) === 'yes'"
+                [disabled]="!isRespondent()"
                 (click)="setWhenVote(opt.id, 'yes')">✓ Yes</button>
               <button mat-stroked-button class="vote-btn maybe"
                 [class.selected]="myWhenVote(opt.id) === 'maybe'"
+                [disabled]="!isRespondent()"
                 (click)="setWhenVote(opt.id, 'maybe')">~ Maybe</button>
               <button mat-stroked-button class="vote-btn no"
                 [class.selected]="myWhenVote(opt.id) === 'no'"
+                [disabled]="!isRespondent()"
                 (click)="setWhenVote(opt.id, 'no')">✗ No</button>
               <mat-form-field appearance="outline" class="comment-field">
                 <mat-label>Comment (optional)</mat-label>
@@ -443,12 +446,15 @@
               <span class="your-vote-label">Your vote:</span>
               <button mat-stroked-button class="vote-btn yes"
                 [class.selected]="myWhereVote(opt.id) === 'yes'"
+                [disabled]="!isRespondent()"
                 (click)="setWhereVote(opt.id, 'yes')">✓ Yes</button>
               <button mat-stroked-button class="vote-btn maybe"
                 [class.selected]="myWhereVote(opt.id) === 'maybe'"
+                [disabled]="!isRespondent()"
                 (click)="setWhereVote(opt.id, 'maybe')">~ Maybe</button>
               <button mat-stroked-button class="vote-btn no"
                 [class.selected]="myWhereVote(opt.id) === 'no'"
+                [disabled]="!isRespondent()"
                 (click)="setWhereVote(opt.id, 'no')">✗ No</button>
               <mat-form-field appearance="outline" class="comment-field">
                 <mat-label>Comment (optional)</mat-label>
