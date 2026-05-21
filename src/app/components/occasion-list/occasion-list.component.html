@@ -84,7 +84,7 @@
 
   <mat-grid-list cols="1" rowHeight="fit" gutterSize="0" *ngIf="filteredOccasions.length > 0">
     <div class="cards-grid">
-      <mat-card *ngFor="let o of filteredOccasions" class="occasion-card" (click)="open(o.id)">
+      <mat-card *ngFor="let o of filteredOccasions" class="occasion-card" [ngClass]="'card-' + o.status" (click)="open(o.id)">
         <mat-card-header>
           <mat-card-title>{{ o.title }}</mat-card-title>
           <mat-card-subtitle>Organized by {{ o.ownerName }}</mat-card-subtitle>
@@ -100,7 +100,7 @@
               <span class="vote-tally"><mat-icon class="mini-icon">place</mat-icon>{{ vs.where }}/{{ vs.whereTotal }}</span>
             </mat-chip>
           </ng-container>
-          <mat-chip [color]="statusColor(o.status)" selected>{{ o.status }}</mat-chip>
+          <mat-chip class="status-chip" [ngClass]="'status-' + o.status">{{ o.status }}</mat-chip>
           <button mat-icon-button color="warn" *ngIf="isOwner(o)"
             (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">
             <mat-icon>delete</mat-icon>

@@ -71,11 +71,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     }
   }
 
-  statusColor(status: string): string {
-    return status === 'finalized' ? 'accent' : status === 'polling' ? 'primary' : 'warn';
-  }
-
-  occasionDate(o: Occasion): string {
+occasionDate(o: Occasion): string {
     if (o.status === 'finalized' && o.finalDate) return o.finalDate;
     const dates = o.whenOptions.map(w => w.date).filter(Boolean).sort();
     return dates.length ? dates[dates.length - 1] : '';

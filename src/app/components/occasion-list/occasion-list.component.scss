@@ -157,9 +157,27 @@
   gap: 16px;
 }
 
+// Status colors
+$color-draft:     #f57c00;
+$color-polling:   #1565c0;
+$color-finalized: #2e7d32;
+
+.status-chip {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  &.status-draft     { background: #fff3e0 !important; color: $color-draft     !important; }
+  &.status-polling   { background: #e3f2fd !important; color: $color-polling   !important; }
+  &.status-finalized { background: #e8f5e9 !important; color: $color-finalized !important; }
+}
+
 .occasion-card {
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
+  border-left: 4px solid transparent !important;
+
+  &.card-draft     { border-left-color: $color-draft     !important; }
+  &.card-polling   { border-left-color: $color-polling   !important; }
+  &.card-finalized { border-left-color: $color-finalized !important; }
 
   &:hover {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
