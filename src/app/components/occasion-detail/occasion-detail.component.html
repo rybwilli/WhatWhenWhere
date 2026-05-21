@@ -120,6 +120,10 @@
     <mat-card-header>
       <mat-card-title><mat-icon>info</mat-icon> Information</mat-card-title>
       <span class="spacer"></span>
+      <button mat-icon-button *ngIf="canEdit() && !editingInfo && isBandHelperUrl(occasion.infoUrl)"
+        (click)="refreshFromBandHelper()" [disabled]="refreshingInfo" matTooltip="Refresh from BandHelper">
+        <mat-icon>{{ refreshingInfo ? 'hourglass_top' : 'refresh' }}</mat-icon>
+      </button>
       <button mat-icon-button *ngIf="canEdit() && !editingInfo" (click)="startEditInfo()" matTooltip="Edit information">
         <mat-icon>edit</mat-icon>
       </button>

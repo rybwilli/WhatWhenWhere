@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 import { filter, switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
@@ -54,6 +55,9 @@ export class OccasionDetailComponent implements OnInit {
   editingInfo = false;
   editInfoText = '';
   editInfoUrl = '';
+  refreshingInfo = false;
+
+  private readonly scraperUrl = 'https://11x7a2spul.execute-api.us-east-1.amazonaws.com/prod/scrape';
 
   // Copy occasion
   showCopyPanel = false;
@@ -71,7 +75,8 @@ export class OccasionDetailComponent implements OnInit {
     private router: Router,
     private svc: OccasionService,
     private auth: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -182,6 +187,24 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   cancelEditInfo(): void { this.editingInfo = false; }
+
+  isBandHelperUrl(url?: string): boolean {
+    try { return !!url && new URL(url).hostname.includes('bandhelper.com'); }
+    catch { return false; }
+  }
+
+  refreshFromBandHelper(): void {
+    if (!this.occasion?.infoUrl || this.refreshingInfo) return;
+    this.refreshingInfo = true;
+    this.http.post<{ html: string }>(this.scraperUrl, { url: this.occasion.infoUrl })
+      .subscribe({
+        next: ({ html }) => {
+          this.svc.saveInfo(this.occasion!.id, html, this.occasion!.infoUrl ?? '');
+          this.refreshingInfo = false;
+        },
+        error: () => { this.refreshingInfo = false; },
+      });
+  }
 
   // ---------- Polling ----------
   openPolling(): void {
