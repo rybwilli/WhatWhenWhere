@@ -13,6 +13,27 @@ import { Occasion, OCCASION_TYPES } from '../../models/occasion.model';
 })
 export class OccasionListComponent implements OnInit, OnDestroy {
   occasions: Occasion[] = [];
+
+  private readonly subtitles = [
+    'Plan occasions with your group',
+    'Adventures await once you organize your ragtag bunch',
+    'Herding cats has never been this organized',
+    'Because someone has to plan the fun',
+    'Get your crew together before everyone bails',
+    'Turning "we should do something" into something',
+    'Where group chats go to become real plans',
+    'Nobody said organizing people was easy. We help anyway',
+    'Your people are waiting. Make something happen',
+    'Less "who\'s free when?" More actual plans',
+    'Because "we should really do that sometime" deserves a date',
+    'Making memories requires making plans first',
+    'Your next great story starts with a date and a place',
+    'Same group, better plans',
+    'The world\'s okayest scheduling app for people who actually show up',
+  ];
+  subtitle = this.subtitles[0];
+  subtitleFading = false;
+  private subtitleTimer: ReturnType<typeof setInterval> | null = null;
   userEmail = '';
   loading = true;
   private sub: Subscription | undefined;
@@ -32,6 +53,15 @@ export class OccasionListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.subtitleTimer = setInterval(() => {
+      this.subtitleFading = true;
+      setTimeout(() => {
+        const others = this.subtitles.filter(s => s !== this.subtitle);
+        this.subtitle = others[Math.floor(Math.random() * others.length)];
+        this.subtitleFading = false;
+      }, 400);
+    }, 4000);
+
     this.sub = this.auth.user$.pipe(
       switchMap(user => {
         this.userEmail = user?.email ?? '';
@@ -50,6 +80,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    if (this.subtitleTimer) clearInterval(this.subtitleTimer);
   }
 
   open(id: string): void {

@@ -1,7 +1,7 @@
 <div class="list-container">
   <div class="list-header">
     <img src="assets/Monkey3.png" class="page-logo" alt="What? When? Where? Who?" />
-    <p class="subtitle">Plan occasions with your group</p>
+    <p class="subtitle" [class.fading]="subtitleFading">{{ subtitle }}</p>
   </div>
 
   <div class="loading-overlay" *ngIf="loading">
