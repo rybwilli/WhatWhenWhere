@@ -1,0 +1,14 @@
+<div class="tp-wrap" [class.disabled]="disabled" (blur)="onTouched()">
+  <span class="tp-label" *ngIf="label">{{ label }}</span>
+  <select [value]="hour" (change)="onHourChange($event)" [disabled]="disabled" class="sel-hour">
+    <option *ngFor="let h of hours" [value]="h">{{ h }}</option>
+  </select>
+  <span class="sep">:</span>
+  <select [value]="minute" (change)="onMinuteChange($event)" [disabled]="disabled" class="sel-min">
+    <option *ngFor="let m of minutes" [value]="m">{{ m }}</option>
+  </select>
+  <select [value]="ampm" (change)="onAmpmChange($event)" [disabled]="disabled" class="sel-ampm">
+    <option value="AM">AM</option>
+    <option value="PM">PM</option>
+  </select>
+</div>

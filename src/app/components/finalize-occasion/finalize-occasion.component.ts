@@ -27,6 +27,7 @@ export class FinalizeOccasionComponent implements OnInit {
       finalDate: ['', Validators.required],
       finalStartTime: [''],
       finalEndTime: [''],
+      finalEndDate: [null],
       finalLocation: ['', Validators.required],
       finalNotes: [''],
       infoUrl: [''],
@@ -54,26 +55,26 @@ export class FinalizeOccasionComponent implements OnInit {
     });
   }
 
+  private fmt(t: string): string {
+    const [h, m] = t.split(':').map(Number);
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
+  private fmtDate(iso: string): string {
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
   topWhenOption(): string {
     if (!this.occasion?.whenOptions.length) return '';
     const top = [...this.occasion.whenOptions].sort((a, b) => b.votes.length - a.votes.length)[0];
-    const date = new Date(top.date + 'T00:00:00');
-    const datePart = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const fmt = (t: string) => {
-      const [h, m] = t.split(':').map(Number);
-      return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-    };
-    return `${datePart} · ${fmt(top.startTime)} – ${fmt(top.endTime)}`;
+    return this.topWhenLabel(top);
   }
 
   topWhenLabel(opt: WhenOption): string {
-    const date = new Date(opt.date + 'T00:00:00');
-    const datePart = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const fmt = (t: string) => {
-      const [h, m] = t.split(':').map(Number);
-      return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-    };
-    return `${datePart} · ${fmt(opt.startTime)} – ${fmt(opt.endTime)}`;
+    const endPart = opt.endDate && opt.endDate !== opt.date
+      ? `${this.fmtDate(opt.endDate)} · ${this.fmt(opt.endTime)}`
+      : this.fmt(opt.endTime);
+    return `${this.fmtDate(opt.date)} · ${this.fmt(opt.startTime)} – ${endPart}`;
   }
 
   topWhereOption(): string {
@@ -87,6 +88,7 @@ export class FinalizeOccasionComponent implements OnInit {
       finalDate: new Date(opt.date + 'T00:00:00'),
       finalStartTime: opt.startTime,
       finalEndTime: opt.endTime,
+      finalEndDate: opt.endDate && opt.endDate !== opt.date ? new Date(opt.endDate + 'T00:00:00') : null,
     });
   }
 
@@ -107,12 +109,10 @@ export class FinalizeOccasionComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid || !this.occasion) return;
-    const { finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes, infoUrl, infoText } = this.form.value;
-    const dateValue: Date | string = finalDate;
-    const isoDate = dateValue instanceof Date
-      ? dateValue.toISOString().split('T')[0]
-      : dateValue;
-    this.svc.finalize(this.occasion.id, isoDate, finalStartTime ?? '', finalEndTime ?? '', finalLocation, finalNotes);
+    const { finalDate, finalStartTime, finalEndTime, finalEndDate, finalLocation, finalNotes, infoUrl, infoText } = this.form.value;
+    const toIso = (v: Date | string | null): string =>
+      v instanceof Date ? v.toISOString().split('T')[0] : (v ?? '');
+    this.svc.finalize(this.occasion.id, toIso(finalDate), finalStartTime ?? '', finalEndTime ?? '', toIso(finalEndDate), finalLocation, finalNotes);
     this.svc.saveInfo(this.occasion.id, infoText ?? '', infoUrl ?? '');
     this.router.navigate(['/occasion', this.occasion.id]);
   }

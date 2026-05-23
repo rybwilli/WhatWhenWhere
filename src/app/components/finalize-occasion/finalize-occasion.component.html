@@ -57,15 +57,13 @@
         </mat-form-field>
 
         <div class="time-row">
-          <mat-form-field appearance="outline" class="time-field">
-            <mat-label>Start Time</mat-label>
-            <input matInput type="time" formControlName="finalStartTime" />
-            <mat-icon matSuffix>schedule</mat-icon>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="time-field">
-            <mat-label>End Time</mat-label>
-            <input matInput type="time" formControlName="finalEndTime" />
-            <mat-icon matSuffix>schedule</mat-icon>
+          <app-time-picker class="time-field" label="Start Time" formControlName="finalStartTime"></app-time-picker>
+          <app-time-picker class="time-field" label="End Time" formControlName="finalEndTime"></app-time-picker>
+          <mat-form-field appearance="outline" class="end-date-field">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endDatePicker" formControlName="finalEndDate" placeholder="If different" />
+            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
           </mat-form-field>
         </div>
 

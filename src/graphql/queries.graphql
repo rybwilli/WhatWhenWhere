@@ -16,6 +16,7 @@ query GetOccasion($id: ID!) {
     finalDate
     finalStartTime
     finalEndTime
+    finalEndDate
     finalLocation
     finalNotes
     infoText
@@ -48,6 +49,7 @@ query ListOccasions(
       finalDate
       finalStartTime
       finalEndTime
+      finalEndDate
       finalLocation
       finalNotes
       infoText

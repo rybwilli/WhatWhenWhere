@@ -24,6 +24,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RichEditorComponent } from './components/rich-editor/rich-editor.component';
+import { TimePickerComponent } from './components/time-picker/time-picker.component';
 
 import { AppComponent } from './app.component';
 import { OccasionListComponent } from './components/occasion-list/occasion-list.component';
@@ -41,6 +42,7 @@ import { LoginComponent } from './components/login/login.component';
     FinalizeOccasionComponent,
     LoginComponent,
     RichEditorComponent,
+    TimePickerComponent,
   ],
   imports: [
     BrowserModule,

@@ -100,5 +100,12 @@
 .time-row {
   display: flex;
   gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+
   .time-field { flex: 1; }
+
+  .end-date-field {
+    flex: 0 0 170px;
+  }
 }

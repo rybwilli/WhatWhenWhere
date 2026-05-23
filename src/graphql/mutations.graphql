@@ -19,6 +19,7 @@ mutation CreateOccasion(
     finalDate
     finalStartTime
     finalEndTime
+    finalEndDate
     finalLocation
     finalNotes
     infoText
@@ -49,6 +50,7 @@ mutation UpdateOccasion(
     finalDate
     finalStartTime
     finalEndTime
+    finalEndDate
     finalLocation
     finalNotes
     infoText
@@ -79,6 +81,7 @@ mutation DeleteOccasion(
     finalDate
     finalStartTime
     finalEndTime
+    finalEndDate
     finalLocation
     finalNotes
     infoText

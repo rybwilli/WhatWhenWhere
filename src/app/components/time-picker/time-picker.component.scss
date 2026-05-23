@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.tp-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: 56px;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.38);
+  border-radius: 4px;
+  padding: 0 12px;
+  background: white;
+  cursor: text;
+
+  &:hover:not(.disabled) {
+    border-color: rgba(0, 0, 0, 0.87);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.tp-label {
+  position: absolute;
+  top: -9px;
+  left: 8px;
+  padding: 0 4px;
+  background: white;
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  font-family: inherit;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: pointer;
+  padding: 0;
+
+  &:disabled { cursor: not-allowed; }
+}
+
+.sel-hour  { width: 34px; }
+.sel-min   { width: 40px; }
+.sel-ampm  { width: 50px; }
+
+.sep {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+  padding: 0 1px;
+  user-select: none;
+}

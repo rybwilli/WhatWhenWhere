@@ -30,6 +30,7 @@ export type CreateOccasionInput = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -51,6 +52,7 @@ export type ModelOccasionConditionInput = {
   finalDate?: ModelStringInput | null;
   finalStartTime?: ModelStringInput | null;
   finalEndTime?: ModelStringInput | null;
+  finalEndDate?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
   infoText?: ModelStringInput | null;
@@ -125,6 +127,7 @@ export type Occasion = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -149,6 +152,7 @@ export type UpdateOccasionInput = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -175,6 +179,7 @@ export type ModelOccasionFilterInput = {
   finalDate?: ModelStringInput | null;
   finalStartTime?: ModelStringInput | null;
   finalEndTime?: ModelStringInput | null;
+  finalEndDate?: ModelStringInput | null;
   finalLocation?: ModelStringInput | null;
   finalNotes?: ModelStringInput | null;
   infoText?: ModelStringInput | null;
@@ -224,6 +229,7 @@ export type ModelSubscriptionOccasionFilterInput = {
   finalDate?: ModelSubscriptionStringInput | null;
   finalStartTime?: ModelSubscriptionStringInput | null;
   finalEndTime?: ModelSubscriptionStringInput | null;
+  finalEndDate?: ModelSubscriptionStringInput | null;
   finalLocation?: ModelSubscriptionStringInput | null;
   finalNotes?: ModelSubscriptionStringInput | null;
   infoText?: ModelSubscriptionStringInput | null;
@@ -286,6 +292,7 @@ export type CreateOccasionMutation = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -311,6 +318,7 @@ export type UpdateOccasionMutation = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -336,6 +344,7 @@ export type DeleteOccasionMutation = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -361,6 +370,7 @@ export type GetOccasionQuery = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -388,6 +398,7 @@ export type ListOccasionsQuery = {
     finalDate?: string | null;
     finalStartTime?: string | null;
     finalEndTime?: string | null;
+    finalEndDate?: string | null;
     finalLocation?: string | null;
     finalNotes?: string | null;
     infoText?: string | null;
@@ -415,6 +426,7 @@ export type OnCreateOccasionSubscription = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -440,6 +452,7 @@ export type OnUpdateOccasionSubscription = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -465,6 +478,7 @@ export type OnDeleteOccasionSubscription = {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -499,6 +513,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -540,6 +555,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -581,6 +597,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -619,6 +636,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -660,6 +678,7 @@ export class APIService {
             finalDate
             finalStartTime
             finalEndTime
+            finalEndDate
             finalLocation
             finalNotes
             infoText
@@ -708,6 +727,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -750,6 +770,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
@@ -792,6 +813,7 @@ export class APIService {
           finalDate
           finalStartTime
           finalEndTime
+          finalEndDate
           finalLocation
           finalNotes
           infoText
