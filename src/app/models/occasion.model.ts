@@ -1,4 +1,4 @@
-export type OccasionStatus = 'draft' | 'polling' | 'finalized';
+export type OccasionStatus = 'draft' | 'polling' | 'finalized' | 'closed';
 export type OccasionType = 'Rehearsal' | 'Performance' | 'Meeting' | 'Party' | 'Ride' | 'Run' | 'Practice' | 'Scrimmage' | 'Lecture';
 export const OCCASION_TYPES: OccasionType[] = ['Rehearsal', 'Performance', 'Meeting', 'Party', 'Ride', 'Run', 'Practice', 'Scrimmage', 'Lecture'];
 export type VoteResponse = 'yes' | 'maybe' | 'no';
@@ -12,9 +12,10 @@ export interface Vote {
 
 export interface WhenOption {
   id: string;
-  date: string;      // ISO date e.g. "2026-06-14"
-  startTime: string; // 24h e.g. "19:00"
-  endTime: string;   // 24h e.g. "21:00"
+  date: string;       // ISO date e.g. "2026-06-14"
+  startTime: string;  // 24h e.g. "19:00"
+  endTime: string;    // 24h e.g. "21:00"
+  endDate?: string;   // ISO date if end falls on a different day
   notes?: string;
   votes: Vote[];
 }
@@ -49,6 +50,7 @@ export interface Occasion {
   finalDate?: string;
   finalStartTime?: string;
   finalEndTime?: string;
+  finalEndDate?: string;
   finalLocation?: string;
   finalNotes?: string;
   infoText?: string;

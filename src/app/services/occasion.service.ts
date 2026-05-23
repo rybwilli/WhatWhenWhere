@@ -28,6 +28,7 @@ interface OccasionRecord {
   finalDate?: string | null;
   finalStartTime?: string | null;
   finalEndTime?: string | null;
+  finalEndDate?: string | null;
   finalLocation?: string | null;
   finalNotes?: string | null;
   infoText?: string | null;
@@ -52,6 +53,7 @@ function fromRecord(r: OccasionRecord): Occasion {
     finalDate: r.finalDate ?? undefined,
     finalStartTime: r.finalStartTime ?? undefined,
     finalEndTime: r.finalEndTime ?? undefined,
+    finalEndDate: r.finalEndDate ?? undefined,
     finalLocation: r.finalLocation ?? undefined,
     finalNotes: r.finalNotes ?? undefined,
     infoText: r.infoText ?? undefined,
@@ -192,6 +194,7 @@ export class OccasionService {
     if (changes.finalDate      !== undefined) input.finalDate      = changes.finalDate;
     if (changes.finalStartTime !== undefined) input.finalStartTime = changes.finalStartTime;
     if (changes.finalEndTime   !== undefined) input.finalEndTime   = changes.finalEndTime;
+    if (changes.finalEndDate   !== undefined) input.finalEndDate   = changes.finalEndDate;
     if (changes.finalLocation  !== undefined) input.finalLocation  = changes.finalLocation;
     if (changes.finalNotes     !== undefined) input.finalNotes     = changes.finalNotes;
     if (changes.infoText       !== undefined) input.infoText       = changes.infoText;
@@ -239,16 +242,16 @@ export class OccasionService {
     }));
   }
 
-  addWhenOption(id: string, date: string, startTime: string, endTime: string, notes?: string): void {
+  addWhenOption(id: string, date: string, startTime: string, endTime: string, endDate?: string, notes?: string): void {
     this.updateFields(id, o => ({
-      whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, notes: notes || undefined, votes: [] }],
+      whenOptions: [...o.whenOptions, { id: uuid(), date, startTime, endTime, endDate: endDate || undefined, notes: notes || undefined, votes: [] }],
     }));
   }
 
-  updateWhenOption(id: string, optionId: string, date: string, startTime: string, endTime: string, notes?: string): void {
+  updateWhenOption(id: string, optionId: string, date: string, startTime: string, endTime: string, endDate?: string, notes?: string): void {
     this.updateFields(id, o => ({
       whenOptions: o.whenOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, date, startTime, endTime, notes: notes || undefined }
+        opt.id !== optionId ? opt : { ...opt, date, startTime, endTime, endDate: endDate || undefined, notes: notes || undefined }
       ),
     }));
   }
@@ -335,13 +338,22 @@ export class OccasionService {
       finalDate: '',
       finalStartTime: '',
       finalEndTime: '',
+      finalEndDate: '',
       finalLocation: '',
       finalNotes: '',
     }));
   }
 
-  finalize(id: string, finalDate: string, finalStartTime: string, finalEndTime: string, finalLocation: string, finalNotes: string): void {
-    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalStartTime, finalEndTime, finalLocation, finalNotes }));
+  finalize(id: string, finalDate: string, finalStartTime: string, finalEndTime: string, finalEndDate: string, finalLocation: string, finalNotes: string): void {
+    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalStartTime, finalEndTime, finalEndDate, finalLocation, finalNotes }));
+  }
+
+  closeOccasion(id: string): void {
+    this.updateFields(id, () => ({ status: 'closed' }));
+  }
+
+  reopenOccasion(id: string): void {
+    this.updateFields(id, () => ({ status: 'polling' }));
   }
 
   async delete(id: string): Promise<void> {

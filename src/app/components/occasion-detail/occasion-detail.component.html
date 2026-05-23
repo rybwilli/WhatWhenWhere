@@ -41,7 +41,7 @@
     </div>
 
     <div class="header-actions" *ngIf="canEdit() && !editing">
-      <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected>
+      <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : occasion.status === 'closed' ? 'warn' : 'warn'" selected>
         {{ occasion.status }}
       </mat-chip>
       <button mat-stroked-button color="primary"
@@ -62,6 +62,18 @@
         matTooltip="Revert to polling and clear final details">
         <mat-icon>undo</mat-icon> Reopen Polling
       </button>
+      <button mat-stroked-button color="warn"
+        *ngIf="(occasion.status === 'draft' || occasion.status === 'polling' || occasion.status === 'finalized') && canEdit()"
+        (click)="closeOccasion()"
+        matTooltip="Mark this occasion as cancelled or won't happen">
+        <mat-icon>close</mat-icon> Close
+      </button>
+      <button mat-stroked-button
+        *ngIf="occasion.status === 'closed' && canEdit()"
+        (click)="reopenOccasion()"
+        matTooltip="Reopen the occasion for voting">
+        <mat-icon>restart_alt</mat-icon> Reopen
+      </button>
       <button mat-icon-button [color]="occasion.allowPublic ? 'primary' : ''" *ngIf="canEdit()"
         (click)="toggleAllowPublic()"
         [matTooltip]="occasion.allowPublic ? 'Public: any logged-in user can see and join' : 'Private: only invited respondents'">
@@ -75,7 +87,7 @@
       </button>
     </div>
     <div *ngIf="!canEdit()" class="non-owner-actions">
-      <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : 'warn'" selected class="status-chip">
+      <mat-chip [color]="occasion.status === 'finalized' ? 'accent' : occasion.status === 'polling' ? 'primary' : occasion.status === 'closed' ? 'warn' : 'warn'" selected class="status-chip">
         {{ occasion.status }}
       </mat-chip>
       <button mat-icon-button (click)="showCopyPanel = !showCopyPanel" matTooltip="Copy occasion">
@@ -126,7 +138,9 @@
     <mat-icon>check_circle</mat-icon>
     <div>
       <strong>This occasion is confirmed!</strong>
-      <p><mat-icon>event</mat-icon> {{ occasion.finalDate | date:'mediumDate' }}<ng-container *ngIf="occasion.finalStartTime"> · {{ fmtTime(occasion.finalStartTime) }}<ng-container *ngIf="occasion.finalEndTime"> – {{ fmtTime(occasion.finalEndTime) }}</ng-container></ng-container></p>
+      <p>
+        <mat-icon>event</mat-icon> {{ occasion.finalDate | date:'mediumDate' }}<ng-container *ngIf="occasion.finalStartTime"> · {{ fmtTime(occasion.finalStartTime) }}<ng-container *ngIf="occasion.finalEndTime"> –<ng-container *ngIf="occasion.finalEndDate && occasion.finalEndDate !== occasion.finalDate"> {{ occasion.finalEndDate | date:'mediumDate' }} ·</ng-container> {{ fmtTime(occasion.finalEndTime) }}</ng-container></ng-container>
+      </p>
       <p><mat-icon>place</mat-icon> {{ occasion.finalLocation }}</p>
       <p *ngIf="occasion.finalNotes"><mat-icon>notes</mat-icon> {{ occasion.finalNotes }}</p>
     </div>
@@ -194,16 +208,14 @@
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="time-field">
-            <mat-label>Start Time</mat-label>
-            <input matInput type="time" [(ngModel)]="newWhenStart" />
-            <mat-icon matSuffix>schedule</mat-icon>
-          </mat-form-field>
+          <app-time-picker class="time-field" label="Start Time" [(ngModel)]="newWhenStart"></app-time-picker>
+          <app-time-picker class="time-field" label="End Time" [(ngModel)]="newWhenEnd"></app-time-picker>
 
-          <mat-form-field appearance="outline" class="time-field">
-            <mat-label>End Time</mat-label>
-            <input matInput type="time" [(ngModel)]="newWhenEnd" />
-            <mat-icon matSuffix>schedule</mat-icon>
+          <mat-form-field appearance="outline" class="end-date-field">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="newEndPicker" [(ngModel)]="newWhenEndDate" placeholder="If different" />
+            <mat-datepicker-toggle matSuffix [for]="newEndPicker"></mat-datepicker-toggle>
+            <mat-datepicker #newEndPicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="notes-field">
@@ -261,23 +273,23 @@
 
             <!-- Edit mode -->
             <div class="when-edit-form" *ngIf="editingWhenId === opt.id" (click)="$event.stopPropagation()">
-              <mat-form-field appearance="outline" style="width:100%">
+              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Date</mat-label>
                 <input matInput [matDatepicker]="editPicker" [(ngModel)]="editWhenDate" />
                 <mat-datepicker-toggle matSuffix [for]="editPicker"></mat-datepicker-toggle>
                 <mat-datepicker #editPicker></mat-datepicker>
               </mat-form-field>
-              <mat-form-field appearance="outline" style="width:100%">
-                <mat-label>Start Time</mat-label>
-                <input matInput type="time" [(ngModel)]="editWhenStart" />
-                <mat-icon matSuffix>schedule</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="outline" style="width:100%">
-                <mat-label>End Time</mat-label>
-                <input matInput type="time" [(ngModel)]="editWhenEnd" />
-                <mat-icon matSuffix>schedule</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="outline" style="width:100%">
+              <div class="time-end-row">
+                <app-time-picker label="Start Time" [(ngModel)]="editWhenStart"></app-time-picker>
+                <app-time-picker label="End Time" [(ngModel)]="editWhenEnd"></app-time-picker>
+                <mat-form-field appearance="outline" class="end-date-field">
+                  <mat-label>End Date</mat-label>
+                  <input matInput [matDatepicker]="editEndPicker" [(ngModel)]="editWhenEndDate" placeholder="If different" />
+                  <mat-datepicker-toggle matSuffix [for]="editEndPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #editEndPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Notes (optional)</mat-label>
                 <input matInput [(ngModel)]="editWhenNotes" placeholder="e.g. outdoor venue" />
                 <mat-icon matSuffix>notes</mat-icon>
@@ -433,6 +445,7 @@
                 <button mat-button (click)="cancelEditWhere()">Cancel</button>
               </div>
             </div>
+
 
             <div class="vote-details" *ngIf="opt.votes.length">
               <div *ngFor="let v of opt.votes" class="vote-chip" [class]="'chip-' + v.response">

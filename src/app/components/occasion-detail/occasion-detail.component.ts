@@ -30,6 +30,7 @@ export class OccasionDetailComponent implements OnInit {
   newWhenDate: Date | null = null;
   newWhenStart = '18:00';
   newWhenEnd = '20:00';
+  newWhenEndDate: Date | null = null;
   newWhenNotes = '';
 
   // When edit
@@ -37,6 +38,7 @@ export class OccasionDetailComponent implements OnInit {
   editWhenDate: Date | null = null;
   editWhenStart = '';
   editWhenEnd = '';
+  editWhenEndDate: Date | null = null;
   editWhenNotes = '';
 
   // Where form
@@ -231,10 +233,12 @@ export class OccasionDetailComponent implements OnInit {
   addWhenOption(): void {
     if (!this.occasion || !this.canAddWhen()) return;
     const iso = this.newWhenDate!.toISOString().split('T')[0];
-    this.svc.addWhenOption(this.occasion.id, iso, this.newWhenStart, this.newWhenEnd, this.newWhenNotes.trim() || undefined);
+    const endIso = this.newWhenEndDate ? this.newWhenEndDate.toISOString().split('T')[0] : undefined;
+    this.svc.addWhenOption(this.occasion.id, iso, this.newWhenStart, this.newWhenEnd, endIso, this.newWhenNotes.trim() || undefined);
     this.newWhenDate = null;
     this.newWhenStart = '18:00';
     this.newWhenEnd = '20:00';
+    this.newWhenEndDate = null;
     this.newWhenNotes = '';
   }
 
@@ -243,22 +247,26 @@ export class OccasionDetailComponent implements OnInit {
     this.editWhenDate = new Date(opt.date + 'T00:00:00');
     this.editWhenStart = opt.startTime;
     this.editWhenEnd = opt.endTime;
+    this.editWhenEndDate = opt.endDate && opt.endDate !== opt.date ? new Date(opt.endDate + 'T00:00:00') : null;
     this.editWhenNotes = opt.notes ?? '';
   }
 
   saveEditWhen(): void {
     if (!this.occasion || !this.editingWhenId || !this.editWhenDate) return;
     const iso = this.editWhenDate.toISOString().split('T')[0];
-    this.svc.updateWhenOption(this.occasion.id, this.editingWhenId, iso, this.editWhenStart, this.editWhenEnd, this.editWhenNotes.trim() || undefined);
+    const endIso = this.editWhenEndDate ? this.editWhenEndDate.toISOString().split('T')[0] : undefined;
+    this.svc.updateWhenOption(this.occasion.id, this.editingWhenId, iso, this.editWhenStart, this.editWhenEnd, endIso, this.editWhenNotes.trim() || undefined);
     this.editingWhenId = null;
   }
 
   cancelEditWhen(): void { this.editingWhenId = null; }
 
   formatWhen(opt: WhenOption): string {
-    const date = new Date(opt.date + 'T00:00:00');
-    const datePart = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    return `${datePart}  ·  ${this.fmt12(opt.startTime)} – ${this.fmt12(opt.endTime)}`;
+    const datePart = new Date(opt.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const endPart = opt.endDate && opt.endDate !== opt.date
+      ? `${new Date(opt.endDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${this.fmt12(opt.endTime)}`
+      : this.fmt12(opt.endTime);
+    return `${datePart}  ·  ${this.fmt12(opt.startTime)} – ${endPart}`;
   }
 
   fmt12(t: string): string {
@@ -541,6 +549,17 @@ export class OccasionDetailComponent implements OnInit {
     if (!this.occasion || !confirm('Reopen polling? This will clear the finalized date, time, and location.')) return;
     this.svc.reopenPolling(this.occasion.id);
   }
+
+  closeOccasion(): void {
+    if (!this.occasion || !confirm('Close this occasion? It won\'t happen.')) return;
+    this.svc.closeOccasion(this.occasion.id);
+  }
+
+  reopenOccasion(): void {
+    if (!this.occasion) return;
+    this.svc.reopenOccasion(this.occasion.id);
+  }
+
   goBack(): void { this.router.navigate(['/']); }
 
   delete(): void {

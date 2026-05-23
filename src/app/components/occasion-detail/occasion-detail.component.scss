@@ -419,18 +419,20 @@
   flex-wrap: wrap;
 
   .date-field {
-    flex: 2;
-    min-width: 160px;
+    flex: 0 0 150px;
   }
 
   .time-field {
-    flex: 1;
-    min-width: 120px;
+    flex: 0 0 130px;
+  }
+
+  .end-date-field {
+    flex: 0 0 150px;
   }
 
   .notes-field {
-    flex: 3;
-    min-width: 200px;
+    flex: 1.5;
+    min-width: 160px;
   }
 
   .add-btn {
@@ -555,38 +557,6 @@
     &:hover { background: #bbdefb; }
   }
 
-  .when-edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px 0;
-
-    .edit-when-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding-bottom: 4px;
-    }
-  }
-
-  .where-edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px 0;
-
-    .edit-where-label,
-    .edit-where-url,
-    .edit-where-notes { width: 100%; }
-
-    .edit-where-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding-top: 8px;
-    }
-  }
-
   .tally {
     display: flex;
     gap: 10px;
@@ -596,6 +566,44 @@
     .tally-yes   { color: #388e3c; }
     .tally-maybe { color: #f57c00; }
     .tally-no    { color: #c62828; }
+  }
+}
+
+.when-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+
+  .time-end-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    app-time-picker { flex: 1; min-width: 120px; }
+    .end-date-field { flex: 0 0 160px; }
+  }
+
+  .full-width { width: 100%; }
+
+  .edit-when-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+}
+
+.where-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+
+  .edit-where-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
 }
 

@@ -177,6 +177,7 @@ $color-finalized: #2e7d32;
   &.status-draft     { background: #fff3e0 !important; color: $color-draft     !important; }
   &.status-polling   { background: #e3f2fd !important; color: $color-polling   !important; }
   &.status-finalized { background: #e8f5e9 !important; color: $color-finalized !important; }
+  &.status-closed    { background: #ffebee !important; color: #c62828 !important; }
 }
 
 .occasion-card {
@@ -187,6 +188,7 @@ $color-finalized: #2e7d32;
   &.card-draft     { border-left-color: $color-draft     !important; }
   &.card-polling   { border-left-color: $color-polling   !important; }
   &.card-finalized { border-left-color: $color-finalized !important; }
+  &.card-closed    { border-left-color: #c62828 !important; }
 
   &:hover {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
