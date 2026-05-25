@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { CharacterAvatarService } from './services/character-avatar.service';
 
 @Component({
   selector: 'app-root',
@@ -9,8 +10,23 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
   user$ = this.auth.user$;
+  character: any = null;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private characterAvatar: CharacterAvatarService
+  ) {
+    this.auth.user$.subscribe(user => {
+      if (user) {
+        this.character = this.characterAvatar.getCharacter(user.userId);
+      }
+    });
+  }
+
+  goToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
 
   logout(): void {
     this.auth.logout().then(() => this.router.navigate(['/login']));

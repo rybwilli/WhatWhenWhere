@@ -92,3 +92,45 @@ mutation DeleteOccasion(
     __typename
   }
 }
+
+mutation CreateUserProfile(
+  $input: CreateUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  createUserProfile(input: $input, condition: $condition) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+mutation UpdateUserProfile(
+  $input: UpdateUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  updateUserProfile(input: $input, condition: $condition) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+mutation DeleteUserProfile(
+  $input: DeleteUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  deleteUserProfile(input: $input, condition: $condition) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}

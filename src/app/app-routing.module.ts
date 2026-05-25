@@ -5,11 +5,13 @@ import { CreateOccasionComponent } from './components/create-occasion/create-occ
 import { OccasionDetailComponent } from './components/occasion-detail/occasion-detail.component';
 import { FinalizeOccasionComponent } from './components/finalize-occasion/finalize-occasion.component';
 import { LoginComponent } from './components/login/login.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', component: OccasionListComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'occasion/new', component: CreateOccasionComponent, canActivate: [AuthGuard] },
   { path: 'occasion/:id', component: OccasionDetailComponent, canActivate: [AuthGuard] },
   { path: 'occasion/:id/finalize', component: FinalizeOccasionComponent, canActivate: [AuthGuard] },

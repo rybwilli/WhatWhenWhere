@@ -83,3 +83,42 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     __typename
   }
 }
+
+subscription OnCreateUserProfile(
+  $filter: ModelSubscriptionUserProfileFilterInput
+) {
+  onCreateUserProfile(filter: $filter) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+subscription OnUpdateUserProfile(
+  $filter: ModelSubscriptionUserProfileFilterInput
+) {
+  onUpdateUserProfile(filter: $filter) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+subscription OnDeleteUserProfile(
+  $filter: ModelSubscriptionUserProfileFilterInput
+) {
+  onDeleteUserProfile(filter: $filter) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}

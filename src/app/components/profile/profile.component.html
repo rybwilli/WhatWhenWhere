@@ -1,0 +1,52 @@
+<div class="profile-container" *ngIf="user">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <button mat-icon-button (click)="goBack()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-card-title>Your Profile</mat-card-title>
+      <span class="spacer"></span>
+      <button mat-icon-button *ngIf="!editing" (click)="startEdit()" matTooltip="Edit profile">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Avatar -->
+      <div class="avatar-section">
+        <div class="avatar" *ngIf="user.photoURL">
+          <img [src]="user.photoURL" [alt]="user.displayName" />
+        </div>
+        <div class="avatar avatar-placeholder" *ngIf="!user.photoURL" [matTooltip]="character?.name">
+          {{ character?.emoji }}
+        </div>
+        <div class="avatar-info">
+          <p class="email">{{ user.email }}</p>
+          <p class="help-text" *ngIf="user.photoURL">Photo from Google account</p>
+        </div>
+      </div>
+
+      <!-- View mode -->
+      <ng-container *ngIf="!editing">
+        <div class="profile-section">
+          <h3>Name</h3>
+          <p class="profile-value">{{ user.displayName }}</p>
+        </div>
+      </ng-container>
+
+      <!-- Edit mode -->
+      <ng-container *ngIf="editing">
+        <p class="help-text">Profile information is managed through your account settings</p>
+        <mat-error *ngIf="error" class="error-msg">{{ error }}</mat-error>
+        <div class="edit-actions">
+          <button mat-button (click)="cancelEdit()" [disabled]="saving">Done</button>
+        </div>
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="not-found" *ngIf="!user">
+  <p>Please sign in to view your profile.</p>
+  <button mat-raised-button color="primary" (click)="goBack()">Go Home</button>
+</div>

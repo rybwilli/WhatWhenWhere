@@ -63,3 +63,33 @@ query ListOccasions(
     __typename
   }
 }
+
+query GetUserProfile($id: ID!) {
+  getUserProfile(id: $id) {
+    id
+    ownerSub
+    phone
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+query ListUserProfiles(
+  $filter: ModelUserProfileFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listUserProfiles(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      ownerSub
+      phone
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}

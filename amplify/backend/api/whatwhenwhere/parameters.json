@@ -1,5 +1,11 @@
 {
   "AppSyncApiName": "whatwhenwhere",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authwhatwhenwhere48814f85",
+      "Outputs.UserPoolId"
+    ]
+  }
 }

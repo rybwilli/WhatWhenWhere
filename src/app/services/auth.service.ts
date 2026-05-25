@@ -6,18 +6,21 @@ import {
 } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { generateClient } from 'aws-amplify/api';
 
 export interface AppUser {
   userId: string;
   email: string;
   displayName: string;
   photoURL: string | null;
+  phone?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private user$$ = new BehaviorSubject<AppUser | null>(null);
   readonly user$: Observable<AppUser | null> = this.user$$.asObservable();
+  private client = generateClient();
 
   constructor() {
     this.refreshUser();
@@ -36,8 +39,11 @@ export class AuthService {
 
   private async refreshUser(): Promise<void> {
     try {
-      const { userId } = await getCurrentUser();
+      const currentUser = await getCurrentUser();
+      const userId = currentUser.userId;
       const attrs = await fetchUserAttributes();
+      const ownerSub = attrs.sub || userId;
+
       this.user$$.next({
         userId,
         email: attrs.email ?? '',
@@ -45,6 +51,7 @@ export class AuthService {
           [attrs.given_name, attrs.family_name].filter(Boolean).join(' ') ||
           attrs.email || '',
         photoURL: attrs.picture ?? null,
+        phone: undefined,
       });
     } catch {
       this.user$$.next(null);
@@ -83,6 +90,7 @@ export class AuthService {
   async confirmPasswordReset(email: string, code: string, newPassword: string): Promise<void> {
     await confirmResetPassword({ username: email, confirmationCode: code, newPassword });
   }
+
 
   getCurrentUser(): AppUser | null {
     return this.user$$.value;

@@ -1,3 +1,12 @@
+type UserProfile @model
+  @auth(rules: [
+    { allow: private, operations: [create, read, update, delete] }
+  ]) {
+  id: ID!
+  ownerSub: String!
+  phone: String
+}
+
 type Occasion @model
   @auth(rules: [
     { allow: owner, ownerField: "ownerSub" },

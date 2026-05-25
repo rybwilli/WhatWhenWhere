@@ -27,36 +27,54 @@
   flex: 1;
 }
 
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-btn {
+  padding: 0 !important;
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  margin-right: 8px;
   border: 2px solid rgba(255,255,255,0.5);
+  object-fit: cover;
 }
 
-.user-name {
+.avatar-emoji {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.5);
   display: flex;
-  flex-direction: column;
-  margin-right: 4px;
-  max-width: 180px;
-  overflow: hidden;
-
-  .user-display-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .user-email {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 @media (max-width: 600px) {

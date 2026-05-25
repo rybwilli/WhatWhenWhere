@@ -32,6 +32,7 @@ import { CreateOccasionComponent } from './components/create-occasion/create-occ
 import { OccasionDetailComponent } from './components/occasion-detail/occasion-detail.component';
 import { FinalizeOccasionComponent } from './components/finalize-occasion/finalize-occasion.component';
 import { LoginComponent } from './components/login/login.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { LoginComponent } from './components/login/login.component';
     OccasionDetailComponent,
     FinalizeOccasionComponent,
     LoginComponent,
+    ProfileComponent,
     RichEditorComponent,
     TimePickerComponent,
   ],
