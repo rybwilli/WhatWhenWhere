@@ -25,7 +25,7 @@ export class ProfileComponent implements OnInit {
     this.auth.user$.subscribe(user => {
       this.user = user;
       if (user) {
-        this.character = this.characterAvatar.getCharacter(user.userId);
+        this.character = this.characterAvatar.getRandomCharacter();
       }
     });
   }

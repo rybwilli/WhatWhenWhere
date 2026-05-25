@@ -19,7 +19,7 @@ export class AppComponent {
   ) {
     this.auth.user$.subscribe(user => {
       if (user) {
-        this.character = this.characterAvatar.getCharacter(user.userId);
+        this.character = this.characterAvatar.getRandomCharacter();
       }
     });
   }

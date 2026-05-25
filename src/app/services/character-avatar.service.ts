@@ -28,19 +28,8 @@ export class CharacterAvatarService {
     { name: 'Brian', emoji: '🐶' },
   ];
 
-  getCharacter(userId: string): Character {
-    const hash = this.hashCode(userId);
-    const index = Math.abs(hash) % this.characters.length;
+  getRandomCharacter(): Character {
+    const index = Math.floor(Math.random() * this.characters.length);
     return this.characters[index];
-  }
-
-  private hashCode(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return hash;
   }
 }
