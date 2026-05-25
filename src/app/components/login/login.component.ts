@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
-type EmailMode = 'signin' | 'register' | 'confirm';
+type EmailMode = 'signin' | 'register' | 'confirm' | 'forgot' | 'reset';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +18,9 @@ export class LoginComponent {
   password = '';
   displayName = '';
   confirmCode = '';
+  resetCode = '';
+  newPassword = '';
+  newPasswordConfirm = '';
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -58,5 +61,49 @@ export class LoginComponent {
       await this.auth.loginWithEmail(this.email, this.password);
       this.router.navigate(['/']);
     });
+  }
+
+  startForgotPassword(): void {
+    this.emailMode = 'forgot';
+    this.resetCode = '';
+    this.newPassword = '';
+    this.newPasswordConfirm = '';
+    this.error = '';
+  }
+
+  async submitForgot(): Promise<void> {
+    await this.run(async () => {
+      await this.auth.resetPassword(this.email);
+      this.emailMode = 'reset';
+    });
+  }
+
+  async submitReset(): Promise<void> {
+    if (this.newPassword !== this.newPasswordConfirm) {
+      this.error = 'Passwords do not match';
+      return;
+    }
+    await this.run(async () => {
+      await this.auth.confirmPasswordReset(this.email, this.resetCode, this.newPassword);
+      this.emailMode = 'signin';
+      this.email = '';
+      this.password = '';
+      this.resetCode = '';
+      this.newPassword = '';
+      this.newPasswordConfirm = '';
+      this.error = 'Password reset successful. Please sign in.';
+    });
+  }
+
+  backToSignIn(): void {
+    this.emailMode = 'signin';
+    this.email = '';
+    this.password = '';
+    this.displayName = '';
+    this.confirmCode = '';
+    this.resetCode = '';
+    this.newPassword = '';
+    this.newPasswordConfirm = '';
+    this.error = '';
   }
 }

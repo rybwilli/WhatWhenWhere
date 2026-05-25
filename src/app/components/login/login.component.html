@@ -28,8 +28,61 @@
         </button>
       </ng-container>
 
+      <!-- ── Forgot password ── -->
+      <ng-container *ngIf="emailMode === 'forgot'">
+        <h3 class="form-title">Reset Your Password</h3>
+        <p class="confirm-hint">
+          Enter your email address and we'll send you a code to reset your password.
+        </p>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" placeholder="you@example.com"
+            (keyup.enter)="submitForgot()" />
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+        <button mat-raised-button color="primary" class="full-width submit-btn"
+          (click)="submitForgot()" [disabled]="loading || !email">
+          Send Reset Code
+        </button>
+        <button mat-button class="full-width" (click)="backToSignIn()">
+          <mat-icon>arrow_back</mat-icon> Back to Sign In
+        </button>
+      </ng-container>
+
+      <!-- ── Reset password ── -->
+      <ng-container *ngIf="emailMode === 'reset'">
+        <h3 class="form-title">Enter New Password</h3>
+        <p class="confirm-hint">
+          Check your email at <strong>{{ email }}</strong> for a reset code.
+        </p>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reset Code</mat-label>
+          <input matInput [(ngModel)]="resetCode" placeholder="000000"
+            maxlength="6" inputmode="numeric" />
+          <mat-icon matSuffix>sms</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>New Password</mat-label>
+          <input matInput type="password" [(ngModel)]="newPassword" />
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput type="password" [(ngModel)]="newPasswordConfirm"
+            (keyup.enter)="submitReset()" />
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+        <button mat-raised-button color="primary" class="full-width submit-btn"
+          (click)="submitReset()" [disabled]="loading || resetCode.length < 6 || !newPassword || !newPasswordConfirm">
+          Reset Password
+        </button>
+        <button mat-button class="full-width" (click)="backToSignIn()">
+          <mat-icon>arrow_back</mat-icon> Back to Sign In
+        </button>
+      </ng-container>
+
       <!-- ── Sign in / Register ── -->
-      <ng-container *ngIf="emailMode !== 'confirm'">
+      <ng-container *ngIf="emailMode === 'signin' || emailMode === 'register'">
 
         <!-- Google -->
         <button mat-stroked-button class="provider-btn google" (click)="loginGoogle()" [disabled]="loading">
@@ -64,6 +117,11 @@
         <button mat-raised-button color="primary" class="full-width submit-btn"
           (click)="submitEmail()" [disabled]="loading || !email || !password">
           {{ emailMode === 'signin' ? 'Sign In' : 'Create Account' }}
+        </button>
+
+        <button *ngIf="emailMode === 'signin'" mat-button class="full-width forgot-link"
+          (click)="startForgotPassword()">
+          <mat-icon>help_outline</mat-icon> Forgot password?
         </button>
 
       </ng-container>

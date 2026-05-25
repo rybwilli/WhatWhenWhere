@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   signIn, signOut, signUp, getCurrentUser,
   fetchUserAttributes, signInWithRedirect, confirmSignUp,
+  resetPassword, confirmResetPassword,
 } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -73,6 +74,14 @@ export class AuthService {
 
   async logout(): Promise<void> {
     await signOut();
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    await resetPassword({ username: email });
+  }
+
+  async confirmPasswordReset(email: string, code: string, newPassword: string): Promise<void> {
+    await confirmResetPassword({ username: email, confirmationCode: code, newPassword });
   }
 
   getCurrentUser(): AppUser | null {
