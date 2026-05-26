@@ -7,6 +7,7 @@ import {
 import { Hub } from 'aws-amplify/utils';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { generateClient } from 'aws-amplify/api';
+import { CharacterAvatarService } from './character-avatar.service';
 
 export interface AppUser {
   userId: string;
@@ -14,6 +15,7 @@ export interface AppUser {
   displayName: string;
   photoURL: string | null;
   phone?: string;
+  character?: { name: string; emoji: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +24,7 @@ export class AuthService {
   readonly user$: Observable<AppUser | null> = this.user$$.asObservable();
   private client = generateClient();
 
-  constructor() {
+  constructor(private characterAvatar: CharacterAvatarService) {
     this.refreshUser();
     Hub.listen('auth', ({ payload }: any) => {
       switch (payload.event) {
@@ -39,10 +41,13 @@ export class AuthService {
 
   private async refreshUser(): Promise<void> {
     try {
-      const currentUser = await getCurrentUser();
-      const userId = currentUser.userId;
+      const authUser = await getCurrentUser();
+      const userId = authUser.userId;
       const attrs = await fetchUserAttributes();
       const ownerSub = attrs.sub || userId;
+
+      const existingUser = this.user$$.value;
+      const character = existingUser?.character || this.characterAvatar.getRandomCharacter();
 
       this.user$$.next({
         userId,
@@ -52,6 +57,7 @@ export class AuthService {
           attrs.email || '',
         photoURL: attrs.picture ?? null,
         phone: undefined,
+        character,
       });
     } catch {
       this.user$$.next(null);

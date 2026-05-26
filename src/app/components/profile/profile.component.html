@@ -17,8 +17,8 @@
         <div class="avatar" *ngIf="user.photoURL">
           <img [src]="user.photoURL" [alt]="user.displayName" />
         </div>
-        <div class="avatar avatar-placeholder" *ngIf="!user.photoURL" [matTooltip]="character?.name">
-          {{ character?.emoji }}
+        <div class="avatar avatar-placeholder" *ngIf="!user.photoURL" [matTooltip]="user.character?.name || ''">
+          {{ user.character?.emoji }}
         </div>
         <div class="avatar-info">
           <p class="email">{{ user.email }}</p>

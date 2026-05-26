@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, AppUser } from '../../services/auth.service';
-import { CharacterAvatarService } from '../../services/character-avatar.service';
 
 @Component({
   selector: 'app-profile',
@@ -10,23 +9,15 @@ import { CharacterAvatarService } from '../../services/character-avatar.service'
 })
 export class ProfileComponent implements OnInit {
   user: AppUser | null = null;
-  character: any = null;
   editing = false;
   saving = false;
   error = '';
 
-  constructor(
-    private auth: AuthService,
-    private router: Router,
-    private characterAvatar: CharacterAvatarService
-  ) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.auth.user$.subscribe(user => {
       this.user = user;
-      if (user) {
-        this.character = this.characterAvatar.getRandomCharacter();
-      }
     });
   }
 
