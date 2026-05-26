@@ -15,7 +15,7 @@ export interface AppUser {
   displayName: string;
   photoURL: string | null;
   phone?: string;
-  character?: { name: string; emoji: string };
+  character?: { name: string; imagePath: string };
 }
 
 @Injectable({ providedIn: 'root' })

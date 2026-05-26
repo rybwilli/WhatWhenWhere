@@ -2,30 +2,23 @@ import { Injectable } from '@angular/core';
 
 interface Character {
   name: string;
-  emoji: string;
+  imagePath: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CharacterAvatarService {
   private characters: Character[] = [
-    // The Simpsons
-    { name: 'Homer', emoji: '🍩' },
-    { name: 'Marge', emoji: '👩' },
-    { name: 'Bart', emoji: '😈' },
-    { name: 'Lisa', emoji: '🎺' },
-    { name: 'Maggie', emoji: '👶' },
-    // Bob's Burgers
-    { name: 'Bob', emoji: '👨‍🍳' },
-    { name: 'Linda', emoji: '💃' },
-    { name: 'Tina', emoji: '📚' },
-    { name: 'Gene', emoji: '🎹' },
-    { name: 'Louise', emoji: '🐰' },
-    // Family Guy
-    { name: 'Peter', emoji: '🍺' },
-    { name: 'Lois', emoji: '👸' },
-    { name: 'Chris', emoji: '🐔' },
-    { name: 'Stewie', emoji: '💣' },
-    { name: 'Brian', emoji: '🐶' },
+    { name: 'Homer', imagePath: 'assets/Avatars/Homer.png' },
+    { name: 'Marge', imagePath: 'assets/Avatars/Marge.png' },
+    { name: 'Bart', imagePath: 'assets/Avatars/Bart.png' },
+    { name: 'Lisa', imagePath: 'assets/Avatars/Lisa.png' },
+    { name: 'Maggie', imagePath: 'assets/Avatars/Maggie.png' },
+    { name: 'Chief Wiggum', imagePath: 'assets/Avatars/ChiefWiggum.png' },
+    { name: 'Comic Book Guy', imagePath: 'assets/Avatars/ComicBookGuy.png' },
+    { name: 'Grandma', imagePath: 'assets/Avatars/Grandma.png' },
+    { name: 'Itchy', imagePath: 'assets/Avatars/Itchy.png' },
+    { name: 'Rev. Lovejoy', imagePath: 'assets/Avatars/RevLovejoy.png' },
+    { name: 'Smithers', imagePath: 'assets/Avatars/Smithers.png' },
   ];
 
   getRandomCharacter(): Character {

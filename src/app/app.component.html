@@ -13,7 +13,7 @@
       </span>
       <button mat-icon-button (click)="goToProfile()" matTooltip="View profile" class="profile-btn">
         <img *ngIf="user.photoURL" [src]="user.photoURL" class="avatar" referrerpolicy="no-referrer" [alt]="user.displayName || user.email || ''" />
-        <span *ngIf="!user.photoURL" class="avatar avatar-emoji" [matTooltip]="user.character?.name || ''">{{ user.character?.emoji }}</span>
+        <img *ngIf="!user.photoURL && user.character" [src]="user.character.imagePath" class="avatar" [alt]="user.character.name" [matTooltip]="user.character.name" />
       </button>
     </span>
     <button mat-icon-button (click)="logout()" matTooltip="Sign out">
