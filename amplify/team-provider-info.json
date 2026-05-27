@@ -9,11 +9,14 @@
       "UnauthRoleName": "amplify-whatwhenwhere-dev-d4042-unauthRole",
       "StackName": "amplify-whatwhenwhere-dev-d4042",
       "StackId": "arn:aws:cloudformation:us-east-1:963108102266:stack/amplify-whatwhenwhere-dev-d4042/e3a4e320-4da6-11f1-a3d6-0affc9765659",
-      "AmplifyAppId": "d1txc7h6y0u6pl"
+      "AmplifyAppId": "d1txc7h6y0u6pl",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-whatwhenwhere-dev-d4042-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "api": {
-        "whatwhenwhere": {}
+        "whatwhenwhere": {},
+        "pollingreminder": {},
+        "apiee4e26bf": {}
       },
       "hosting": {
         "amplifyhosting": {
@@ -26,6 +29,12 @@
           "googleClientId": "787062307765-96h7n5o51fesgghr1betjp1s8c70evfa.apps.googleusercontent.com"
         },
         "userPoolGroups": {}
+      },
+      "function": {
+        "pollingemail": {
+          "deploymentBucketName": "amplify-whatwhenwhere-dev-d4042-deployment",
+          "s3Key": "amplify-builds/pollingemail-71494e51782b73306463-build.zip"
+        }
       }
     }
   }

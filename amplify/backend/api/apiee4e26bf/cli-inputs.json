@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "paths": {
+    "/send-reminder": {
+      "name": "/send-reminder",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    }
+  }
+}

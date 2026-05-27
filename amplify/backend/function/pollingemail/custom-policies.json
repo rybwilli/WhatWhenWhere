@@ -1,0 +1,20 @@
+[
+  {
+    "Action": [
+      "dynamodb:GetItem",
+      "dynamodb:Query"
+    ],
+    "Resource": [
+      "arn:aws:dynamodb:us-east-1:*:table/Occasion-*"
+    ]
+  },
+  {
+    "Action": [
+      "ses:SendEmail",
+      "ses:SendRawEmail"
+    ],
+    "Resource": [
+      "*"
+    ]
+  }
+]

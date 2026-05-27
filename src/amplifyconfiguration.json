@@ -4,6 +4,18 @@
   "aws_appsync_region": "us-east-1",
   "aws_appsync_authenticationType": "API_KEY",
   "aws_appsync_apiKey": "da2-6aujus6hlfauhjj34cltq7cy3a",
+  "aws_cloud_logic_custom": [
+    {
+      "name": "pollingreminder",
+      "endpoint": "https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev",
+      "region": "us-east-1"
+    },
+    {
+      "name": "apiee4e26bf",
+      "endpoint": "https://5le2vdbrtd.execute-api.us-east-1.amazonaws.com/dev",
+      "region": "us-east-1"
+    }
+  ],
   "aws_cognito_identity_pool_id": "us-east-1:05f332df-42cb-4bad-9fe2-1aa53fcd6f5b",
   "aws_cognito_region": "us-east-1",
   "aws_user_pools_id": "us-east-1_pWeKyVhP9",

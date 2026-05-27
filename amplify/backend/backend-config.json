@@ -1,5 +1,33 @@
 {
   "api": {
+    "apiee4e26bf": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "pollingemail"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
+    "pollingreminder": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "pollingemail"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "whatwhenwhere": {
       "dependsOn": [
         {
@@ -78,6 +106,13 @@
       "service": "Cognito"
     }
   },
+  "function": {
+    "pollingemail": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
   "hosting": {
     "amplifyhosting": {
       "lastPushTimeStamp": "2026-05-17T13:58:54.265Z",
@@ -91,6 +126,22 @@
         {
           "category": "auth",
           "resourceName": "whatwhenwhere48814f85"
+        }
+      ]
+    },
+    "AMPLIFY_function_pollingemail_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "pollingemail"
+        }
+      ]
+    },
+    "AMPLIFY_function_pollingemail_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "pollingemail"
         }
       ]
     },

@@ -22,6 +22,7 @@ export class OccasionDetailComponent implements OnInit {
   private allOccasions: Occasion[] = [];
   voterName = '';
   userEmail = '';
+  sendingReminder = false;
   selectedTab = 0;
   calendarMonth: Date = new Date();
   whenView: 'list' | 'calendar' = 'list';
@@ -548,6 +549,29 @@ export class OccasionDetailComponent implements OnInit {
   reopenPolling(): void {
     if (!this.occasion || !confirm('Reopen polling? This will clear the finalized date, time, and location.')) return;
     this.svc.reopenPolling(this.occasion.id);
+  }
+
+  async sendReminder(): Promise<void> {
+    if (!this.occasion) return;
+    const respondentCount = this.occasion.respondents?.length ?? 0;
+    if (respondentCount === 0) {
+      alert('No respondents to email yet.');
+      return;
+    }
+    if (!confirm(`Send a reminder email to ${respondentCount} respondent(s)?`)) return;
+    this.sendingReminder = true;
+    try {
+      await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/send-reminder',
+        { occasionId: this.occasion.id },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+      alert('Reminder emails sent!');
+    } catch (e: any) {
+      alert('Failed to send reminders: ' + (e?.error?.error || e?.message || 'Unknown error'));
+    } finally {
+      this.sendingReminder = false;
+    }
   }
 
   closeOccasion(): void {
