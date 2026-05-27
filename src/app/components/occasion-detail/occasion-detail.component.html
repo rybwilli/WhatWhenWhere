@@ -60,6 +60,13 @@
         (click)="goFinalize()">
         <mat-icon>done_all</mat-icon> Finalize
       </button>
+      <button mat-stroked-button
+        *ngIf="occasion.status === 'finalized' && isOwner()"
+        (click)="shareFinalized()"
+        [disabled]="sendingReminder"
+        matTooltip="Email all respondents the finalized details">
+        <mat-icon>mail</mat-icon> {{ sendingReminder ? 'Sending...' : 'Share Details' }}
+      </button>
       <button mat-stroked-button color="warn"
         *ngIf="occasion.status === 'finalized' && isOwner()"
         (click)="reopenPolling()"

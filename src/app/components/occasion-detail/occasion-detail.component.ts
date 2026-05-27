@@ -553,6 +553,25 @@ export class OccasionDetailComponent implements OnInit {
     this.svc.reopenPolling(this.occasion.id);
   }
 
+  async shareFinalized(): Promise<void> {
+    if (!this.occasion) return;
+    const respondentCount = this.occasion.respondents?.length ?? 0;
+    if (!confirm(`Email finalized details to ${respondentCount} respondent(s)?`)) return;
+    this.sendingReminder = true;
+    try {
+      await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/share-finalized',
+        { occasionId: this.occasion.id },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+      alert('Details shared with all respondents!');
+    } catch (e: any) {
+      alert('Failed to send: ' + (e?.error?.error || e?.message || 'Unknown error'));
+    } finally {
+      this.sendingReminder = false;
+    }
+  }
+
   async sendReminder(): Promise<void> {
     if (!this.occasion) return;
     const respondentCount = this.occasion.respondents?.length ?? 0;
