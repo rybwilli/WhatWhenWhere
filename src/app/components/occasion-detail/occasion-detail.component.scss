@@ -1,3 +1,21 @@
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+
+  .loading-spinner {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: spin 1.2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .calendar {
   border: 1px solid #e0e0e0;
   border-radius: 8px;

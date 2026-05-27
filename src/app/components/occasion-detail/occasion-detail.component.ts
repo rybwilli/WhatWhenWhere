@@ -23,6 +23,7 @@ export class OccasionDetailComponent implements OnInit {
   voterName = '';
   userEmail = '';
   sendingReminder = false;
+  loading = true;
   selectedTab = 0;
   calendarMonth: Date = new Date();
   whenView: 'list' | 'calendar' = 'list';
@@ -117,6 +118,7 @@ export class OccasionDetailComponent implements OnInit {
       this.allOccasions = occasions;
       const isFirst = !this.occasion;
       this.occasion = found;
+      this.loading = false;
       if (isFirst) {
         this.jumpToFirstOption();
         if (openEdit) this.startEdit();
