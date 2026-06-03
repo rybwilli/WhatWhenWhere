@@ -80,14 +80,41 @@ exports.handler = async (event) => {
     return respond(500, { error: 'Failed to parse respondents: ' + e.message });
   }
 
-  const toEmail = respondents.filter(r => r.email);
-  if (toEmail.length === 0) {
-    return respond(200, { sent: 0, message: 'No respondents with emails' });
-  }
-
   const occasionUrl = `${APP_URL}/occasion/${occasionId}`;
   const path = event.path || '';
   const isFinalized = path.includes('share-finalized');
+
+  let toEmail;
+  if (isFinalized) {
+    toEmail = respondents.filter(r => r.email);
+  } else {
+    // Only remind respondents who haven't voted on any when or where option
+    let whenOptions = [];
+    let whereOptions = [];
+    try {
+      whenOptions = Array.isArray(occasion.whenOptions)
+        ? occasion.whenOptions
+        : JSON.parse(occasion.whenOptions || '[]');
+      whereOptions = Array.isArray(occasion.whereOptions)
+        ? occasion.whereOptions
+        : JSON.parse(occasion.whereOptions || '[]');
+    } catch (e) {
+      console.error('Failed to parse options:', e.message);
+    }
+
+    const votedEmails = new Set([
+      ...whenOptions.flatMap(o => (o.votes || []).map(v => (v.voterId || v.voter || '').toLowerCase())),
+      ...whereOptions.flatMap(o => (o.votes || []).map(v => (v.voterId || v.voter || '').toLowerCase())),
+    ]);
+
+    console.log('Voted emails:', [...votedEmails]);
+    toEmail = respondents.filter(r => r.email && !votedEmails.has(r.email.toLowerCase()));
+    console.log(`Sending to ${toEmail.length} of ${respondents.length} respondents who haven't voted`);
+  }
+
+  if (toEmail.length === 0) {
+    return respond(200, { sent: 0, message: isFinalized ? 'No respondents with emails' : 'All respondents have already voted!' });
+  }
 
   let sent = 0;
   for (const r of toEmail) {

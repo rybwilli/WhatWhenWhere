@@ -579,15 +579,16 @@ export class OccasionDetailComponent implements OnInit {
       alert('No respondents to email yet.');
       return;
     }
-    if (!confirm(`Send a reminder email to ${respondentCount} respondent(s)?`)) return;
+    if (!confirm(`Send a reminder email to respondents who haven't voted yet?`)) return;
     this.sendingReminder = true;
     try {
-      await this.http.post(
+      const result: any = await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/send-reminder',
         { occasionId: this.occasion.id },
         { headers: { 'Content-Type': 'application/json' } }
       ).toPromise();
-      alert('Reminder emails sent!');
+      const sent = result?.sent ?? 0;
+      alert(sent > 0 ? `Reminder sent to ${sent} respondent(s) who haven't voted yet.` : 'All respondents have already voted!');
     } catch (e: any) {
       alert('Failed to send reminders: ' + (e?.error?.error || e?.message || 'Unknown error'));
     } finally {

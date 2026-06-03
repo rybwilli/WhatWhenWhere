@@ -33,7 +33,7 @@
       "function": {
         "pollingemail": {
           "deploymentBucketName": "amplify-whatwhenwhere-dev-d4042-deployment",
-          "s3Key": "amplify-builds/pollingemail-6f48376d4b786a433558-build.zip"
+          "s3Key": "amplify-builds/pollingemail-45763341494a6c386134-build.zip"
         }
       }
     }
