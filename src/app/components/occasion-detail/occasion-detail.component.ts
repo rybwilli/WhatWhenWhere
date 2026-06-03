@@ -27,11 +27,16 @@ export class OccasionDetailComponent implements OnInit {
 
   get unvotedRespondents(): number {
     if (!this.occasion) return 0;
-    const votedEmails = new Set([
-      ...this.occasion.whenOptions.flatMap(o => o.votes.map(v => (v.voterId ?? v.voter).toLowerCase())),
-      ...this.occasion.whereOptions.flatMap(o => o.votes.map(v => (v.voterId ?? v.voter).toLowerCase())),
-    ]);
-    return this.occasion.respondents.filter(r => !votedEmails.has(r.email.toLowerCase())).length;
+    return this.occasion.respondents.filter(r => {
+      const email = r.email.toLowerCase();
+      const votedAllWhen = this.occasion!.whenOptions.every(o =>
+        o.votes.some(v => (v.voterId ?? v.voter).toLowerCase() === email)
+      );
+      const votedAllWhere = this.occasion!.whereOptions.every(o =>
+        o.votes.some(v => (v.voterId ?? v.voter).toLowerCase() === email)
+      );
+      return !votedAllWhen || !votedAllWhere;
+    }).length;
   }
   selectedTab = 0;
   calendarMonth: Date = new Date();

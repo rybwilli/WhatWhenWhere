@@ -102,14 +102,18 @@ exports.handler = async (event) => {
       console.error('Failed to parse options:', e.message);
     }
 
-    const votedEmails = new Set([
-      ...whenOptions.flatMap(o => (o.votes || []).map(v => (v.voterId || v.voter || '').toLowerCase())),
-      ...whereOptions.flatMap(o => (o.votes || []).map(v => (v.voterId || v.voter || '').toLowerCase())),
-    ]);
-
-    console.log('Voted emails:', [...votedEmails]);
-    toEmail = respondents.filter(r => r.email && !votedEmails.has(r.email.toLowerCase()));
-    console.log(`Sending to ${toEmail.length} of ${respondents.length} respondents who haven't voted`);
+    toEmail = respondents.filter(r => {
+      if (!r.email) return false;
+      const email = r.email.toLowerCase();
+      const votedAllWhen = whenOptions.every(o =>
+        (o.votes || []).some(v => (v.voterId || v.voter || '').toLowerCase() === email)
+      );
+      const votedAllWhere = whereOptions.every(o =>
+        (o.votes || []).some(v => (v.voterId || v.voter || '').toLowerCase() === email)
+      );
+      return !votedAllWhen || !votedAllWhere;
+    });
+    console.log(`Sending to ${toEmail.length} of ${respondents.length} respondents who haven't completed all votes`);
   }
 
   if (toEmail.length === 0) {
