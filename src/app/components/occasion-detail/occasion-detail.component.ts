@@ -304,7 +304,11 @@ export class OccasionDetailComponent implements OnInit {
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
       const iso = date.toISOString().split('T')[0];
-      const options = (this.occasion?.whenOptions ?? []).filter(o => o.date === iso);
+      const options = (this.occasion?.whenOptions ?? []).filter(o => {
+        const start = o.date;
+        const end = o.endDate && o.endDate !== o.date ? o.endDate : o.date;
+        return iso >= start && iso <= end;
+      });
       cells.push({ date, options });
     }
     return cells;
