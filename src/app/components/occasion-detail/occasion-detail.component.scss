@@ -82,6 +82,21 @@
         border-radius: 4px;
         padding: 2px 4px;
 
+        &.cal-opt-middle {
+          border-radius: 0;
+          opacity: 0.45;
+          min-height: 8px;
+          padding: 4px 4px;
+        }
+
+        &.cal-opt-start {
+          border-radius: 4px 4px 0 0;
+        }
+
+        &.cal-opt-end {
+          border-radius: 0 0 4px 4px;
+        }
+
         .cal-time {
           font-size: 0.65rem;
           color: white;

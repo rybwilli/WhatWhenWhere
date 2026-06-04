@@ -367,13 +367,21 @@
                 [class.empty-cell]="!cell.date">
                 <span class="cal-day" *ngIf="cell.date">{{ cell.date.getDate() }}</span>
                 <div class="cal-options" *ngIf="cell.options.length">
-                  <div *ngFor="let opt of cell.options" class="cal-opt">
-                    <span class="cal-time">{{ fmt12(opt.startTime) }}</span>
-                    <span class="cal-tally">
-                      <span class="tally-yes">✓{{ votesFor(opt.votes, 'yes').length }}</span>
-                      <span class="tally-maybe">~{{ votesFor(opt.votes, 'maybe').length }}</span>
-                      <span class="tally-no">✗{{ votesFor(opt.votes, 'no').length }}</span>
-                    </span>
+                  <div *ngFor="let item of cell.options"
+                    class="cal-opt"
+                    [class.cal-opt-middle]="item.position === 'middle'"
+                    [class.cal-opt-start]="item.position === 'start'"
+                    [class.cal-opt-end]="item.position === 'end'">
+                    <ng-container *ngIf="item.position !== 'middle'">
+                      <span class="cal-time">
+                        {{ item.position === 'end' ? fmt12(item.opt.endTime) : fmt12(item.opt.startTime) }}
+                      </span>
+                      <span class="cal-tally">
+                        <span class="tally-yes">✓{{ votesFor(item.opt.votes, 'yes').length }}</span>
+                        <span class="tally-maybe">~{{ votesFor(item.opt.votes, 'maybe').length }}</span>
+                        <span class="tally-no">✗{{ votesFor(item.opt.votes, 'no').length }}</span>
+                      </span>
+                    </ng-container>
                   </div>
                 </div>
               </div>

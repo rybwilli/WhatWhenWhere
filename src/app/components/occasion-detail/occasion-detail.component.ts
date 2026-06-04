@@ -294,21 +294,31 @@ export class OccasionDetailComponent implements OnInit {
   // ---------- Calendar ----------
   readonly weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  calendarDays(): Array<{ date: Date | null; options: WhenOption[] }> {
+  calendarDays(): Array<{ date: Date | null; options: Array<{ opt: WhenOption; position: 'single' | 'start' | 'middle' | 'end' }> }> {
     const year = this.calendarMonth.getFullYear();
     const month = this.calendarMonth.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const cells: Array<{ date: Date | null; options: WhenOption[] }> = [];
+    const cells: Array<{ date: Date | null; options: Array<{ opt: WhenOption; position: 'single' | 'start' | 'middle' | 'end' }> }> = [];
     for (let i = 0; i < firstDay; i++) cells.push({ date: null, options: [] });
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
       const iso = date.toISOString().split('T')[0];
-      const options = (this.occasion?.whenOptions ?? []).filter(o => {
-        const start = o.date;
-        const end = o.endDate && o.endDate !== o.date ? o.endDate : o.date;
-        return iso >= start && iso <= end;
-      });
+      const options = (this.occasion?.whenOptions ?? [])
+        .filter(o => {
+          const end = o.endDate && o.endDate !== o.date ? o.endDate : o.date;
+          return iso >= o.date && iso <= end;
+        })
+        .map(o => {
+          const end = o.endDate && o.endDate !== o.date ? o.endDate : o.date;
+          const isMulti = end !== o.date;
+          let position: 'single' | 'start' | 'middle' | 'end';
+          if (!isMulti) position = 'single';
+          else if (iso === o.date) position = 'start';
+          else if (iso === end) position = 'end';
+          else position = 'middle';
+          return { opt: o, position };
+        });
       cells.push({ date, options });
     }
     return cells;
