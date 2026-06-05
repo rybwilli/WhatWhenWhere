@@ -14,6 +14,20 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/get-profile": {
+      "name": "/get-profile",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/save-profile": {
+      "name": "/save-profile",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "open"
+      }
     }
   }
 }

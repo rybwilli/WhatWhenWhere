@@ -7,6 +7,7 @@ import {
 import { Hub } from 'aws-amplify/utils';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { generateClient } from 'aws-amplify/api';
+import { HttpClient } from '@angular/common/http';
 import { CharacterAvatarService } from './character-avatar.service';
 
 export interface AppUser {
@@ -15,7 +16,7 @@ export interface AppUser {
   displayName: string;
   photoURL: string | null;
   phone?: string;
-  character?: { name: string; imagePath: string };
+  character?: { name: string; team: string; position: string; imagePath: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,7 +25,7 @@ export class AuthService {
   readonly user$: Observable<AppUser | null> = this.user$$.asObservable();
   private client = generateClient();
 
-  constructor(private characterAvatar: CharacterAvatarService) {
+  constructor(private characterAvatar: CharacterAvatarService, private http: HttpClient) {
     this.refreshUser();
     Hub.listen('auth', ({ payload }: any) => {
       switch (payload.event) {
@@ -44,10 +45,13 @@ export class AuthService {
       const authUser = await getCurrentUser();
       const userId = authUser.userId;
       const attrs = await fetchUserAttributes();
-      const ownerSub = attrs.sub || userId;
 
       const existingUser = this.user$$.value;
-      const character = existingUser?.character || this.characterAvatar.getRandomCharacter();
+      let character = existingUser?.character;
+
+      if (!character) {
+        character = await this.loadSavedPlayer(userId) || await this.characterAvatar.getRandomCharacter();
+      }
 
       this.user$$.next({
         userId,
@@ -62,6 +66,23 @@ export class AuthService {
     } catch {
       this.user$$.next(null);
     }
+  }
+
+  private async loadSavedPlayer(userId: string): Promise<AppUser['character'] | null> {
+    try {
+      const result: any = await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/get-profile',
+        { userId },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+      const p = result?.profile;
+      if (p?.playerName) {
+        return { name: p.playerName, team: p.playerTeam || '', position: p.playerPosition || '', imagePath: p.playerImageUrl || '' };
+      }
+    } catch {
+      console.log('No saved profile found');
+    }
+    return null;
   }
 
   async loginWithGoogle(): Promise<void> {
@@ -97,6 +118,11 @@ export class AuthService {
     await confirmResetPassword({ username: email, confirmationCode: code, newPassword });
   }
 
+
+  setCharacter(character: AppUser['character']): void {
+    const user = this.user$$.value;
+    if (user) this.user$$.next({ ...user, character });
+  }
 
   getCurrentUser(): AppUser | null {
     return this.user$$.value;

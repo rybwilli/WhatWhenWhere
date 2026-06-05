@@ -1,28 +1,47 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
-interface Character {
+interface NBAPlayer {
   name: string;
+  team: string;
+  position: string;
+  headshot: string;
+}
+
+export interface Character {
+  name: string;
+  team: string;
+  position: string;
   imagePath: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CharacterAvatarService {
-  private characters: Character[] = [
-    { name: 'Homer', imagePath: 'assets/Avatars/Homer.png' },
-    { name: 'Marge', imagePath: 'assets/Avatars/Marge.png' },
-    { name: 'Bart', imagePath: 'assets/Avatars/Bart.png' },
-    { name: 'Lisa', imagePath: 'assets/Avatars/Lisa.png' },
-    { name: 'Maggie', imagePath: 'assets/Avatars/Maggie.png' },
-    { name: 'Chief Wiggum', imagePath: 'assets/Avatars/ChiefWiggum.png' },
-    { name: 'Comic Book Guy', imagePath: 'assets/Avatars/ComicBookGuy.png' },
-    { name: 'Grandma', imagePath: 'assets/Avatars/Grandma.png' },
-    { name: 'Itchy', imagePath: 'assets/Avatars/Itchy.png' },
-    { name: 'Rev. Lovejoy', imagePath: 'assets/Avatars/RevLovejoy.png' },
-    { name: 'Smithers', imagePath: 'assets/Avatars/Smithers.png' },
-  ];
+  private players: Character[] = [];
+  private loadPromise: Promise<void>;
 
-  getRandomCharacter(): Character {
-    const index = Math.floor(Math.random() * this.characters.length);
-    return this.characters[index];
+  constructor(private http: HttpClient) {
+    this.loadPromise = firstValueFrom(
+      this.http.get<NBAPlayer[]>('assets/nba_players.json')
+    ).then(data => {
+      this.players = data.map(p => ({
+        name: p.name,
+        team: p.team,
+        position: p.position,
+        imagePath: p.headshot,
+      }));
+    }).catch(() => {});
+  }
+
+  async getRandomCharacter(): Promise<Character> {
+    await this.loadPromise;
+    if (!this.players.length) return { name: 'Player', team: '', position: '', imagePath: '' };
+    return this.players[Math.floor(Math.random() * this.players.length)];
+  }
+
+  async getAllPlayers(): Promise<Character[]> {
+    await this.loadPromise;
+    return this.players;
   }
 }

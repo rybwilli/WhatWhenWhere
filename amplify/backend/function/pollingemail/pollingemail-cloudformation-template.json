@@ -74,6 +74,9 @@
             "APP_URL": "https://www.whatwhenwherewho.com",
             "OCCASION_TABLE": {
               "Fn::Sub": "Occasion-dgnazxn3njainalugb7luz2eve-${env}"
+            },
+            "PROFILE_TABLE": {
+              "Fn::Sub": "UserProfile-dgnazxn3njainalugb7luz2eve-${env}"
             }
           }
         },
@@ -184,6 +187,17 @@
               ],
               "Resource": [
                 "arn:aws:dynamodb:us-east-1:*:table/Occasion-*"
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem"
+              ],
+              "Resource": [
+                "arn:aws:dynamodb:us-east-1:*:table/UserProfile-*"
               ],
               "Effect": "Allow"
             },

@@ -1,4 +1,4 @@
-<div class="profile-container" *ngIf="user">
+<div class="profile-container" *ngIf="user" [class.editing]="editing">
   <mat-card class="profile-card">
     <mat-card-header>
       <button mat-icon-button (click)="goBack()" class="back-btn">
@@ -36,10 +36,44 @@
 
       <!-- Edit mode -->
       <ng-container *ngIf="editing">
-        <p class="help-text">Profile information is managed through your account settings</p>
+        <h3 class="picker-title">Choose your player</h3>
+
+        <div class="picker-filters">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Search by name</mat-label>
+            <input matInput [(ngModel)]="filterName" (ngModelChange)="applyFilter()" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Team</mat-label>
+            <mat-select [(ngModel)]="filterTeam" (ngModelChange)="applyFilter()">
+              <mat-option value="">All Teams</mat-option>
+              <mat-option *ngFor="let t of teams" [value]="t">{{ t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Position</mat-label>
+            <mat-select [(ngModel)]="filterPosition" (ngModelChange)="applyFilter()">
+              <mat-option value="">All Positions</mat-option>
+              <mat-option *ngFor="let p of positions" [value]="p">{{ p }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="player-grid">
+          <div *ngFor="let player of filteredPlayers"
+            class="player-card"
+            [class.selected]="selectedPlayer?.name === player.name"
+            (click)="selectPlayer(player)">
+            <img [src]="player.imagePath" [alt]="player.name" class="player-img" />
+            <span class="player-name">{{ player.name }}</span>
+            <span class="player-meta">{{ player.position }} · {{ player.team }}</span>
+          </div>
+        </div>
+
         <mat-error *ngIf="error" class="error-msg">{{ error }}</mat-error>
         <div class="edit-actions">
-          <button mat-button (click)="cancelEdit()" [disabled]="saving">Done</button>
+          <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="!selectedPlayer">Save</button>
+          <button mat-button (click)="cancelEdit()">Cancel</button>
         </div>
       </ng-container>
     </mat-card-content>

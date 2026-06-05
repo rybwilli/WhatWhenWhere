@@ -1,13 +1,14 @@
-const { DynamoDBClient, GetItemCommand } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
-const { unmarshall } = require('@aws-sdk/util-dynamodb');
+const { unmarshall, marshall } = require('@aws-sdk/util-dynamodb');
 
 const dynamo = new DynamoDBClient({ region: process.env.REGION || 'us-east-1' });
 const ses = new SESClient({ region: process.env.REGION || 'us-east-1' });
 
-const TABLE_NAME = process.env.OCCASION_TABLE;
-const FROM_EMAIL = process.env.FROM_EMAIL;
-const APP_URL = process.env.APP_URL || 'https://www.whatwhenwherewho.com';
+const TABLE_NAME    = process.env.OCCASION_TABLE;
+const PROFILE_TABLE = process.env.PROFILE_TABLE;
+const FROM_EMAIL    = process.env.FROM_EMAIL;
+const APP_URL       = process.env.APP_URL || 'https://www.whatwhenwherewho.com';
 
 const respond = (statusCode, body) => ({
   statusCode,
@@ -39,6 +40,15 @@ exports.handler = async (event) => {
 
   if (event.httpMethod === 'OPTIONS') {
     return respond(200, {});
+  }
+
+  const path = event.path || '';
+
+  if (path.includes('get-profile')) {
+    return handleGetProfile(event);
+  }
+  if (path.includes('save-profile')) {
+    return handleSaveProfile(event);
   }
 
   let occasionId;
@@ -81,7 +91,6 @@ exports.handler = async (event) => {
   }
 
   const occasionUrl = `${APP_URL}/occasion/${occasionId}`;
-  const path = event.path || '';
   const isFinalized = path.includes('share-finalized');
 
   let toEmail;
@@ -205,4 +214,50 @@ ${detailsHtml ? `<table style="border-collapse:collapse;margin:16px 0;background
       },
     },
   };
+}
+
+async function handleGetProfile(event) {
+  const { userId } = JSON.parse(event.body || '{}');
+  if (!userId) return respond(400, { error: 'userId required' });
+
+  try {
+    const result = await dynamo.send(new GetItemCommand({
+      TableName: PROFILE_TABLE,
+      Key: { id: { S: userId } },
+    }));
+    if (!result.Item) return respond(200, { profile: null });
+    const profile = unmarshall(result.Item);
+    return respond(200, { profile: {
+      playerName:     profile.playerName     || null,
+      playerTeam:     profile.playerTeam     || null,
+      playerPosition: profile.playerPosition || null,
+      playerImageUrl: profile.playerImageUrl || null,
+    }});
+  } catch (e) {
+    console.error('get-profile error:', e.message);
+    return respond(500, { error: e.message });
+  }
+}
+
+async function handleSaveProfile(event) {
+  const { userId, ownerSub, playerName, playerTeam, playerPosition, playerImageUrl } = JSON.parse(event.body || '{}');
+  if (!userId) return respond(400, { error: 'userId required' });
+
+  try {
+    await dynamo.send(new PutItemCommand({
+      TableName: PROFILE_TABLE,
+      Item: marshall({
+        id:             userId,
+        ownerSub:       ownerSub || userId,
+        playerName:     playerName     || null,
+        playerTeam:     playerTeam     || null,
+        playerPosition: playerPosition || null,
+        playerImageUrl: playerImageUrl || null,
+      }, { removeUndefinedValues: true }),
+    }));
+    return respond(200, { saved: true });
+  } catch (e) {
+    console.error('save-profile error:', e.message);
+    return respond(500, { error: e.message });
+  }
 }
