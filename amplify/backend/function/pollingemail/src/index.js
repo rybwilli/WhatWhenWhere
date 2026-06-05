@@ -50,6 +50,9 @@ exports.handler = async (event) => {
   if (path.includes('save-profile')) {
     return handleSaveProfile(event);
   }
+  if (path.includes('get-respondent-profiles')) {
+    return handleGetRespondentProfiles(event);
+  }
 
   let occasionId;
   try {
@@ -232,6 +235,7 @@ async function handleGetProfile(event) {
       playerTeam:     profile.playerTeam     || null,
       playerPosition: profile.playerPosition || null,
       playerImageUrl: profile.playerImageUrl || null,
+      useGooglePhoto: profile.useGooglePhoto !== false,
     }});
   } catch (e) {
     console.error('get-profile error:', e.message);
@@ -240,7 +244,7 @@ async function handleGetProfile(event) {
 }
 
 async function handleSaveProfile(event) {
-  const { userId, ownerSub, playerName, playerTeam, playerPosition, playerImageUrl } = JSON.parse(event.body || '{}');
+  const { userId, ownerSub, email, playerName, playerTeam, playerPosition, playerImageUrl, useGooglePhoto, googlePhotoUrl } = JSON.parse(event.body || '{}');
   if (!userId) return respond(400, { error: 'userId required' });
 
   try {
@@ -249,15 +253,55 @@ async function handleSaveProfile(event) {
       Item: marshall({
         id:             userId,
         ownerSub:       ownerSub || userId,
+        email:          email          || null,
+        googlePhotoUrl: googlePhotoUrl || null,
         playerName:     playerName     || null,
         playerTeam:     playerTeam     || null,
         playerPosition: playerPosition || null,
         playerImageUrl: playerImageUrl || null,
+        useGooglePhoto: useGooglePhoto !== false,
       }, { removeUndefinedValues: true }),
     }));
     return respond(200, { saved: true });
   } catch (e) {
     console.error('save-profile error:', e.message);
+    return respond(500, { error: e.message });
+  }
+}
+
+async function handleGetRespondentProfiles(event) {
+  const { emails } = JSON.parse(event.body || '{}');
+  if (!emails || !emails.length) return respond(400, { error: 'emails required' });
+
+  try {
+    const { ScanCommand } = require('@aws-sdk/client-dynamodb');
+    const filterParts = emails.map((_, i) => `#email = :email${i}`);
+    const attrValues = {};
+    emails.forEach((e, i) => { attrValues[`:email${i}`] = { S: e.toLowerCase() }; });
+
+    const result = await dynamo.send(new ScanCommand({
+      TableName: PROFILE_TABLE,
+      FilterExpression: filterParts.join(' OR '),
+      ExpressionAttributeNames: { '#email': 'email' },
+      ExpressionAttributeValues: attrValues,
+    }));
+
+    const profiles = {};
+    (result.Items || []).forEach(item => {
+      const p = unmarshall(item);
+      if (p.email) {
+        profiles[p.email.toLowerCase()] = {
+          useGooglePhoto: p.useGooglePhoto !== false,
+          googlePhotoUrl: p.googlePhotoUrl || null,
+          playerImageUrl: p.playerImageUrl || null,
+          playerName:     p.playerName     || null,
+        };
+      }
+    });
+
+    return respond(200, { profiles });
+  } catch (e) {
+    console.error('get-respondent-profiles error:', e.message);
     return respond(500, { error: e.message });
   }
 }

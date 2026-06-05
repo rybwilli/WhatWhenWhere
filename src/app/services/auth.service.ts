@@ -16,6 +16,7 @@ export interface AppUser {
   displayName: string;
   photoURL: string | null;
   phone?: string;
+  useGooglePhoto?: boolean;
   character?: { name: string; team: string; position: string; imagePath: string };
 }
 
@@ -48,9 +49,12 @@ export class AuthService {
 
       const existingUser = this.user$$.value;
       let character = existingUser?.character;
+      let useGooglePhoto = existingUser?.useGooglePhoto ?? true;
 
-      if (!character) {
-        character = await this.loadSavedPlayer(userId) || await this.characterAvatar.getRandomCharacter();
+      if (!existingUser) {
+        const saved = await this.loadSavedProfile(userId);
+        useGooglePhoto = saved.useGooglePhoto;
+        character = saved.character || await this.characterAvatar.getRandomCharacter();
       }
 
       this.user$$.next({
@@ -61,6 +65,7 @@ export class AuthService {
           attrs.email || '',
         photoURL: attrs.picture ?? null,
         phone: undefined,
+        useGooglePhoto,
         character,
       });
     } catch {
@@ -68,7 +73,7 @@ export class AuthService {
     }
   }
 
-  private async loadSavedPlayer(userId: string): Promise<AppUser['character'] | null> {
+  private async loadSavedProfile(userId: string): Promise<{ character: AppUser['character'] | null; useGooglePhoto: boolean }> {
     try {
       const result: any = await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/get-profile',
@@ -76,13 +81,16 @@ export class AuthService {
         { headers: { 'Content-Type': 'application/json' } }
       ).toPromise();
       const p = result?.profile;
-      if (p?.playerName) {
-        return { name: p.playerName, team: p.playerTeam || '', position: p.playerPosition || '', imagePath: p.playerImageUrl || '' };
+      if (p) {
+        const character = p.playerName
+          ? { name: p.playerName, team: p.playerTeam || '', position: p.playerPosition || '', imagePath: p.playerImageUrl || '' }
+          : null;
+        return { character, useGooglePhoto: p.useGooglePhoto !== false };
       }
     } catch {
       console.log('No saved profile found');
     }
-    return null;
+    return { character: null, useGooglePhoto: true };
   }
 
   async loginWithGoogle(): Promise<void> {
@@ -122,6 +130,11 @@ export class AuthService {
   setCharacter(character: AppUser['character']): void {
     const user = this.user$$.value;
     if (user) this.user$$.next({ ...user, character });
+  }
+
+  setUseGooglePhoto(value: boolean): void {
+    const user = this.user$$.value;
+    if (user) this.user$$.next({ ...user, useGooglePhoto: value });
   }
 
   getCurrentUser(): AppUser | null {

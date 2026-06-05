@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit {
   filterTeam = '';
   filterPosition = '';
   selectedPlayer: Character | null = null;
+  useGooglePhoto = true;
   teams: string[] = [];
   positions: string[] = [];
 
@@ -40,6 +41,7 @@ export class ProfileComponent implements OnInit {
   startEdit(): void {
     this.editing = true;
     this.error = '';
+    this.useGooglePhoto = this.user?.useGooglePhoto ?? true;
     this.selectedPlayer = this.user?.character ?? null;
     this.applyFilter();
   }
@@ -58,18 +60,23 @@ export class ProfileComponent implements OnInit {
   }
 
   async saveProfile(): Promise<void> {
-    if (!this.selectedPlayer || !this.user) return;
-    this.auth.setCharacter(this.selectedPlayer);
+    if (!this.user) return;
+    if (!this.useGooglePhoto && !this.selectedPlayer) return;
+    this.auth.setCharacter(this.selectedPlayer ?? undefined);
+    this.auth.setUseGooglePhoto(this.useGooglePhoto);
     try {
       await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/save-profile',
         {
           userId:         this.user.userId,
           ownerSub:       this.user.userId,
-          playerName:     this.selectedPlayer.name,
-          playerTeam:     this.selectedPlayer.team,
-          playerPosition: this.selectedPlayer.position,
-          playerImageUrl: this.selectedPlayer.imagePath,
+          email:          this.user.email?.toLowerCase(),
+          googlePhotoUrl: this.user.photoURL || null,
+          useGooglePhoto: this.useGooglePhoto,
+          playerName:     this.selectedPlayer?.name     || null,
+          playerTeam:     this.selectedPlayer?.team     || null,
+          playerPosition: this.selectedPlayer?.position || null,
+          playerImageUrl: this.selectedPlayer?.imagePath || null,
         },
         { headers: { 'Content-Type': 'application/json' } }
       ).toPromise();

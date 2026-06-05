@@ -559,7 +559,12 @@
 
         <div class="respondent-list">
           <div *ngFor="let r of occasion.respondents" class="respondent-row">
-            <div class="respondent-avatar">{{ r.name[0].toUpperCase() }}</div>
+            <div class="respondent-avatar" *ngIf="!getRespondentImage(r.email)">{{ r.name[0].toUpperCase() }}</div>
+            <img *ngIf="getRespondentImage(r.email)"
+              [src]="getRespondentImage(r.email)!"
+              class="respondent-avatar respondent-avatar-img"
+              [matTooltip]="respondentProfiles[r.email?.toLowerCase() || '']?.name || r.name"
+              referrerpolicy="no-referrer" />
             <div class="respondent-info">
               <span class="respondent-name">
                 {{ r.name }}

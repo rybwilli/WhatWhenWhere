@@ -782,6 +782,11 @@
   font-weight: 700;
   font-size: 1rem;
   flex-shrink: 0;
+
+  &.respondent-avatar-img {
+    background: none;
+    object-fit: cover;
+  }
 }
 
 .respondent-info {

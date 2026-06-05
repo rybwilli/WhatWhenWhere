@@ -12,8 +12,8 @@
         {{ user.displayName }}
       </span>
       <button mat-icon-button (click)="goToProfile()" matTooltip="View profile" class="profile-btn">
-        <img *ngIf="user.photoURL" [src]="user.photoURL" class="avatar" referrerpolicy="no-referrer" [alt]="user.displayName || user.email || ''" />
-        <img *ngIf="!user.photoURL && user.character" [src]="user.character.imagePath" class="avatar" [alt]="user.character.name" [matTooltip]="user.character.name" />
+        <img *ngIf="user.photoURL && user.useGooglePhoto !== false" [src]="user.photoURL" class="avatar" referrerpolicy="no-referrer" [alt]="user.displayName || user.email || ''" />
+        <img *ngIf="user.character && (!user.photoURL || user.useGooglePhoto === false)" [src]="user.character.imagePath" class="avatar" [alt]="user.character.name" [matTooltip]="user.character.name" />
       </button>
     </span>
     <button mat-icon-button (click)="logout()" matTooltip="Sign out">

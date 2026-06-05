@@ -14,10 +14,10 @@
     <mat-card-content>
       <!-- Avatar -->
       <div class="avatar-section">
-        <div class="avatar" *ngIf="user.photoURL">
+        <div class="avatar" *ngIf="user.photoURL && user.useGooglePhoto !== false">
           <img [src]="user.photoURL" [alt]="user.displayName" />
         </div>
-        <div class="avatar" *ngIf="!user.photoURL && user.character">
+        <div class="avatar" *ngIf="user.character && (!user.photoURL || user.useGooglePhoto === false)">
           <img [src]="user.character.imagePath" [alt]="user.character.name" [matTooltip]="user.character.name" />
         </div>
         <div class="avatar-info">
@@ -36,9 +36,22 @@
 
       <!-- Edit mode -->
       <ng-container *ngIf="editing">
-        <h3 class="picker-title">Choose your player</h3>
 
-        <div class="picker-filters">
+        <!-- Google photo toggle for Gmail users -->
+        <div class="photo-toggle" *ngIf="user.photoURL">
+          <button mat-stroked-button [class.active]="useGooglePhoto" (click)="useGooglePhoto = true">
+            <img [src]="user.photoURL" class="toggle-avatar" referrerpolicy="no-referrer" />
+            Use Google photo
+          </button>
+          <button mat-stroked-button [class.active]="!useGooglePhoto" (click)="useGooglePhoto = false">
+            <mat-icon>sports_basketball</mat-icon>
+            Pick an NBA player
+          </button>
+        </div>
+
+        <h3 class="picker-title" *ngIf="!user.photoURL || !useGooglePhoto">Choose your player</h3>
+
+        <div class="picker-filters" *ngIf="!user.photoURL || !useGooglePhoto">
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Search by name</mat-label>
             <input matInput [(ngModel)]="filterName" (ngModelChange)="applyFilter()" />
@@ -59,7 +72,7 @@
           </mat-form-field>
         </div>
 
-        <div class="player-grid">
+        <div class="player-grid" *ngIf="!user.photoURL || !useGooglePhoto">
           <div *ngFor="let player of filteredPlayers"
             class="player-card"
             [class.selected]="selectedPlayer?.name === player.name"
@@ -72,7 +85,7 @@
 
         <mat-error *ngIf="error" class="error-msg">{{ error }}</mat-error>
         <div class="edit-actions">
-          <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="!selectedPlayer">Save</button>
+          <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="!useGooglePhoto && !selectedPlayer">Save</button>
           <button mat-button (click)="cancelEdit()">Cancel</button>
         </div>
       </ng-container>

@@ -24,6 +24,7 @@ export class OccasionDetailComponent implements OnInit {
   userEmail = '';
   sendingReminder = false;
   loading = true;
+  respondentProfiles: Record<string, { imageUrl: string | null; name: string | null }> = {};
 
   get unvotedRespondents(): number {
     if (!this.occasion) return 0;
@@ -133,6 +134,7 @@ export class OccasionDetailComponent implements OnInit {
       const isFirst = !this.occasion;
       this.occasion = found;
       this.loading = false;
+      if (isFirst) this.fetchRespondentProfiles(found.respondents);
       if (isFirst) {
         this.jumpToFirstOption();
         if (openEdit) this.startEdit();
@@ -579,6 +581,33 @@ export class OccasionDetailComponent implements OnInit {
   reopenPolling(): void {
     if (!this.occasion || !confirm('Reopen polling? This will clear the finalized date, time, and location.')) return;
     this.svc.reopenPolling(this.occasion.id);
+  }
+
+  getRespondentImage(email: string | undefined): string | null {
+    if (!email) return null;
+    return this.respondentProfiles[email.toLowerCase()]?.imageUrl || null;
+  }
+
+  async fetchRespondentProfiles(respondents: any[]): Promise<void> {
+    const emails = respondents.map(r => r.email).filter(Boolean);
+    if (!emails.length) return;
+    try {
+      const result: any = await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/get-respondent-profiles',
+        { emails },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+      const profiles = result?.profiles || {};
+      this.respondentProfiles = {};
+      for (const [email, p] of Object.entries(profiles) as any[]) {
+        const imageUrl = (p.useGooglePhoto !== false && p.googlePhotoUrl)
+          ? p.googlePhotoUrl
+          : p.playerImageUrl || null;
+        this.respondentProfiles[email.toLowerCase()] = { imageUrl, name: p.playerName };
+      }
+    } catch (e) {
+      console.log('Could not fetch respondent profiles:', e);
+    }
   }
 
   async shareFinalized(): Promise<void> {

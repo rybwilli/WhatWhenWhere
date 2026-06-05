@@ -28,6 +28,13 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/get-respondent-profiles": {
+      "name": "/get-respondent-profiles",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "open"
+      }
     }
   }
 }
