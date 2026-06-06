@@ -470,6 +470,8 @@ export class OccasionDetailComponent implements OnInit {
     const suggestions: Respondent[] = [];
     for (const occ of this.allOccasions) {
       if (occ.id === this.occasion.id) continue;
+      const userWasRespondent = occ.respondents.some(r => r.email.toLowerCase() === this.userEmail.toLowerCase());
+      if (!userWasRespondent) continue;
       for (const r of occ.respondents) {
         const key = r.email.toLowerCase();
         if (!currentEmails.has(key) && !seen.has(key)) {

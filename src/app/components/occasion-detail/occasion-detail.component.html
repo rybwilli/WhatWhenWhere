@@ -563,7 +563,7 @@
             <img *ngIf="getRespondentImage(r.email)"
               [src]="getRespondentImage(r.email)!"
               class="respondent-avatar respondent-avatar-img"
-              [matTooltip]="respondentProfiles[r.email?.toLowerCase() || '']?.name || r.name"
+              [matTooltip]="respondentProfiles[(r.email?.toLowerCase()) || ''].name || r.name"
               referrerpolicy="no-referrer" />
             <div class="respondent-info">
               <span class="respondent-name">
