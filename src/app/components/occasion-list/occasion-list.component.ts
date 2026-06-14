@@ -40,7 +40,11 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   filterStatus = '';
   filterVoteStatus = '';
-  filterStartDate: Date | null = new Date();
+  filterStartDate: Date | null = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 3);
+    return d;
+  })();
   filterEndDate: Date | null = null;
   filterTypes: string[] = [];
   readonly occasionTypes = OCCASION_TYPES;
