@@ -25,6 +25,8 @@ mutation CreateOccasion(
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename
@@ -56,6 +58,8 @@ mutation UpdateOccasion(
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename
@@ -87,6 +91,8 @@ mutation DeleteOccasion(
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename

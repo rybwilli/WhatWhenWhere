@@ -104,7 +104,7 @@ export class OccasionDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private svc: OccasionService,
+    public svc: OccasionService,
     private auth: AuthService,
     private sanitizer: DomSanitizer,
     private http: HttpClient
@@ -535,6 +535,36 @@ export class OccasionDetailComponent implements OnInit {
     const whenVotes  = (this.occasion?.whenOptions  ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
     const whereVotes = (this.occasion?.whereOptions ?? []).flatMap(o => o.votes).filter(v => (v.voterId ?? v.voter) === r.email);
     return { when: tally(whenVotes), where: tally(whereVotes) };
+  }
+
+  // ---------- Player of the Day ----------
+  getEligibleVoters(): Respondent[] {
+    if (!this.occasion) return [];
+    const yesNoMaybeIds = new Set<string>();
+    [...(this.occasion.whenOptions ?? []), ...(this.occasion.whereOptions ?? [])].forEach(opt => {
+      opt.votes.filter(v => v.response === 'yes' || v.response === 'maybe').forEach(v => {
+        yesNoMaybeIds.add(v.voterId?.toLowerCase() || v.voter?.toLowerCase() || '');
+      });
+    });
+    return this.occasion.respondents.filter(
+      r => yesNoMaybeIds.has(r.email.toLowerCase()) && r.email.toLowerCase() !== this.userEmail.toLowerCase()
+    );
+  }
+
+  voteForPlayerOfDay(voter: Respondent): void {
+    if (!this.occasion) return;
+    const user = this.auth.getCurrentUser();
+    this.svc.voteForPlayerOfDay(
+      this.occasion.id,
+      this.userEmail.toLowerCase(),
+      user?.displayName || this.userEmail,
+      voter.id,
+      voter.name
+    );
+  }
+
+  getCurrentUserEmail(): string {
+    return this.userEmail;
   }
 
   // ---------- Copy ----------

@@ -165,7 +165,7 @@
   </mat-card>
 
   <!-- Info section (finalized or editing) -->
-  <mat-card class="info-section" *ngIf="occasion.status === 'finalized' || occasion.infoText || occasion.infoUrl || editingInfo">
+  <mat-card class="info-section" *ngIf="canEdit() || occasion.infoText || occasion.infoUrl || editingInfo">
     <mat-card-header>
       <mat-card-title><mat-icon>info</mat-icon> Information</mat-card-title>
       <span class="spacer"></span>
@@ -209,6 +209,59 @@
 
   <!-- Tabs: When & Where -->
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [(selectedIndex)]="selectedTab">
+
+    <!-- PLAYER OF THE DAY tab (Pick Up Game only) -->
+    <mat-tab *ngIf="occasion.occasionType === 'Pick Up Game' && occasion.status === 'finalized'">
+      <ng-template mat-tab-label>
+        <span class="tab-label tab-player-of-day"><mat-icon>emoji_events</mat-icon>&nbsp;Player of the Day</span>
+      </ng-template>
+
+      <div class="tab-content player-of-day-content">
+        <!-- Voting closed -->
+        <div *ngIf="!svc.isPlayerOfDayVotingOpen(occasion)" class="voting-closed">
+          <p class="voting-status">Voting has ended</p>
+        </div>
+
+        <!-- Voting open -->
+        <div *ngIf="svc.isPlayerOfDayVotingOpen(occasion)" class="voting-open">
+          <p class="voting-status">
+            <mat-icon>schedule</mat-icon>
+            Voting closes {{ occasion.playerOfDayDeadline | date:'short' }}
+          </p>
+
+          <div class="eligible-voters" *ngIf="getEligibleVoters().length">
+            <h3>Vote for Player of the Day</h3>
+            <p class="voting-hint">Choose from respondents who said yes or maybe</p>
+            <div class="voter-buttons">
+              <button *ngFor="let voter of getEligibleVoters()"
+                mat-stroked-button
+                [color]="svc.getUserPlayerOfDayVote(occasion, getCurrentUserEmail())?.votedForId === voter.id ? 'primary' : ''"
+                (click)="voteForPlayerOfDay(voter)"
+                [matTooltip]="svc.getUserPlayerOfDayVote(occasion, getCurrentUserEmail())?.votedForId === voter.id ? 'Click to change your vote' : 'Vote for this player'"
+                class="voter-btn">
+                <span *ngIf="getRespondentImage(voter.email)" class="voter-avatar">
+                  <img [src]="getRespondentImage(voter.email)!" referrerpolicy="no-referrer" />
+                </span>
+                <span *ngIf="!getRespondentImage(voter.email)" class="voter-avatar">{{ voter.name[0].toUpperCase() }}</span>
+                {{ voter.name }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="voting-results" *ngIf="svc.getPlayerOfDayTally(occasion.playerOfDayVotes || []) as results">
+          <h3>Results</h3>
+          <div *ngIf="results.length" class="results-list">
+            <div *ngFor="let result of results" class="result-row">
+              <span class="result-name">{{ result.name }}</span>
+              <span class="result-votes">{{ result.count }} vote{{ result.count !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+          <p *ngIf="!results.length" class="no-votes">No votes yet</p>
+        </div>
+      </div>
+    </mat-tab>
 
     <!-- WHEN tab -->
     <mat-tab>

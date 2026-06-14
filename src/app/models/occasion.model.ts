@@ -1,7 +1,15 @@
 export type OccasionStatus = 'draft' | 'polling' | 'finalized' | 'closed';
-export type OccasionType = 'Rehearsal' | 'Performance' | 'Meeting' | 'Party' | 'Ride' | 'Run' | 'Practice' | 'Scrimmage' | 'Lecture';
-export const OCCASION_TYPES: OccasionType[] = ['Rehearsal', 'Performance', 'Meeting', 'Party', 'Ride', 'Run', 'Practice', 'Scrimmage', 'Lecture'];
+export type OccasionType = 'Rehearsal' | 'Performance' | 'Meeting' | 'Party' | 'Ride' | 'Run' | 'Practice' | 'Pick Up Game' | 'Lecture';
+export const OCCASION_TYPES: OccasionType[] = ['Rehearsal', 'Performance', 'Meeting', 'Party', 'Ride', 'Run', 'Practice', 'Pick Up Game', 'Lecture'];
 export type VoteResponse = 'yes' | 'maybe' | 'no';
+
+export interface PlayerOfDayVote {
+  voterId: string;
+  voter: string;
+  votedForId: string;
+  votedForName: string;
+  timestamp: string;
+}
 
 export interface Vote {
   voter: string;    // display name
@@ -56,5 +64,7 @@ export interface Occasion {
   infoText?: string;
   infoUrl?: string;
   allowPublic?: boolean;
+  playerOfDayVotes?: PlayerOfDayVote[];
+  playerOfDayDeadline?: string;
   createdAt: string;
 }

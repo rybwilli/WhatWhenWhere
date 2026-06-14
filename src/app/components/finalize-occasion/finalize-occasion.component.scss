@@ -109,3 +109,18 @@
     flex: 0 0 170px;
   }
 }
+
+.vote-chip-yes {
+  background-color: #c8e6c9 !important;
+  color: #388e3c !important;
+}
+
+.vote-chip-maybe {
+  background-color: #ffe082 !important;
+  color: #f57c00 !important;
+}
+
+.vote-chip-no {
+  background-color: #ffcdd2 !important;
+  color: #c62828 !important;
+}

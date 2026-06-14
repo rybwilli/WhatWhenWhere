@@ -97,6 +97,10 @@ export class FinalizeOccasionComponent implements OnInit {
     this.form.patchValue({ finalLocation: opt.label });
   }
 
+  countVotesByResponse(votes: any[], response: string): number {
+    return votes.filter(v => v.response === response).length;
+  }
+
   prefillTop(): void {
     if (!this.occasion?.whenOptions.length) return;
     const topWhen = [...this.occasion.whenOptions].sort((a, b) => b.votes.length - a.votes.length)[0];

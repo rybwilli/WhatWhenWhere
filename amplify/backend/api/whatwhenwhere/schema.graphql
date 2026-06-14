@@ -32,4 +32,6 @@ type Occasion @model {
   infoText: String
   infoUrl: String
   allowPublic: Boolean
+  playerOfDayVotes: AWSJSON
+  playerOfDayDeadline: String
 }

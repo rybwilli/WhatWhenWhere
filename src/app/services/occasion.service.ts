@@ -34,6 +34,8 @@ interface OccasionRecord {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt?: string;
 }
 
@@ -59,6 +61,8 @@ function fromRecord(r: OccasionRecord): Occasion {
     infoText: r.infoText ?? undefined,
     infoUrl: r.infoUrl ?? undefined,
     allowPublic: r.allowPublic ?? false,
+    playerOfDayVotes: JSON.parse(r.playerOfDayVotes || '[]'),
+    playerOfDayDeadline: r.playerOfDayDeadline ?? undefined,
     createdAt: r.createdAt || new Date().toISOString(),
   };
 }
@@ -191,6 +195,7 @@ export class OccasionService {
     if (changes.respondents  !== undefined) input.respondents  = JSON.stringify(changes.respondents);
     if (changes.whenOptions  !== undefined) input.whenOptions  = JSON.stringify(changes.whenOptions);
     if (changes.whereOptions !== undefined) input.whereOptions = JSON.stringify(changes.whereOptions);
+    if (changes.playerOfDayVotes !== undefined) input.playerOfDayVotes = JSON.stringify(changes.playerOfDayVotes);
     if (changes.finalDate      !== undefined) input.finalDate      = changes.finalDate;
     if (changes.finalStartTime !== undefined) input.finalStartTime = changes.finalStartTime;
     if (changes.finalEndTime   !== undefined) input.finalEndTime   = changes.finalEndTime;
@@ -200,6 +205,7 @@ export class OccasionService {
     if (changes.infoText       !== undefined) input.infoText       = changes.infoText;
     if (changes.infoUrl        !== undefined) input.infoUrl        = changes.infoUrl;
     if (changes.allowPublic    !== undefined) input.allowPublic    = changes.allowPublic;
+    if (changes.playerOfDayDeadline !== undefined) input.playerOfDayDeadline = changes.playerOfDayDeadline;
 
     await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
   }
@@ -345,7 +351,24 @@ export class OccasionService {
   }
 
   finalize(id: string, finalDate: string, finalStartTime: string, finalEndTime: string, finalEndDate: string, finalLocation: string, finalNotes: string): void {
-    this.updateFields(id, () => ({ status: 'finalized', finalDate, finalStartTime, finalEndTime, finalEndDate, finalLocation, finalNotes }));
+    const occasion = this.occasions$.value.find(o => o.id === id);
+    let deadline: string | undefined;
+    if (occasion?.occasionType === 'Pick Up Game') {
+      const endDate = finalEndDate && finalEndDate !== finalDate ? finalEndDate : finalDate;
+      const endDateTime = new Date(`${endDate}T${finalEndTime}:00`);
+      deadline = new Date(endDateTime.getTime() + 48 * 60 * 60 * 1000).toISOString();
+    }
+    this.updateFields(id, () => ({
+      status: 'finalized',
+      finalDate,
+      finalStartTime,
+      finalEndTime,
+      finalEndDate,
+      finalLocation,
+      finalNotes,
+      playerOfDayDeadline: deadline,
+      playerOfDayVotes: []
+    } as any));
   }
 
   closeOccasion(id: string): void {
@@ -354,6 +377,56 @@ export class OccasionService {
 
   reopenOccasion(id: string): void {
     this.updateFields(id, () => ({ status: 'polling' }));
+  }
+
+  voteForPlayerOfDay(occasionId: string, voterId: string, voter: string, votedForId: string, votedForName: string): void {
+    this.updateFields(occasionId, () => {
+      const occasion = this.occasions$.value.find(o => o.id === occasionId)!;
+      const votes = [...(occasion.playerOfDayVotes || [])];
+      const existingVoteIndex = votes.findIndex(v => v.voterId === voterId);
+      const newVote = { voterId, voter, votedForId, votedForName, timestamp: new Date().toISOString() };
+
+      if (existingVoteIndex >= 0) {
+        votes[existingVoteIndex] = newVote;
+      } else {
+        votes.push(newVote);
+      }
+
+      return { playerOfDayVotes: votes };
+    });
+  }
+
+  isPlayerOfDayVotingOpen(occasion: Occasion): boolean {
+    if (occasion.occasionType !== 'Pick Up Game' || occasion.status !== 'finalized') return false;
+
+    let deadline = occasion.playerOfDayDeadline;
+    if (!deadline && occasion.finalEndTime && occasion.finalDate) {
+      const endDate = occasion.finalEndDate && occasion.finalEndDate !== occasion.finalDate
+        ? occasion.finalEndDate
+        : occasion.finalDate;
+      const endDateTime = new Date(`${endDate}T${occasion.finalEndTime}:00`);
+      deadline = new Date(endDateTime.getTime() + 48 * 60 * 60 * 1000).toISOString();
+    }
+
+    if (!deadline) return false;
+    return new Date() < new Date(deadline);
+  }
+
+  getPlayerOfDayTally(votes: any[]): { name: string; id: string; count: number }[] {
+    const tally: { [key: string]: { name: string; id: string; count: number } } = {};
+    votes.forEach(v => {
+      if (!tally[v.votedForId]) {
+        tally[v.votedForId] = { id: v.votedForId, name: v.votedForName, count: 0 };
+      }
+      tally[v.votedForId].count++;
+    });
+    return Object.values(tally).sort((a, b) => b.count - a.count);
+  }
+
+  getUserPlayerOfDayVote(occasion: Occasion, userEmail: string): any {
+    if (!occasion.playerOfDayVotes) return null;
+    const email = userEmail.toLowerCase();
+    return occasion.playerOfDayVotes.find(v => v.voterId === email);
   }
 
   async delete(id: string): Promise<void> {

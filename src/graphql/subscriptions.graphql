@@ -22,6 +22,8 @@ subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename
@@ -50,6 +52,8 @@ subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename
@@ -78,6 +82,8 @@ subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
     infoText
     infoUrl
     allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
     createdAt
     updatedAt
     __typename

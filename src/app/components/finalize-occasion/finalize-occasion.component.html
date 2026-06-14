@@ -14,28 +14,36 @@
 
         <div class="summary-section" *ngIf="occasion.whenOptions.length">
           <h4><mat-icon>access_time</mat-icon> When Votes</h4>
-          <div *ngFor="let opt of occasion.whenOptions | slice:0:5"
+          <div *ngFor="let opt of occasion.whenOptions"
             class="summary-row selectable"
             [class.selected]="opt.id === selectedWhenId"
             (click)="selectWhen(opt)">
             <span>{{ topWhenLabel(opt) }}</span>
             <div class="row-right">
               <mat-icon class="check-icon" *ngIf="opt.id === selectedWhenId">check_circle</mat-icon>
-              <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+              <mat-chip-set>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'yes') > 0" class="vote-chip-yes">✓ {{ countVotesByResponse(opt.votes, 'yes') }}</mat-chip>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'maybe') > 0" class="vote-chip-maybe">~ {{ countVotesByResponse(opt.votes, 'maybe') }}</mat-chip>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'no') > 0" class="vote-chip-no">✗ {{ countVotesByResponse(opt.votes, 'no') }}</mat-chip>
+              </mat-chip-set>
             </div>
           </div>
         </div>
 
         <div class="summary-section" *ngIf="occasion.whereOptions.length">
           <h4><mat-icon>place</mat-icon> Where Votes</h4>
-          <div *ngFor="let opt of occasion.whereOptions | slice:0:5"
+          <div *ngFor="let opt of occasion.whereOptions"
             class="summary-row selectable"
             [class.selected]="opt.id === selectedWhereId"
             (click)="selectWhere(opt)">
             <span>{{ opt.label }}</span>
             <div class="row-right">
               <mat-icon class="check-icon" *ngIf="opt.id === selectedWhereId">check_circle</mat-icon>
-              <mat-chip>{{ opt.votes.length }} vote{{ opt.votes.length !== 1 ? 's' : '' }}</mat-chip>
+              <mat-chip-set>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'yes') > 0" class="vote-chip-yes">✓ {{ countVotesByResponse(opt.votes, 'yes') }}</mat-chip>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'maybe') > 0" class="vote-chip-maybe">~ {{ countVotesByResponse(opt.votes, 'maybe') }}</mat-chip>
+                <mat-chip *ngIf="countVotesByResponse(opt.votes, 'no') > 0" class="vote-chip-no">✗ {{ countVotesByResponse(opt.votes, 'no') }}</mat-chip>
+              </mat-chip-set>
             </div>
           </div>
         </div>

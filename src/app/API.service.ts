@@ -39,6 +39,8 @@ export type CreateOccasionInput = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
 };
 
 export type ModelOccasionConditionInput = {
@@ -61,6 +63,8 @@ export type ModelOccasionConditionInput = {
   infoText?: ModelStringInput | null;
   infoUrl?: ModelStringInput | null;
   allowPublic?: ModelBooleanInput | null;
+  playerOfDayVotes?: ModelStringInput | null;
+  playerOfDayDeadline?: ModelStringInput | null;
   and?: Array<ModelOccasionConditionInput | null> | null;
   or?: Array<ModelOccasionConditionInput | null> | null;
   not?: ModelOccasionConditionInput | null;
@@ -136,6 +140,8 @@ export type Occasion = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -161,6 +167,8 @@ export type UpdateOccasionInput = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
 };
 
 export type DeleteOccasionInput = {
@@ -223,6 +231,8 @@ export type ModelOccasionFilterInput = {
   infoText?: ModelStringInput | null;
   infoUrl?: ModelStringInput | null;
   allowPublic?: ModelBooleanInput | null;
+  playerOfDayVotes?: ModelStringInput | null;
+  playerOfDayDeadline?: ModelStringInput | null;
   createdAt?: ModelStringInput | null;
   updatedAt?: ModelStringInput | null;
   and?: Array<ModelOccasionFilterInput | null> | null;
@@ -290,6 +300,8 @@ export type ModelSubscriptionOccasionFilterInput = {
   infoText?: ModelSubscriptionStringInput | null;
   infoUrl?: ModelSubscriptionStringInput | null;
   allowPublic?: ModelSubscriptionBooleanInput | null;
+  playerOfDayVotes?: ModelSubscriptionStringInput | null;
+  playerOfDayDeadline?: ModelSubscriptionStringInput | null;
   createdAt?: ModelSubscriptionStringInput | null;
   updatedAt?: ModelSubscriptionStringInput | null;
   and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
@@ -363,6 +375,8 @@ export type CreateOccasionMutation = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -389,6 +403,8 @@ export type UpdateOccasionMutation = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -415,6 +431,8 @@ export type DeleteOccasionMutation = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -468,6 +486,8 @@ export type GetOccasionQuery = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -496,6 +516,8 @@ export type ListOccasionsQuery = {
     infoText?: string | null;
     infoUrl?: string | null;
     allowPublic?: boolean | null;
+    playerOfDayVotes?: string | null;
+    playerOfDayDeadline?: string | null;
     createdAt: string;
     updatedAt: string;
   } | null>;
@@ -546,6 +568,8 @@ export type OnCreateOccasionSubscription = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -572,6 +596,8 @@ export type OnUpdateOccasionSubscription = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -598,6 +624,8 @@ export type OnDeleteOccasionSubscription = {
   infoText?: string | null;
   infoUrl?: string | null;
   allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -660,6 +688,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -702,6 +732,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -744,6 +776,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -858,6 +892,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -900,6 +936,8 @@ export class APIService {
             infoText
             infoUrl
             allowPublic
+            playerOfDayVotes
+            playerOfDayDeadline
             createdAt
             updatedAt
           }
@@ -1002,6 +1040,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -1045,6 +1085,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
@@ -1088,6 +1130,8 @@ export class APIService {
           infoText
           infoUrl
           allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
           createdAt
           updatedAt
         }
