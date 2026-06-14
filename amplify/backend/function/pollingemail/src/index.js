@@ -140,7 +140,7 @@ exports.handler = async (event) => {
         : buildReminderEmail(r, occasion, occasionUrl);
 
       await ses.send(new SendEmailCommand({
-        Source: FROM_EMAIL,
+        Source: `What? When? Where? Who? <${FROM_EMAIL}>`,
         ReplyToAddresses: [occasion.ownerEmail],
         Destination: { ToAddresses: [r.email] },
         Message: message,
