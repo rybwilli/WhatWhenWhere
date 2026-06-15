@@ -126,8 +126,11 @@ export class OccasionDetailComponent implements OnInit {
         this.router.navigate(['/']);
         return;
       }
+      if (!found && !this.occasion) {
+        this.router.navigate(['/']);
+        return;
+      }
       if (!found) {
-        if (this.occasion) this.router.navigate(['/']);
         return;
       }
       this.allOccasions = occasions;
