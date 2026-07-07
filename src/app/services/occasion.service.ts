@@ -276,48 +276,73 @@ export class OccasionService {
     }));
   }
 
-  castWhenVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): void {
-    this.updateFields(id, o => ({
-      whenOptions: o.whenOptions.map(opt =>
-        opt.id !== optionId ? opt : {
-          ...opt,
-          votes: [
-            ...opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId),
-            { voter, voterId, response, comment: comment.trim() || undefined },
-          ],
-        }
-      ),
-    }));
+  async castWhenVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): Promise<void> {
+    await this.castVoteOnField(id, 'whenOptions', optionId, voterId, voter, response, comment);
   }
 
-  castWhereVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): void {
-    this.updateFields(id, o => ({
-      whereOptions: o.whereOptions.map(opt =>
-        opt.id !== optionId ? opt : {
-          ...opt,
-          votes: [
-            ...opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId),
-            { voter, voterId, response, comment: comment.trim() || undefined },
-          ],
-        }
-      ),
-    }));
+  async castWhereVote(id: string, optionId: string, voter: string, voterId: string, response: VoteResponse, comment: string): Promise<void> {
+    await this.castVoteOnField(id, 'whereOptions', optionId, voterId, voter, response, comment);
   }
 
-  clearWhenVote(id: string, optionId: string, voterId: string): void {
-    this.updateFields(id, o => ({
-      whenOptions: o.whenOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
-      ),
-    }));
+  async clearWhenVote(id: string, optionId: string, voterId: string): Promise<void> {
+    await this.clearVoteOnField(id, 'whenOptions', optionId, voterId);
   }
 
-  clearWhereVote(id: string, optionId: string, voterId: string): void {
-    this.updateFields(id, o => ({
-      whereOptions: o.whereOptions.map(opt =>
-        opt.id !== optionId ? opt : { ...opt, votes: opt.votes.filter(v => (v.voterId ?? v.voter) !== voterId) }
-      ),
-    }));
+  async clearWhereVote(id: string, optionId: string, voterId: string): Promise<void> {
+    await this.clearVoteOnField(id, 'whereOptions', optionId, voterId);
+  }
+
+  private async castVoteOnField(
+    occasionId: string, field: 'whenOptions' | 'whereOptions',
+    optionId: string, voterId: string, voter: string, response: VoteResponse, comment: string
+  ): Promise<void> {
+    const fresh = await this.fetchFreshOccasion(occasionId);
+    if (!fresh) return;
+    const newOptions = fresh[field].map((opt: any) =>
+      opt.id !== optionId ? opt : {
+        ...opt,
+        votes: [
+          ...opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
+          { voter, voterId, response, comment: comment.trim() || undefined },
+        ],
+      }
+    );
+    this.occasions$.next(this.occasions$.value.map(o =>
+      o.id !== occasionId ? o : { ...o, [field]: newOptions }
+    ));
+    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+      input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+    }});
+  }
+
+  private async clearVoteOnField(
+    occasionId: string, field: 'whenOptions' | 'whereOptions',
+    optionId: string, voterId: string
+  ): Promise<void> {
+    const fresh = await this.fetchFreshOccasion(occasionId);
+    if (!fresh) return;
+    const newOptions = fresh[field].map((opt: any) =>
+      opt.id !== optionId ? opt : {
+        ...opt,
+        votes: opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
+      }
+    );
+    this.occasions$.next(this.occasions$.value.map(o =>
+      o.id !== occasionId ? o : { ...o, [field]: newOptions }
+    ));
+    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+      input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+    }});
+  }
+
+  private async fetchFreshOccasion(id: string): Promise<Occasion | null> {
+    try {
+      const res: any = await (client.graphql as any)({ query: queries.getOccasion, variables: { id } });
+      return fromRecord(res.data.getOccasion);
+    } catch (e) {
+      console.error('fetchFreshOccasion failed', e);
+      return null;
+    }
   }
 
   setAllowPublic(id: string, value: boolean): void {
@@ -379,21 +404,23 @@ export class OccasionService {
     this.updateFields(id, () => ({ status: 'polling' }));
   }
 
-  voteForPlayerOfDay(occasionId: string, voterId: string, voter: string, votedForId: string, votedForName: string): void {
-    this.updateFields(occasionId, () => {
-      const occasion = this.occasions$.value.find(o => o.id === occasionId)!;
-      const votes = [...(occasion.playerOfDayVotes || [])];
-      const existingVoteIndex = votes.findIndex(v => v.voterId === voterId);
-      const newVote = { voterId, voter, votedForId, votedForName, timestamp: new Date().toISOString() };
-
-      if (existingVoteIndex >= 0) {
-        votes[existingVoteIndex] = newVote;
-      } else {
-        votes.push(newVote);
-      }
-
-      return { playerOfDayVotes: votes };
-    });
+  async voteForPlayerOfDay(occasionId: string, voterId: string, voter: string, votedForId: string, votedForName: string): Promise<void> {
+    const fresh = await this.fetchFreshOccasion(occasionId);
+    if (!fresh) return;
+    const votes = [...(fresh.playerOfDayVotes || [])];
+    const existingVoteIndex = votes.findIndex(v => v.voterId === voterId);
+    const newVote = { voterId, voter, votedForId, votedForName, timestamp: new Date().toISOString() };
+    if (existingVoteIndex >= 0) {
+      votes[existingVoteIndex] = newVote;
+    } else {
+      votes.push(newVote);
+    }
+    this.occasions$.next(this.occasions$.value.map(o =>
+      o.id !== occasionId ? o : { ...o, playerOfDayVotes: votes }
+    ));
+    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+      input: { id: occasionId, playerOfDayVotes: JSON.stringify(votes) }
+    }});
   }
 
   isPlayerOfDayVotingOpen(occasion: Occasion): boolean {
