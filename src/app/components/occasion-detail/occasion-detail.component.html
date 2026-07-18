@@ -161,6 +161,12 @@
       </p>
       <p><mat-icon>place</mat-icon> {{ occasion.finalLocation }}</p>
       <p *ngIf="occasion.finalNotes"><mat-icon>notes</mat-icon> {{ occasion.finalNotes }}</p>
+      <div class="finalized-yes-list" *ngIf="finalizedWhenYesVotes.length">
+        <span class="finalized-yes-label">Attending:</span>
+        <span *ngFor="let v of finalizedWhenYesVotes; let i = index" class="finalized-yes-item">
+          <span class="finalized-yes-rank">#{{ i + 1 }}</span> {{ v.voter }}
+        </span>
+      </div>
     </div>
   </mat-card>
 

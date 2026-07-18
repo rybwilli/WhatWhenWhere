@@ -447,6 +447,13 @@ export class OccasionDetailComponent implements OnInit {
       });
   }
 
+  get finalizedWhenYesVotes(): Vote[] {
+    const o = this.occasion;
+    if (!o?.finalDate || !o.whenOptions?.length) return [];
+    const opt = o.whenOptions.find(w => w.date === o.finalDate && w.startTime === o.finalStartTime);
+    return opt ? this.yesVotesSorted(opt.votes) : [];
+  }
+
   maxWhenScore(): number {
     if (!this.occasion?.whenOptions.length) return 0;
     return Math.max(...this.occasion.whenOptions.map(o => this.optionScore(o.votes)));
