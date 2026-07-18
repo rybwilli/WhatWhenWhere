@@ -373,8 +373,18 @@
 
             <!-- Voter responses summary -->
             <div class="vote-details" *ngIf="opt.votes.length && editingWhenId !== opt.id">
-              <div *ngFor="let v of opt.votes" class="vote-chip" [class]="'chip-' + v.response">
-                <span class="chip-icon">{{ v.response === 'yes' ? '✓' : v.response === 'maybe' ? '~' : '✗' }}</span>
+              <div *ngFor="let v of yesVotesSorted(opt.votes); let i = index" class="vote-chip chip-yes">
+                <span class="chip-rank">#{{ i + 1 }}</span>
+                <span class="chip-voter">{{ v.voter }}</span>
+                <span class="chip-comment" *ngIf="v.comment">— {{ v.comment }}</span>
+              </div>
+              <div *ngFor="let v of votesFor(opt.votes, 'maybe')" class="vote-chip chip-maybe">
+                <span class="chip-icon">~</span>
+                <span class="chip-voter">{{ v.voter }}</span>
+                <span class="chip-comment" *ngIf="v.comment">— {{ v.comment }}</span>
+              </div>
+              <div *ngFor="let v of votesFor(opt.votes, 'no')" class="vote-chip chip-no">
+                <span class="chip-icon">✗</span>
                 <span class="chip-voter">{{ v.voter }}</span>
                 <span class="chip-comment" *ngIf="v.comment">— {{ v.comment }}</span>
               </div>

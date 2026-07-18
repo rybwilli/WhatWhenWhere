@@ -303,7 +303,7 @@ export class OccasionService {
         ...opt,
         votes: [
           ...opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
-          { voter, voterId, response, comment: comment.trim() || undefined },
+          { voter, voterId, response, comment: comment.trim() || undefined, timestamp: new Date().toISOString() },
         ],
       }
     );

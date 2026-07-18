@@ -16,6 +16,7 @@ export interface Vote {
   voterId: string;  // email — unique key for deduplication
   response: VoteResponse;
   comment?: string;
+  timestamp?: string;
 }
 
 export interface WhenOption {

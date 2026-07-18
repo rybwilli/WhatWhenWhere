@@ -436,6 +436,17 @@ export class OccasionDetailComponent implements OnInit {
     return votes.filter(v => v.response === response);
   }
 
+  yesVotesSorted(votes: Vote[]): Vote[] {
+    return votes
+      .filter(v => v.response === 'yes')
+      .sort((a, b) => {
+        if (!a.timestamp && !b.timestamp) return 0;
+        if (!a.timestamp) return 1;
+        if (!b.timestamp) return -1;
+        return a.timestamp < b.timestamp ? -1 : 1;
+      });
+  }
+
   maxWhenScore(): number {
     if (!this.occasion?.whenOptions.length) return 0;
     return Math.max(...this.occasion.whenOptions.map(o => this.optionScore(o.votes)));
