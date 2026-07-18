@@ -120,7 +120,7 @@ exports.handler = async (event) => {
       const votedAllWhen = whenOptions.every(o =>
         (o.votes || []).some(v => (v.voterId || v.voter || '').toLowerCase() === email)
       );
-      const votedAllWhere = whereOptions.every(o =>
+      const votedAllWhere = whereOptions.length <= 1 || whereOptions.every(o =>
         (o.votes || []).some(v => (v.voterId || v.voter || '').toLowerCase() === email)
       );
       return !votedAllWhen || !votedAllWhere;

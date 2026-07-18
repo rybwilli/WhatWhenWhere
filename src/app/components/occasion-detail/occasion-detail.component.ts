@@ -33,7 +33,8 @@ export class OccasionDetailComponent implements OnInit {
       const votedAllWhen = this.occasion!.whenOptions.every(o =>
         o.votes.some(v => (v.voterId ?? v.voter).toLowerCase() === email)
       );
-      const votedAllWhere = this.occasion!.whereOptions.every(o =>
+      const whereOptions = this.occasion!.whereOptions;
+      const votedAllWhere = whereOptions.length <= 1 || whereOptions.every(o =>
         o.votes.some(v => (v.voterId ?? v.voter).toLowerCase() === email)
       );
       return !votedAllWhen || !votedAllWhere;
