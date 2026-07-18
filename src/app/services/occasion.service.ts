@@ -298,15 +298,18 @@ export class OccasionService {
   ): Promise<void> {
     const fresh = await this.fetchFreshOccasion(occasionId);
     if (!fresh) return;
-    const newOptions = fresh[field].map((opt: any) =>
-      opt.id !== optionId ? opt : {
+    const newOptions = fresh[field].map((opt: any) => {
+      if (opt.id !== optionId) return opt;
+      const existing = opt.votes.find((v: any) => (v.voterId ?? v.voter) === voterId);
+      const timestamp = existing?.response === response ? existing.timestamp : new Date().toISOString();
+      return {
         ...opt,
         votes: [
           ...opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
-          { voter, voterId, response, comment: comment.trim() || undefined, timestamp: new Date().toISOString() },
+          { voter, voterId, response, comment: comment.trim() || undefined, timestamp },
         ],
-      }
-    );
+      };
+    });
     this.occasions$.next(this.occasions$.value.map(o =>
       o.id !== occasionId ? o : { ...o, [field]: newOptions }
     ));
