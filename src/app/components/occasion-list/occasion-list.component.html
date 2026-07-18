@@ -28,8 +28,7 @@
     <div class="filter-fields" [class.mobile-hidden]="!showMobileFilters">
       <mat-form-field appearance="outline" class="filter-status">
         <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="filterStatus">
-          <mat-option value="">All</mat-option>
+        <mat-select [(ngModel)]="filterStatus" multiple>
           <mat-option value="draft">Draft</mat-option>
           <mat-option value="polling">Polling</mat-option>
           <mat-option value="finalized">Finalized</mat-option>

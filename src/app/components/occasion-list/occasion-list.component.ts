@@ -38,7 +38,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
   loading = true;
   private sub: Subscription | undefined;
 
-  filterStatus = '';
+  filterStatus: string[] = ['draft', 'polling', 'finalized'];
   filterVoteStatus = '';
   filterStartDate: Date | null = (() => {
     const d = new Date();
@@ -123,7 +123,7 @@ occasionDate(o: Occasion): string {
     const endIso   = this.filterEndDate   ? this.filterEndDate.toISOString().split('T')[0]   : '';
     return this.occasions
       .filter(o => {
-        if (this.filterStatus && o.status !== this.filterStatus) return false;
+        if (this.filterStatus.length && !this.filterStatus.includes(o.status)) return false;
         if (this.filterTypes.length && !this.filterTypes.includes(o.occasionType ?? '')) return false;
         if (this.filterVoteStatus) {
           const vs = this.userVoteSummary(o);
@@ -143,7 +143,7 @@ occasionDate(o: Occasion): string {
   }
 
   clearFilters(): void {
-    this.filterStatus = '';
+    this.filterStatus = ['draft', 'polling', 'finalized'];
     this.filterVoteStatus = '';
     this.filterTypes = [];
     this.filterStartDate = new Date();
