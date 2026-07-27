@@ -35,6 +35,20 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/start-phone-verification": {
+      "name": "/start-phone-verification",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/confirm-phone-verification": {
+      "name": "/confirm-phone-verification",
+      "lambdaFunction": "pollingemail",
+      "permissions": {
+        "setting": "open"
+      }
     }
   }
 }

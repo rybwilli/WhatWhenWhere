@@ -17,6 +17,7 @@ export interface AppUser {
   photoURL: string | null;
   phone?: string;
   notifyBy?: 'email' | 'sms';
+  phoneVerified?: boolean;
   useGooglePhoto?: boolean;
   character?: { name: string; team: string; position: string; imagePath: string };
 }
@@ -53,6 +54,7 @@ export class AuthService {
       let useGooglePhoto = existingUser?.useGooglePhoto ?? true;
       let phone = existingUser?.phone;
       let notifyBy = existingUser?.notifyBy ?? 'email';
+      let phoneVerified = existingUser?.phoneVerified ?? false;
 
       if (!existingUser) {
         const saved = await this.loadSavedProfile(userId);
@@ -60,6 +62,7 @@ export class AuthService {
         character = saved.character || await this.characterAvatar.getRandomCharacter();
         phone = saved.phone ?? undefined;
         notifyBy = saved.notifyBy;
+        phoneVerified = saved.phoneVerified;
       }
 
       this.user$$.next({
@@ -71,6 +74,7 @@ export class AuthService {
         photoURL: attrs.picture ?? null,
         phone,
         notifyBy,
+        phoneVerified,
         useGooglePhoto,
         character,
       });
@@ -79,7 +83,7 @@ export class AuthService {
     }
   }
 
-  private async loadSavedProfile(userId: string): Promise<{ character: AppUser['character'] | null; useGooglePhoto: boolean; phone: string | null; notifyBy: 'email' | 'sms' }> {
+  private async loadSavedProfile(userId: string): Promise<{ character: AppUser['character'] | null; useGooglePhoto: boolean; phone: string | null; notifyBy: 'email' | 'sms'; phoneVerified: boolean }> {
     try {
       const result: any = await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/get-profile',
@@ -91,12 +95,47 @@ export class AuthService {
         const character = p.playerName
           ? { name: p.playerName, team: p.playerTeam || '', position: p.playerPosition || '', imagePath: p.playerImageUrl || '' }
           : null;
-        return { character, useGooglePhoto: p.useGooglePhoto !== false, phone: p.phone || null, notifyBy: p.notifyBy === 'sms' ? 'sms' : 'email' };
+        return {
+          character,
+          useGooglePhoto: p.useGooglePhoto !== false,
+          phone: p.phone || null,
+          notifyBy: p.notifyBy === 'sms' ? 'sms' : 'email',
+          phoneVerified: !!p.phoneVerified,
+        };
       }
     } catch {
       console.log('No saved profile found');
     }
-    return { character: null, useGooglePhoto: true, phone: null, notifyBy: 'email' };
+    return { character: null, useGooglePhoto: true, phone: null, notifyBy: 'email', phoneVerified: false };
+  }
+
+  async startPhoneVerification(phone: string): Promise<void> {
+    const user = this.user$$.value;
+    if (!user) throw new Error('Not signed in');
+    try {
+      await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/start-phone-verification',
+        { userId: user.userId, phone },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+    } catch (e: any) {
+      throw new Error(e?.error?.error || 'Failed to send verification code');
+    }
+  }
+
+  async confirmPhoneVerification(phone: string, code: string): Promise<void> {
+    const user = this.user$$.value;
+    if (!user) throw new Error('Not signed in');
+    try {
+      await this.http.post(
+        'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/confirm-phone-verification',
+        { userId: user.userId, phone, code },
+        { headers: { 'Content-Type': 'application/json' } }
+      ).toPromise();
+    } catch (e: any) {
+      throw new Error(e?.error?.error || 'Verification failed');
+    }
+    this.user$$.next({ ...user, phone, notifyBy: 'sms', phoneVerified: true });
   }
 
   async loginWithGoogle(): Promise<void> {

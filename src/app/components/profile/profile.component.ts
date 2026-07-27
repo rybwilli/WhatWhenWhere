@@ -25,6 +25,13 @@ export class ProfileComponent implements OnInit {
   positions: string[] = [];
   phone = '';
   notifyBy: 'email' | 'sms' = 'email';
+  phoneVerified = false;
+  verifyCodeSent = false;
+  verifyCode = '';
+  verifyError = '';
+  sendingCode = false;
+  confirmingCode = false;
+  resendAvailableAt = 0;
 
   constructor(private auth: AuthService, private router: Router, private characterAvatar: CharacterAvatarService, private http: HttpClient) {}
 
@@ -47,7 +54,54 @@ export class ProfileComponent implements OnInit {
     this.selectedPlayer = this.user?.character ?? null;
     this.phone = this.user?.phone ?? '';
     this.notifyBy = this.user?.notifyBy ?? 'email';
+    this.phoneVerified = !!(this.user?.phoneVerified && this.user?.phone === this.phone);
+    this.verifyCodeSent = false;
+    this.verifyCode = '';
+    this.verifyError = '';
     this.applyFilter();
+  }
+
+  onPhoneChange(): void {
+    this.phoneVerified = false;
+    this.verifyCodeSent = false;
+    this.verifyCode = '';
+    this.verifyError = '';
+  }
+
+  canResendCode(): boolean {
+    return Date.now() >= this.resendAvailableAt;
+  }
+
+  async sendVerificationCode(): Promise<void> {
+    if (!this.phone.trim()) return;
+    this.verifyError = '';
+    this.sendingCode = true;
+    try {
+      await this.auth.startPhoneVerification(this.phone.trim());
+      this.verifyCodeSent = true;
+      this.verifyCode = '';
+      this.resendAvailableAt = Date.now() + 60000;
+    } catch (e: any) {
+      this.verifyError = e?.message || 'Failed to send code';
+    } finally {
+      this.sendingCode = false;
+    }
+  }
+
+  async confirmVerificationCode(): Promise<void> {
+    if (!this.verifyCode.trim()) return;
+    this.verifyError = '';
+    this.confirmingCode = true;
+    try {
+      await this.auth.confirmPhoneVerification(this.phone.trim(), this.verifyCode.trim());
+      this.phoneVerified = true;
+      this.verifyCodeSent = false;
+      this.verifyCode = '';
+    } catch (e: any) {
+      this.verifyError = e?.message || 'Incorrect code';
+    } finally {
+      this.confirmingCode = false;
+    }
   }
 
   applyFilter(): void {
@@ -66,8 +120,8 @@ export class ProfileComponent implements OnInit {
   async saveProfile(): Promise<void> {
     if (!this.user) return;
     if (!this.useGooglePhoto && !this.selectedPlayer) return;
-    if (this.notifyBy === 'sms' && !this.phone.trim()) {
-      this.error = 'Enter a phone number to get notified by text.';
+    if (this.notifyBy === 'sms' && !this.phoneVerified) {
+      this.error = 'Verify your phone number to get notified by text.';
       return;
     }
     this.auth.setCharacter(this.selectedPlayer ?? undefined);

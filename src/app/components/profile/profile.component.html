@@ -35,7 +35,7 @@
         <div class="profile-section">
           <h3>Notifications</h3>
           <p class="profile-value" *ngIf="user.notifyBy === 'sms'; else notifyEmail">
-            Text message · {{ user.phone }}
+            Text message · {{ user.phone }} <mat-icon class="verified-icon" matTooltip="Verified">check_circle</mat-icon>
           </p>
           <ng-template #notifyEmail>
             <p class="profile-value">Email · {{ user.email }}</p>
@@ -69,10 +69,37 @@
             Text message
           </button>
         </div>
-        <mat-form-field appearance="outline" class="filter-field" *ngIf="notifyBy === 'sms'">
-          <mat-label>Phone number</mat-label>
-          <input matInput type="tel" [(ngModel)]="phone" placeholder="(555) 555-5555" />
-        </mat-form-field>
+        <ng-container *ngIf="notifyBy === 'sms'">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Phone number</mat-label>
+            <input matInput type="tel" [(ngModel)]="phone" (ngModelChange)="onPhoneChange()" placeholder="(555) 555-5555" />
+          </mat-form-field>
+
+          <p class="profile-value verified-note" *ngIf="phoneVerified">
+            <mat-icon class="verified-icon">check_circle</mat-icon> Verified
+          </p>
+
+          <button mat-stroked-button *ngIf="!phoneVerified && !verifyCodeSent"
+            [disabled]="!phone.trim() || sendingCode"
+            (click)="sendVerificationCode()">
+            {{ sendingCode ? 'Sending…' : 'Send verification code' }}
+          </button>
+
+          <ng-container *ngIf="!phoneVerified && verifyCodeSent">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Verification code</mat-label>
+              <input matInput inputmode="numeric" [(ngModel)]="verifyCode" placeholder="123456" />
+            </mat-form-field>
+            <div class="edit-actions">
+              <button mat-raised-button color="primary" [disabled]="!verifyCode.trim() || confirmingCode" (click)="confirmVerificationCode()">
+                {{ confirmingCode ? 'Verifying…' : 'Verify' }}
+              </button>
+              <button mat-button [disabled]="!canResendCode() || sendingCode" (click)="sendVerificationCode()">Resend code</button>
+            </div>
+          </ng-container>
+
+          <mat-error *ngIf="verifyError" class="error-msg">{{ verifyError }}</mat-error>
+        </ng-container>
 
         <h3 class="picker-title" *ngIf="!user.photoURL || !useGooglePhoto">Choose your player</h3>
 
@@ -110,7 +137,8 @@
 
         <mat-error *ngIf="error" class="error-msg">{{ error }}</mat-error>
         <div class="edit-actions">
-          <button mat-raised-button color="primary" (click)="saveProfile()" [disabled]="!useGooglePhoto && !selectedPlayer">Save</button>
+          <button mat-raised-button color="primary" (click)="saveProfile()"
+            [disabled]="(!useGooglePhoto && !selectedPlayer) || (notifyBy === 'sms' && !phoneVerified)">Save</button>
           <button mat-button (click)="cancelEdit()">Cancel</button>
         </div>
       </ng-container>

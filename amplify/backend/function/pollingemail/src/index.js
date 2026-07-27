@@ -47,6 +47,12 @@ const normalizePhone = (phone) => {
   return `+${digits}`;
 };
 
+const PHONE_VERIFY_CODE_TTL_MS = 10 * 60 * 1000;
+const PHONE_VERIFY_RESEND_COOLDOWN_MS = 60 * 1000;
+const PHONE_VERIFY_MAX_ATTEMPTS = 5;
+
+const generateVerificationCode = () => String(Math.floor(100000 + Math.random() * 900000));
+
 async function getProfilesByEmail(emails) {
   const profiles = {};
   if (!emails || !emails.length) return profiles;
@@ -97,6 +103,12 @@ exports.handler = async (event) => {
   }
   if (path.includes('get-respondent-profiles')) {
     return handleGetRespondentProfiles(event);
+  }
+  if (path.includes('start-phone-verification')) {
+    return handleStartPhoneVerification(event);
+  }
+  if (path.includes('confirm-phone-verification')) {
+    return handleConfirmPhoneVerification(event);
   }
 
   let occasionId;
@@ -310,6 +322,7 @@ async function handleGetProfile(event) {
       useGooglePhoto: profile.useGooglePhoto !== false,
       phone:          profile.phone          || null,
       notifyBy:       profile.notifyBy       || 'email',
+      phoneVerified:  !!profile.phoneVerified && profile.verifiedPhone === profile.phone,
     }});
   } catch (e) {
     console.error('get-profile error:', e.message);
@@ -321,7 +334,19 @@ async function handleSaveProfile(event) {
   const { userId, ownerSub, email, playerName, playerTeam, playerPosition, playerImageUrl, useGooglePhoto, googlePhotoUrl, phone, notifyBy } = JSON.parse(event.body || '{}');
   if (!userId) return respond(400, { error: 'userId required' });
 
+  const normalizedPhone = normalizePhone(phone);
+
   try {
+    // notifyBy: 'sms' only sticks if this exact phone number has completed OTP
+    // verification (see handle*PhoneVerification below) — never trust the client
+    // for this, since save-profile is a plain unauthenticated-by-us REST call.
+    const existingResult = await dynamo.send(new GetItemCommand({
+      TableName: PROFILE_TABLE,
+      Key: { id: { S: userId } },
+    }));
+    const existing = existingResult.Item ? unmarshall(existingResult.Item) : {};
+    const isPhoneVerified = !!existing.phoneVerified && existing.verifiedPhone === normalizedPhone;
+
     await dynamo.send(new PutItemCommand({
       TableName: PROFILE_TABLE,
       Item: marshall({
@@ -334,13 +359,118 @@ async function handleSaveProfile(event) {
         playerPosition: playerPosition || null,
         playerImageUrl: playerImageUrl || null,
         useGooglePhoto: useGooglePhoto !== false,
-        phone:          normalizePhone(phone) || null,
-        notifyBy:       notifyBy === 'sms' ? 'sms' : 'email',
+        phone:          normalizedPhone || null,
+        notifyBy:       notifyBy === 'sms' && isPhoneVerified ? 'sms' : 'email',
+        phoneVerified:      isPhoneVerified,
+        verifiedPhone:      existing.verifiedPhone      || null,
+        phoneVerifyCode:        existing.phoneVerifyCode        || null,
+        phoneVerifyExpiresAt:   existing.phoneVerifyExpiresAt   || null,
+        phoneVerifyAttempts:    existing.phoneVerifyAttempts    || 0,
+        phoneVerifyLastSentAt:  existing.phoneVerifyLastSentAt  || null,
       }, { removeUndefinedValues: true }),
     }));
     return respond(200, { saved: true });
   } catch (e) {
     console.error('save-profile error:', e.message);
+    return respond(500, { error: e.message });
+  }
+}
+
+async function handleStartPhoneVerification(event) {
+  const { userId, phone } = JSON.parse(event.body || '{}');
+  if (!userId) return respond(400, { error: 'userId required' });
+
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) return respond(400, { error: 'A valid phone number is required' });
+
+  try {
+    const existingResult = await dynamo.send(new GetItemCommand({
+      TableName: PROFILE_TABLE,
+      Key: { id: { S: userId } },
+    }));
+    const existing = existingResult.Item ? unmarshall(existingResult.Item) : { id: userId };
+
+    const lastSent = existing.phoneVerifyLastSentAt ? new Date(existing.phoneVerifyLastSentAt).getTime() : 0;
+    if (Date.now() - lastSent < PHONE_VERIFY_RESEND_COOLDOWN_MS) {
+      return respond(429, { error: 'Please wait a bit before requesting another code.' });
+    }
+
+    const code = generateVerificationCode();
+    await dynamo.send(new PutItemCommand({
+      TableName: PROFILE_TABLE,
+      Item: marshall({
+        ...existing,
+        id: userId,
+        phoneVerifyCode: code,
+        phoneVerifyExpiresAt: new Date(Date.now() + PHONE_VERIFY_CODE_TTL_MS).toISOString(),
+        phoneVerifyAttempts: 0,
+        phoneVerifyLastSentAt: new Date().toISOString(),
+        // Verifying a new number invalidates any prior verified number.
+        phoneVerified: existing.verifiedPhone === normalizedPhone ? existing.phoneVerified : false,
+      }, { removeUndefinedValues: true }),
+    }));
+
+    await sns.send(new PublishCommand({
+      PhoneNumber: normalizedPhone,
+      Message: `Your What? When? Where? Who? verification code is: ${code}`,
+    }));
+
+    return respond(200, { sent: true });
+  } catch (e) {
+    console.error('start-phone-verification error:', e.message);
+    return respond(500, { error: e.message });
+  }
+}
+
+async function handleConfirmPhoneVerification(event) {
+  const { userId, phone, code } = JSON.parse(event.body || '{}');
+  if (!userId || !code) return respond(400, { error: 'userId and code required' });
+
+  const normalizedPhone = normalizePhone(phone);
+
+  try {
+    const result = await dynamo.send(new GetItemCommand({
+      TableName: PROFILE_TABLE,
+      Key: { id: { S: userId } },
+    }));
+    if (!result.Item) return respond(400, { error: 'No verification in progress' });
+    const profile = unmarshall(result.Item);
+
+    if (!profile.phoneVerifyCode || !profile.phoneVerifyExpiresAt) {
+      return respond(400, { error: 'No verification in progress' });
+    }
+    if (new Date(profile.phoneVerifyExpiresAt).getTime() < Date.now()) {
+      return respond(400, { error: 'Code expired, request a new one' });
+    }
+    if ((profile.phoneVerifyAttempts || 0) >= PHONE_VERIFY_MAX_ATTEMPTS) {
+      return respond(429, { error: 'Too many attempts, request a new code' });
+    }
+
+    if (profile.phoneVerifyCode !== code) {
+      await dynamo.send(new UpdateItemCommand({
+        TableName: PROFILE_TABLE,
+        Key: { id: { S: userId } },
+        UpdateExpression: 'SET phoneVerifyAttempts = if_not_exists(phoneVerifyAttempts, :zero) + :one',
+        ExpressionAttributeValues: marshall({ ':zero': 0, ':one': 1 }),
+      }));
+      return respond(400, { error: 'Incorrect code' });
+    }
+
+    await dynamo.send(new UpdateItemCommand({
+      TableName: PROFILE_TABLE,
+      Key: { id: { S: userId } },
+      UpdateExpression: 'SET phoneVerified = :true, verifiedPhone = :phone, phone = :phone, notifyBy = :sms ' +
+        'REMOVE phoneVerifyCode, phoneVerifyExpiresAt, phoneVerifyAttempts',
+      ExpressionAttributeValues: marshall({
+        ':true': true,
+        ':phone': normalizedPhone || profile.phone,
+        ':sms': 'sms',
+      }),
+    }));
+
+    return respond(200, { verified: true });
+  } catch (e) {
+    console.error('confirm-phone-verification error:', e.message);
     return respond(500, { error: e.message });
   }
 }
