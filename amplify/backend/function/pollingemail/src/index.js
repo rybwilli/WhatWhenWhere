@@ -1,9 +1,11 @@
-const { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand, ScanCommand } = require('@aws-sdk/client-dynamodb');
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
 const { unmarshall, marshall } = require('@aws-sdk/util-dynamodb');
 
 const dynamo = new DynamoDBClient({ region: process.env.REGION || 'us-east-1' });
 const ses = new SESClient({ region: process.env.REGION || 'us-east-1' });
+const sns = new SNSClient({ region: process.env.REGION || 'us-east-1' });
 
 const TABLE_NAME    = process.env.OCCASION_TABLE;
 const PROFILE_TABLE = process.env.PROFILE_TABLE;
@@ -33,6 +35,49 @@ const formatTime = (timeStr) => {
   d.setHours(parseInt(h), parseInt(m));
   return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 };
+
+// Normalizes to E.164 for SNS. Assumes US numbers when no country code is given.
+const normalizePhone = (phone) => {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return null;
+  if (phone.trim().startsWith('+')) return `+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  return `+${digits}`;
+};
+
+async function getProfilesByEmail(emails) {
+  const profiles = {};
+  if (!emails || !emails.length) return profiles;
+
+  const filterParts = emails.map((_, i) => `#email = :email${i}`);
+  const attrValues = {};
+  emails.forEach((e, i) => { attrValues[`:email${i}`] = { S: e.toLowerCase() }; });
+
+  const result = await dynamo.send(new ScanCommand({
+    TableName: PROFILE_TABLE,
+    FilterExpression: filterParts.join(' OR '),
+    ExpressionAttributeNames: { '#email': 'email' },
+    ExpressionAttributeValues: attrValues,
+  }));
+
+  (result.Items || []).forEach(item => {
+    const p = unmarshall(item);
+    if (p.email) {
+      profiles[p.email.toLowerCase()] = {
+        useGooglePhoto: p.useGooglePhoto !== false,
+        googlePhotoUrl: p.googlePhotoUrl || null,
+        playerImageUrl: p.playerImageUrl || null,
+        playerName:     p.playerName     || null,
+        phone:          p.phone          || null,
+        notifyBy:       p.notifyBy       || 'email',
+      };
+    }
+  });
+
+  return profiles;
+}
 
 exports.handler = async (event) => {
   console.log('Path:', event.path);
@@ -132,19 +177,35 @@ exports.handler = async (event) => {
     return respond(200, { sent: 0, message: isFinalized ? 'No respondents with emails' : 'All respondents have already voted!' });
   }
 
+  const profilesByEmail = await getProfilesByEmail(toEmail.map(r => r.email));
+
   let sent = 0;
   for (const r of toEmail) {
-    try {
-      const message = isFinalized
-        ? buildFinalizedEmail(r, occasion, occasionUrl)
-        : buildReminderEmail(r, occasion, occasionUrl);
+    const profile = profilesByEmail[r.email.toLowerCase()];
+    const phone = profile?.notifyBy === 'sms' ? normalizePhone(profile.phone) : null;
 
-      await ses.send(new SendEmailCommand({
-        Source: `What? When? Where? Who? <${FROM_EMAIL}>`,
-        ReplyToAddresses: [occasion.ownerEmail],
-        Destination: { ToAddresses: [r.email] },
-        Message: message,
-      }));
+    try {
+      if (phone) {
+        const text = isFinalized
+          ? buildFinalizedSms(r, occasion, occasionUrl)
+          : buildReminderSms(r, occasion, occasionUrl);
+
+        await sns.send(new PublishCommand({
+          PhoneNumber: phone,
+          Message: text,
+        }));
+      } else {
+        const message = isFinalized
+          ? buildFinalizedEmail(r, occasion, occasionUrl)
+          : buildReminderEmail(r, occasion, occasionUrl);
+
+        await ses.send(new SendEmailCommand({
+          Source: `What? When? Where? Who? <${FROM_EMAIL}>`,
+          ReplyToAddresses: [occasion.ownerEmail],
+          Destination: { ToAddresses: [r.email] },
+          Message: message,
+        }));
+      }
       sent++;
     } catch (e) {
       console.error(`Failed to send to ${r.email}:`, e.message);
@@ -219,6 +280,17 @@ ${detailsHtml ? `<table style="border-collapse:collapse;margin:16px 0;background
   };
 }
 
+function buildReminderSms(r, occasion, occasionUrl) {
+  return `${occasion.ownerName} would like your input on "${occasion.title}". ${occasionUrl}`;
+}
+
+function buildFinalizedSms(r, occasion, occasionUrl) {
+  const date = formatDate(occasion.finalDate);
+  const startTime = formatTime(occasion.finalStartTime);
+  const parts = [date, startTime, occasion.finalLocation].filter(Boolean).join(', ');
+  return `"${occasion.title}" has been finalized!${parts ? ` ${parts}.` : ''} ${occasionUrl}`;
+}
+
 async function handleGetProfile(event) {
   const { userId } = JSON.parse(event.body || '{}');
   if (!userId) return respond(400, { error: 'userId required' });
@@ -236,6 +308,8 @@ async function handleGetProfile(event) {
       playerPosition: profile.playerPosition || null,
       playerImageUrl: profile.playerImageUrl || null,
       useGooglePhoto: profile.useGooglePhoto !== false,
+      phone:          profile.phone          || null,
+      notifyBy:       profile.notifyBy       || 'email',
     }});
   } catch (e) {
     console.error('get-profile error:', e.message);
@@ -244,7 +318,7 @@ async function handleGetProfile(event) {
 }
 
 async function handleSaveProfile(event) {
-  const { userId, ownerSub, email, playerName, playerTeam, playerPosition, playerImageUrl, useGooglePhoto, googlePhotoUrl } = JSON.parse(event.body || '{}');
+  const { userId, ownerSub, email, playerName, playerTeam, playerPosition, playerImageUrl, useGooglePhoto, googlePhotoUrl, phone, notifyBy } = JSON.parse(event.body || '{}');
   if (!userId) return respond(400, { error: 'userId required' });
 
   try {
@@ -260,6 +334,8 @@ async function handleSaveProfile(event) {
         playerPosition: playerPosition || null,
         playerImageUrl: playerImageUrl || null,
         useGooglePhoto: useGooglePhoto !== false,
+        phone:          normalizePhone(phone) || null,
+        notifyBy:       notifyBy === 'sms' ? 'sms' : 'email',
       }, { removeUndefinedValues: true }),
     }));
     return respond(200, { saved: true });

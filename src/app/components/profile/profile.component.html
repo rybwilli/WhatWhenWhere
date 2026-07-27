@@ -32,6 +32,15 @@
           <h3>Name</h3>
           <p class="profile-value">{{ user.displayName }}</p>
         </div>
+        <div class="profile-section">
+          <h3>Notifications</h3>
+          <p class="profile-value" *ngIf="user.notifyBy === 'sms'; else notifyEmail">
+            Text message · {{ user.phone }}
+          </p>
+          <ng-template #notifyEmail>
+            <p class="profile-value">Email · {{ user.email }}</p>
+          </ng-template>
+        </div>
       </ng-container>
 
       <!-- Edit mode -->
@@ -48,6 +57,22 @@
             Pick an NBA player
           </button>
         </div>
+
+        <h3 class="picker-title">Notifications</h3>
+        <div class="photo-toggle">
+          <button mat-stroked-button [class.active]="notifyBy === 'email'" (click)="notifyBy = 'email'">
+            <mat-icon>email</mat-icon>
+            Email
+          </button>
+          <button mat-stroked-button [class.active]="notifyBy === 'sms'" (click)="notifyBy = 'sms'">
+            <mat-icon>sms</mat-icon>
+            Text message
+          </button>
+        </div>
+        <mat-form-field appearance="outline" class="filter-field" *ngIf="notifyBy === 'sms'">
+          <mat-label>Phone number</mat-label>
+          <input matInput type="tel" [(ngModel)]="phone" placeholder="(555) 555-5555" />
+        </mat-form-field>
 
         <h3 class="picker-title" *ngIf="!user.photoURL || !useGooglePhoto">Choose your player</h3>
 

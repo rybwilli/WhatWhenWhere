@@ -23,6 +23,8 @@ export class ProfileComponent implements OnInit {
   useGooglePhoto = true;
   teams: string[] = [];
   positions: string[] = [];
+  phone = '';
+  notifyBy: 'email' | 'sms' = 'email';
 
   constructor(private auth: AuthService, private router: Router, private characterAvatar: CharacterAvatarService, private http: HttpClient) {}
 
@@ -43,6 +45,8 @@ export class ProfileComponent implements OnInit {
     this.error = '';
     this.useGooglePhoto = this.user?.useGooglePhoto ?? true;
     this.selectedPlayer = this.user?.character ?? null;
+    this.phone = this.user?.phone ?? '';
+    this.notifyBy = this.user?.notifyBy ?? 'email';
     this.applyFilter();
   }
 
@@ -62,8 +66,14 @@ export class ProfileComponent implements OnInit {
   async saveProfile(): Promise<void> {
     if (!this.user) return;
     if (!this.useGooglePhoto && !this.selectedPlayer) return;
+    if (this.notifyBy === 'sms' && !this.phone.trim()) {
+      this.error = 'Enter a phone number to get notified by text.';
+      return;
+    }
     this.auth.setCharacter(this.selectedPlayer ?? undefined);
     this.auth.setUseGooglePhoto(this.useGooglePhoto);
+    this.auth.setPhone(this.phone.trim() || undefined);
+    this.auth.setNotifyBy(this.notifyBy);
     try {
       await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/save-profile',
@@ -77,6 +87,8 @@ export class ProfileComponent implements OnInit {
           playerTeam:     this.selectedPlayer?.team     || null,
           playerPosition: this.selectedPlayer?.position || null,
           playerImageUrl: this.selectedPlayer?.imagePath || null,
+          phone:          this.phone.trim() || null,
+          notifyBy:       this.notifyBy,
         },
         { headers: { 'Content-Type': 'application/json' } }
       ).toPromise();

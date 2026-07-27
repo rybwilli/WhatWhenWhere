@@ -27,5 +27,13 @@
     "Resource": [
       "*"
     ]
+  },
+  {
+    "Action": [
+      "sns:Publish"
+    ],
+    "Resource": [
+      "*"
+    ]
   }
 ]

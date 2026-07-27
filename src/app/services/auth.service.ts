@@ -16,6 +16,7 @@ export interface AppUser {
   displayName: string;
   photoURL: string | null;
   phone?: string;
+  notifyBy?: 'email' | 'sms';
   useGooglePhoto?: boolean;
   character?: { name: string; team: string; position: string; imagePath: string };
 }
@@ -50,11 +51,15 @@ export class AuthService {
       const existingUser = this.user$$.value;
       let character = existingUser?.character;
       let useGooglePhoto = existingUser?.useGooglePhoto ?? true;
+      let phone = existingUser?.phone;
+      let notifyBy = existingUser?.notifyBy ?? 'email';
 
       if (!existingUser) {
         const saved = await this.loadSavedProfile(userId);
         useGooglePhoto = saved.useGooglePhoto;
         character = saved.character || await this.characterAvatar.getRandomCharacter();
+        phone = saved.phone ?? undefined;
+        notifyBy = saved.notifyBy;
       }
 
       this.user$$.next({
@@ -64,7 +69,8 @@ export class AuthService {
           [attrs.given_name, attrs.family_name].filter(Boolean).join(' ') ||
           attrs.email || '',
         photoURL: attrs.picture ?? null,
-        phone: undefined,
+        phone,
+        notifyBy,
         useGooglePhoto,
         character,
       });
@@ -73,7 +79,7 @@ export class AuthService {
     }
   }
 
-  private async loadSavedProfile(userId: string): Promise<{ character: AppUser['character'] | null; useGooglePhoto: boolean }> {
+  private async loadSavedProfile(userId: string): Promise<{ character: AppUser['character'] | null; useGooglePhoto: boolean; phone: string | null; notifyBy: 'email' | 'sms' }> {
     try {
       const result: any = await this.http.post(
         'https://6ma4vxkx0g.execute-api.us-east-1.amazonaws.com/dev/get-profile',
@@ -85,12 +91,12 @@ export class AuthService {
         const character = p.playerName
           ? { name: p.playerName, team: p.playerTeam || '', position: p.playerPosition || '', imagePath: p.playerImageUrl || '' }
           : null;
-        return { character, useGooglePhoto: p.useGooglePhoto !== false };
+        return { character, useGooglePhoto: p.useGooglePhoto !== false, phone: p.phone || null, notifyBy: p.notifyBy === 'sms' ? 'sms' : 'email' };
       }
     } catch {
       console.log('No saved profile found');
     }
-    return { character: null, useGooglePhoto: true };
+    return { character: null, useGooglePhoto: true, phone: null, notifyBy: 'email' };
   }
 
   async loginWithGoogle(): Promise<void> {
@@ -135,6 +141,16 @@ export class AuthService {
   setUseGooglePhoto(value: boolean): void {
     const user = this.user$$.value;
     if (user) this.user$$.next({ ...user, useGooglePhoto: value });
+  }
+
+  setPhone(phone: string | undefined): void {
+    const user = this.user$$.value;
+    if (user) this.user$$.next({ ...user, phone });
+  }
+
+  setNotifyBy(notifyBy: 'email' | 'sms'): void {
+    const user = this.user$$.value;
+    if (user) this.user$$.next({ ...user, notifyBy });
   }
 
   getCurrentUser(): AppUser | null {
