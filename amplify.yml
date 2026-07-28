@@ -4,6 +4,7 @@ frontend:
     preBuild:
       commands:
         - npm install --legacy-peer-deps
+        - node scripts/fix-cognito-email-config.js
     build:
       commands:
         - npm run build
