@@ -335,6 +335,21 @@
     }
   }
 
+  .calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 10px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 4px;
+      color: inherit;
+    }
+  }
+
   .finalized-yes-list {
     display: flex;
     flex-wrap: wrap;

@@ -6,6 +6,7 @@ import { filter, switchMap } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, WhenOption, Respondent, VoteResponse, Vote, OccasionType, OCCASION_TYPES } from '../../models/occasion.model';
+import { buildGoogleCalendarUrl, downloadIcsFile } from '../../utils/calendar-link.util';
 
 interface VoteState {
   response: VoteResponse | null;
@@ -177,6 +178,14 @@ export class OccasionDetailComponent implements OnInit {
   fmtTime(t: string): string {
     const [h, m] = t.split(':').map(Number);
     return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
+  get googleCalendarUrl(): string | null {
+    return this.occasion ? buildGoogleCalendarUrl(this.occasion) : null;
+  }
+
+  downloadIcs(): void {
+    if (this.occasion) downloadIcsFile(this.occasion);
   }
 
   isOwner(): boolean {

@@ -156,6 +156,14 @@
     <mat-icon>check_circle</mat-icon>
     <div>
       <strong>This occasion is confirmed!</strong>
+      <div class="calendar-actions">
+        <a mat-stroked-button [href]="googleCalendarUrl" target="_blank" rel="noopener" matTooltip="Add to Google Calendar">
+          <mat-icon>event</mat-icon> Google Calendar
+        </a>
+        <button mat-stroked-button (click)="downloadIcs()" matTooltip="Download .ics (Apple Calendar, Outlook, etc.)">
+          <mat-icon>download</mat-icon> Add to Calendar (.ics)
+        </button>
+      </div>
       <p>
         <mat-icon>event</mat-icon> {{ occasion.finalDate | date:'mediumDate' }}<ng-container *ngIf="occasion.finalStartTime"> · {{ fmtTime(occasion.finalStartTime) }}<ng-container *ngIf="occasion.finalEndTime"> –<ng-container *ngIf="occasion.finalEndDate && occasion.finalEndDate !== occasion.finalDate"> {{ occasion.finalEndDate | date:'mediumDate' }} ·</ng-container> {{ fmtTime(occasion.finalEndTime) }}</ng-container></ng-container>
       </p>
