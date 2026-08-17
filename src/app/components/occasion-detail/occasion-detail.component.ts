@@ -103,6 +103,10 @@ export class OccasionDetailComponent implements OnInit {
   whenVotes: Record<string, VoteState> = {};
   whereVotes: Record<string, VoteState> = {};
 
+  // When set (by an organizer/co-organizer), When/Where votes are read from and
+  // saved for this respondent instead of the logged-in user.
+  proxyRespondentId: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -148,9 +152,42 @@ export class OccasionDetailComponent implements OnInit {
     });
   }
 
+  get proxyRespondent(): Respondent | null {
+    return this.occasion?.respondents.find(r => r.id === this.proxyRespondentId) ?? null;
+  }
+
+  get effectiveVoterEmail(): string {
+    return this.proxyRespondent?.email || this.userEmail;
+  }
+
+  get effectiveVoterName(): string {
+    return this.proxyRespondent?.name || this.voterName || this.userEmail;
+  }
+
+  setProxyRespondent(id: string | null): void {
+    this.proxyRespondentId = id;
+    // Discard drafts from whoever we were previously voting as/for, then reload
+    // for the new target so buttons reflect their actual saved votes.
+    this.whenVotes = {};
+    this.whereVotes = {};
+    this.syncVoteState();
+  }
+
+  canRespondToOptions(votes: Vote[]): boolean {
+    if (!this.occasion) return false;
+    if (this.occasion.status === 'polling' && this.voterName.trim()) return true;
+    if (this.canEdit() && !!this.proxyRespondentId) return true;
+    // Stragglers who never voted can still weigh in post-finalization; anyone
+    // who already responded is locked in and can no longer change it.
+    if (this.occasion.status === 'finalized' && this.isRespondent() && this.voterName.trim()) {
+      return !votes.some(v => (v.voterId ?? v.voter) === this.userEmail);
+    }
+    return false;
+  }
+
   private syncVoteState(): void {
     if (!this.occasion) return;
-    const id = this.userEmail;
+    const id = this.effectiveVoterEmail;
     for (const opt of this.occasion.whenOptions) {
       const existing = opt.votes.find(v => (v.voterId ?? v.voter) === id);
       const local = this.whenVotes[opt.id];
@@ -415,22 +452,22 @@ export class OccasionDetailComponent implements OnInit {
   }
 
   saveWhenVote(optionId: string): void {
-    if (!this.occasion || !this.userEmail) return;
+    if (!this.occasion || !this.effectiveVoterEmail) return;
     const state = this.whenVotes[optionId];
     if (!state?.response) {
-      this.svc.clearWhenVote(this.occasion.id, optionId, this.userEmail);
+      this.svc.clearWhenVote(this.occasion.id, optionId, this.effectiveVoterEmail);
     } else {
-      this.svc.castWhenVote(this.occasion.id, optionId, this.voterName || this.userEmail, this.userEmail, state.response, state.comment);
+      this.svc.castWhenVote(this.occasion.id, optionId, this.effectiveVoterName, this.effectiveVoterEmail, state.response, state.comment);
     }
   }
 
   saveWhereVote(optionId: string): void {
-    if (!this.occasion || !this.userEmail) return;
+    if (!this.occasion || !this.effectiveVoterEmail) return;
     const state = this.whereVotes[optionId];
     if (!state?.response) {
-      this.svc.clearWhereVote(this.occasion.id, optionId, this.userEmail);
+      this.svc.clearWhereVote(this.occasion.id, optionId, this.effectiveVoterEmail);
     } else {
-      this.svc.castWhereVote(this.occasion.id, optionId, this.voterName || this.userEmail, this.userEmail, state.response, state.comment);
+      this.svc.castWhereVote(this.occasion.id, optionId, this.effectiveVoterName, this.effectiveVoterEmail, state.response, state.comment);
     }
   }
 
@@ -626,6 +663,11 @@ export class OccasionDetailComponent implements OnInit {
 
   isRespondent(): boolean {
     return !!this.occasion?.respondents.some(r => r.email.toLowerCase() === this.userEmail.toLowerCase());
+  }
+
+  canCastVote(): boolean {
+    if (this.proxyRespondentId) return this.canEdit();
+    return this.isRespondent();
   }
 
   toggleAllowPublic(): void {

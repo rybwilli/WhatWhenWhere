@@ -319,6 +319,17 @@
           <p>No time options yet{{ canEdit() && occasion.status !== 'finalized' ? ' — add one above' : '' }}</p>
         </div>
 
+        <div class="proxy-vote-picker" *ngIf="canEdit() && occasion.respondents.length">
+          <mat-form-field appearance="outline" class="proxy-select">
+            <mat-label>Respond as</mat-label>
+            <mat-select [ngModel]="proxyRespondentId" (ngModelChange)="setProxyRespondent($event)">
+              <mat-option [value]="null">Myself</mat-option>
+              <mat-option *ngFor="let r of occasion.respondents" [value]="r.id">{{ r.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <span class="proxy-hint" *ngIf="proxyRespondent">Responding on behalf of {{ proxyRespondent.name }}</span>
+        </div>
+
         <div class="when-view-toggle" *ngIf="occasion.whenOptions.length">
           <button [class.active]="whenView === 'list'" (click)="whenView = 'list'">
             <mat-icon>list</mat-icon> Responses
@@ -404,20 +415,20 @@
               </div>
             </div>
 
-            <!-- Vote buttons (polling mode) -->
-            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim() && editingWhenId !== opt.id">
-              <span class="your-vote-label">Your vote:</span>
+            <!-- Vote buttons (polling mode, or organizer responding for a respondent) -->
+            <div class="vote-actions" *ngIf="canRespondToOptions(opt.votes) && editingWhenId !== opt.id">
+              <span class="your-vote-label">{{ proxyRespondent ? proxyRespondent.name + '\'s vote:' : 'Your vote:' }}</span>
               <button mat-stroked-button class="vote-btn yes"
                 [class.selected]="myWhenVote(opt.id) === 'yes'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhenVote(opt.id, 'yes')">✓ Yes</button>
               <button mat-stroked-button class="vote-btn maybe"
                 [class.selected]="myWhenVote(opt.id) === 'maybe'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhenVote(opt.id, 'maybe')">~ Maybe</button>
               <button mat-stroked-button class="vote-btn no"
                 [class.selected]="myWhenVote(opt.id) === 'no'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhenVote(opt.id, 'no')">✗ No</button>
               <mat-form-field appearance="outline" class="comment-field">
                 <mat-label>Comment (optional)</mat-label>
@@ -501,6 +512,17 @@
           <p>No location options yet{{ canEdit() && occasion.status !== 'finalized' ? ' — add some above' : '' }}</p>
         </div>
 
+        <div class="proxy-vote-picker" *ngIf="canEdit() && occasion.respondents.length">
+          <mat-form-field appearance="outline" class="proxy-select">
+            <mat-label>Respond as</mat-label>
+            <mat-select [ngModel]="proxyRespondentId" (ngModelChange)="setProxyRespondent($event)">
+              <mat-option [value]="null">Myself</mat-option>
+              <mat-option *ngFor="let r of occasion.respondents" [value]="r.id">{{ r.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <span class="proxy-hint" *ngIf="proxyRespondent">Responding on behalf of {{ proxyRespondent.name }}</span>
+        </div>
+
         <div class="options-list">
           <div *ngFor="let opt of occasion.whereOptions" class="option-card"
             [class.leading]="isLeadingWhere(opt)">
@@ -558,19 +580,19 @@
               </div>
             </div>
 
-            <div class="vote-actions" *ngIf="occasion.status === 'polling' && voterName.trim()">
-              <span class="your-vote-label">Your vote:</span>
+            <div class="vote-actions" *ngIf="canRespondToOptions(opt.votes)">
+              <span class="your-vote-label">{{ proxyRespondent ? proxyRespondent.name + '\'s vote:' : 'Your vote:' }}</span>
               <button mat-stroked-button class="vote-btn yes"
                 [class.selected]="myWhereVote(opt.id) === 'yes'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhereVote(opt.id, 'yes')">✓ Yes</button>
               <button mat-stroked-button class="vote-btn maybe"
                 [class.selected]="myWhereVote(opt.id) === 'maybe'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhereVote(opt.id, 'maybe')">~ Maybe</button>
               <button mat-stroked-button class="vote-btn no"
                 [class.selected]="myWhereVote(opt.id) === 'no'"
-                [disabled]="!isRespondent()"
+                [disabled]="!canCastVote()"
                 (click)="setWhereVote(opt.id, 'no')">✗ No</button>
               <mat-form-field appearance="outline" class="comment-field">
                 <mat-label>Comment (optional)</mat-label>

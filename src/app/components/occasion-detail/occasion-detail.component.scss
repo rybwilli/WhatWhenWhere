@@ -710,6 +710,24 @@
   .chip-comment { color: inherit; opacity: 0.8; font-style: italic; }
 }
 
+.proxy-vote-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+
+  .proxy-select {
+    width: 220px;
+  }
+
+  .proxy-hint {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+  }
+}
+
 .vote-actions {
   display: flex;
   align-items: center;
