@@ -1,7 +1,3 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
-
 type UserProfile @model
   @auth(rules: [
     { allow: private, operations: [create, read, update, delete] }
@@ -11,7 +7,15 @@ type UserProfile @model
   phone: String
 }
 
-type Occasion @model {
+# Occasion access is enforced server-side:
+# - The model is Cognito-only (allow: private), so the public API key can't read,
+#   write or subscribe to occasions at all.
+# - The generated getOccasion/listOccasions queries are disabled. They are replaced
+#   by the custom queries below (resolver in stacks/CustomResources.json), which
+#   return only occasions the caller owns, is a respondent on, or that allow public
+#   access, and (for the list) that qualify for the effective date.
+type Occasion @model(queries: { get: null, list: null })
+  @auth(rules: [{ allow: private }]) {
   id: ID!
   ownerSub: String!
   ownerEmail: String!
@@ -34,4 +38,22 @@ type Occasion @model {
   allowPublic: Boolean
   playerOfDayVotes: AWSJSON
   playerOfDayDeadline: String
+}
+
+type OccasionPage @aws_cognito_user_pools {
+  items: [Occasion!]!
+  nextToken: String
+}
+
+type Query {
+  # Returns the occasion only if the caller can access it (owner, respondent, or
+  # allowPublic). No date filter, so links to past occasions keep working.
+  # Call with the Cognito ID token so the resolver can read the email claim.
+  getOccasion(id: ID!): Occasion @aws_cognito_user_pools
+
+  # Occasions the caller can access whose date (finalDate/finalEndDate, else the
+  # latest When option date/endDate) is on or after effectiveDate, plus occasions
+  # with no dates yet. Pages may be short or empty: keep calling while nextToken
+  # is non-null. Call with the Cognito ID token (see getOccasion).
+  listOccasionsForUser(effectiveDate: AWSDate!, limit: Int, nextToken: String): OccasionPage! @aws_cognito_user_pools
 }

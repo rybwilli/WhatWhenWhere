@@ -1,8 +1,7 @@
-const occasionFields = `
-  id ownerSub ownerEmail ownerName title description status occasionType
-  respondents whenOptions whereOptions
-  finalDate finalStartTime finalEndTime finalLocation finalNotes infoText infoUrl allowPublic createdAt updatedAt
-`;
+// Subscriptions only signal "something changed" so the service refetches its
+// server-filtered list; request the id alone so other users' occasion data
+// isn't pushed to every client.
+const occasionFields = `id`;
 
 export const onCreateOccasion = /* GraphQL */ `
   subscription OnCreateOccasion { onCreateOccasion { ${occasionFields} } }
@@ -13,5 +12,5 @@ export const onUpdateOccasion = /* GraphQL */ `
 `;
 
 export const onDeleteOccasion = /* GraphQL */ `
-  subscription OnDeleteOccasion { onDeleteOccasion { id } }
+  subscription OnDeleteOccasion { onDeleteOccasion { ${occasionFields} } }
 `;

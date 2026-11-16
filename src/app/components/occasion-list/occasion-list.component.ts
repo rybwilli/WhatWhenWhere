@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap, filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { OccasionService } from '../../services/occasion.service';
+import { OccasionService, NO_EFFECTIVE_DATE, toIsoDate } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, OCCASION_TYPES } from '../../models/occasion.model';
 
@@ -40,11 +40,18 @@ export class OccasionListComponent implements OnInit, OnDestroy {
 
   filterStatus: string[] = ['draft', 'polling', 'finalized'];
   filterVoteStatus = '';
-  filterStartDate: Date | null = (() => {
+  // The start date is the server-side effective date: changing it re-queries
+  // the API, which returns only accessible occasions on or after it.
+  private _filterStartDate: Date | null = (() => {
     const d = new Date();
     d.setDate(d.getDate() - 3);
     return d;
   })();
+  get filterStartDate(): Date | null { return this._filterStartDate; }
+  set filterStartDate(d: Date | null) {
+    this._filterStartDate = d;
+    this.svc.setEffectiveDate(d ? toIsoDate(d) : NO_EFFECTIVE_DATE);
+  }
   filterEndDate: Date | null = null;
   filterTypes: string[] = [];
   readonly occasionTypes = OCCASION_TYPES;
@@ -66,6 +73,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
       }, 400);
     }, 4000);
 
+    this.svc.setEffectiveDate(this.filterStartDate ? toIsoDate(this.filterStartDate) : NO_EFFECTIVE_DATE);
     this.sub = this.auth.user$.pipe(
       switchMap(user => {
         this.userEmail = user?.email ?? '';
@@ -73,7 +81,7 @@ export class OccasionListComponent implements OnInit, OnDestroy {
         return this.svc.loaded.pipe(
           filter(loaded => loaded),
           take(1),
-          switchMap(() => this.svc.getAccessibleOccasions(this.userEmail))
+          switchMap(() => this.svc.getOccasions())
         );
       })
     ).subscribe(o => {
@@ -119,8 +127,8 @@ occasionDate(o: Occasion): string {
   }
 
   get filteredOccasions(): Occasion[] {
-    const startIso = this.filterStartDate ? this.filterStartDate.toISOString().split('T')[0] : '';
-    const endIso   = this.filterEndDate   ? this.filterEndDate.toISOString().split('T')[0]   : '';
+    // Access and the start (effective) date are filtered on the server.
+    const endIso = this.filterEndDate ? toIsoDate(this.filterEndDate) : '';
     return this.occasions
       .filter(o => {
         if (this.filterStatus.length && !this.filterStatus.includes(o.status)) return false;
@@ -135,7 +143,6 @@ occasionDate(o: Occasion): string {
           if (this.filterVoteStatus === 'complete'   && !(total > 0 && voted === total)) return false;
         }
         const date = this.occasionDate(o);
-        if (startIso && date && date < startIso) return false;
         if (endIso   && date && date > endIso)   return false;
         return true;
       })

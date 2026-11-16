@@ -1,13 +1,39 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { generateClient } from 'aws-amplify/api';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import * as queries from '../../graphql/queries';
 import * as mutations from '../../graphql/mutations';
 import * as subs from '../../graphql/subscriptions';
 import { Occasion, OccasionType, Respondent, VoteResponse } from '../models/occasion.model';
+import { AuthService } from './auth.service';
 
-const client = generateClient();
+// Occasions are Cognito-only on the server (the API key can't reach them).
+const client = generateClient({ authMode: 'userPool' });
+
+// Queries and mutations go out with the Cognito ID token rather than the access
+// token so the server-side access check can read the caller's email claim.
+async function gql(query: string, variables?: Record<string, unknown>): Promise<any> {
+  const session = await fetchAuthSession();
+  const authToken = session.tokens?.idToken?.toString();
+  return (client.graphql as any)({ query, variables, authMode: 'userPool', authToken });
+}
+
+/** Local calendar date as YYYY-MM-DD. */
+export function toIsoDate(d: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** effectiveDate meaning "no lower bound". */
+export const NO_EFFECTIVE_DATE = '0001-01-01';
+
+export function defaultEffectiveDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 3);
+  return toIsoDate(d);
+}
 
 function uuid(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -69,55 +95,130 @@ function fromRecord(r: OccasionRecord): Occasion {
 
 @Injectable({ providedIn: 'root' })
 export class OccasionService {
+  // Holds only what the server returned for the signed-in user: the occasions
+  // listed for effectiveDate, plus any opened by id that the list left out.
   private occasions$ = new BehaviorSubject<Occasion[]>([]);
   private loaded$ = new BehaviorSubject<boolean>(false);
   readonly loaded = this.loaded$.asObservable();
 
-  constructor() {
+  private effectiveDate = defaultEffectiveDate();
+  // Occasions opened directly (e.g. a link to a past occasion) that the date
+  // filter would leave out; kept in the list and refreshed by id.
+  private pinnedIds = new Set<string>();
+  // Pinned occasions the current list doesn't include; hidden from getOccasions().
+  private pinnedOnlyIds = new Set<string>();
+  private fetchSeq = 0;
+  private realtime: Subscription[] = [];
+
+  constructor(auth: AuthService) {
+    let signedInAs: string | null = null;
+    auth.user$.subscribe(user => {
+      const id = user?.userId ?? null;
+      if (id === signedInAs) return;
+      signedInAs = id;
+      this.stopRealtime();
+      this.pinnedIds.clear();
+      this.pinnedOnlyIds.clear();
+      this.occasions$.next([]);
+      this.loaded$.next(false);
+      if (id) {
+        this.fetchAll();
+        this.subscribeRealtime();
+      }
+    });
+  }
+
+  /** Re-query the server for occasions on or after this date (YYYY-MM-DD). */
+  setEffectiveDate(effectiveDate: string): void {
+    if (effectiveDate === this.effectiveDate) return;
+    this.effectiveDate = effectiveDate;
     this.fetchAll();
-    this.subscribeRealtime();
+  }
+
+  /** All accessible occasions for a date, without touching the shared list. */
+  async listForDate(effectiveDate: string): Promise<Occasion[]> {
+    const items: OccasionRecord[] = [];
+    let nextToken: string | null = null;
+    do {
+      const res: any = await gql(queries.listOccasionsForUser, { effectiveDate, nextToken });
+      const page = res.data.listOccasionsForUser;
+      items.push(...(page.items ?? []));
+      nextToken = page.nextToken ?? null;
+    } while (nextToken);
+    return items.map(fromRecord);
   }
 
   private async fetchAll(): Promise<void> {
+    const seq = ++this.fetchSeq;
+    const pinnedAtStart = new Set(this.pinnedIds);
     try {
-      const res: any = await (client.graphql as any)({ query: queries.listOccasions });
-      const items: OccasionRecord[] = res.data.listOccasions.items ?? [];
-      this.occasions$.next(items.map(fromRecord));
+      const listed = await this.listForDate(this.effectiveDate);
+      const listedIds = new Set(listed.map(o => o.id));
+      const pinned = await Promise.all(
+        [...pinnedAtStart].filter(id => !listedIds.has(id)).map(id => this.fetchOne(id))
+      );
+      if (seq !== this.fetchSeq) return; // a newer fetch superseded this one
+      const extra = pinned.filter((o): o is Occasion => !!o);
+      // Keep occasions pinned (by ensureLoaded) while this fetch was in flight.
+      extra.push(...this.occasions$.value.filter(o =>
+        this.pinnedIds.has(o.id) && !pinnedAtStart.has(o.id) && !listedIds.has(o.id)
+      ));
+      this.pinnedOnlyIds = new Set(extra.map(o => o.id));
+      this.occasions$.next([...listed, ...extra]);
     } catch (e) {
       console.error('fetchAll failed', e);
     } finally {
-      this.loaded$.next(true);
+      if (seq === this.fetchSeq) this.loaded$.next(true);
     }
   }
 
   private subscribeRealtime(): void {
-    const handle = (obs: any) =>
-      obs.subscribe({ next: () => this.fetchAll(), error: console.error });
-    handle((client.graphql as any)({ query: subs.onCreateOccasion }));
-    handle((client.graphql as any)({ query: subs.onUpdateOccasion }));
-    handle((client.graphql as any)({ query: subs.onDeleteOccasion }));
+    const handle = (query: string) =>
+      (client.graphql as any)({ query }).subscribe({ next: () => this.fetchAll(), error: console.error });
+    this.realtime = [subs.onCreateOccasion, subs.onUpdateOccasion, subs.onDeleteOccasion].map(handle);
   }
 
+  private stopRealtime(): void {
+    this.realtime.forEach(s => s.unsubscribe());
+    this.realtime = [];
+  }
+
+  /** The server-filtered list for the current effective date. */
   getOccasions(): Observable<Occasion[]> {
-    return this.occasions$.asObservable();
+    return this.occasions$.pipe(map(all => all.filter(o => !this.pinnedOnlyIds.has(o.id))));
   }
 
-  getAccessibleOccasions(userEmail: string): Observable<Occasion[]> {
-    const email = userEmail.toLowerCase();
-    return this.occasions$.pipe(
-      map(all => all.filter(o =>
-        o.allowPublic ||
-        o.ownerEmail?.toLowerCase() === email ||
-        o.respondents.some(r => r.email.toLowerCase() === email)
-      ))
-    );
+  /** Live view of one loaded occasion (see ensureLoaded); undefined once gone. */
+  watchOccasion(id: string): Observable<Occasion | undefined> {
+    return this.occasions$.pipe(map(all => all.find(o => o.id === id)));
   }
 
-  canAccess(occasion: Occasion, userEmail: string): boolean {
-    if (occasion.allowPublic) return true;
-    const email = userEmail.toLowerCase();
-    return occasion.ownerEmail?.toLowerCase() === email ||
-      occasion.respondents.some(r => r.email.toLowerCase() === email);
+  /**
+   * Returns the occasion from the loaded list, or fetches it by id if the date
+   * filter left it out. Resolves null when it doesn't exist or the server denies
+   * access (the server enforces access; there is no client-side check).
+   */
+  async ensureLoaded(id: string): Promise<Occasion | null> {
+    const existing = this.occasions$.value.find(o => o.id === id);
+    if (existing) return existing;
+    const fetched = await this.fetchOne(id);
+    if (!fetched) return null;
+    this.pinnedIds.add(id);
+    if (!this.occasions$.value.some(o => o.id === id)) {
+      this.pinnedOnlyIds.add(id);
+      this.occasions$.next([...this.occasions$.value, fetched]);
+    }
+    return fetched;
+  }
+
+  private async fetchOne(id: string): Promise<Occasion | null> {
+    try {
+      const res: any = await gql(queries.getOccasion, { id });
+      return res.data.getOccasion ? fromRecord(res.data.getOccasion) : null;
+    } catch (e) {
+      console.warn('getOccasion failed or was denied', id, e);
+      return null;
+    }
   }
 
   async create(
@@ -137,7 +238,7 @@ export class OccasionService {
       whenOptions: JSON.stringify([]),
       whereOptions: JSON.stringify([]),
     };
-    const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
+    const res: any = await gql(mutations.createOccasion, { input });
     const occasion = fromRecord(res.data.createOccasion);
     this.occasions$.next([...this.occasions$.value, occasion]);
     return occasion;
@@ -172,7 +273,7 @@ export class OccasionService {
           : []
       ),
     };
-    const res: any = await (client.graphql as any)({ query: mutations.createOccasion, variables: { input } });
+    const res: any = await gql(mutations.createOccasion, { input });
     const copy = fromRecord(res.data.createOccasion);
     this.occasions$.next([...this.occasions$.value, copy]);
     return copy;
@@ -207,7 +308,7 @@ export class OccasionService {
     if (changes.allowPublic    !== undefined) input.allowPublic    = changes.allowPublic;
     if (changes.playerOfDayDeadline !== undefined) input.playerOfDayDeadline = changes.playerOfDayDeadline;
 
-    await (client.graphql as any)({ query: mutations.updateOccasion, variables: { input } });
+    await gql(mutations.updateOccasion, { input });
   }
 
   updateDetails(id: string, title: string, description: string): void {
@@ -313,9 +414,9 @@ export class OccasionService {
     this.occasions$.next(this.occasions$.value.map(o =>
       o.id !== occasionId ? o : { ...o, [field]: newOptions }
     ));
-    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+    await gql(mutations.updateOccasion, {
       input: { id: occasionId, [field]: JSON.stringify(newOptions) }
-    }});
+    });
   }
 
   private async clearVoteOnField(
@@ -333,19 +434,13 @@ export class OccasionService {
     this.occasions$.next(this.occasions$.value.map(o =>
       o.id !== occasionId ? o : { ...o, [field]: newOptions }
     ));
-    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+    await gql(mutations.updateOccasion, {
       input: { id: occasionId, [field]: JSON.stringify(newOptions) }
-    }});
+    });
   }
 
-  private async fetchFreshOccasion(id: string): Promise<Occasion | null> {
-    try {
-      const res: any = await (client.graphql as any)({ query: queries.getOccasion, variables: { id } });
-      return fromRecord(res.data.getOccasion);
-    } catch (e) {
-      console.error('fetchFreshOccasion failed', e);
-      return null;
-    }
+  private fetchFreshOccasion(id: string): Promise<Occasion | null> {
+    return this.fetchOne(id);
   }
 
   setAllowPublic(id: string, value: boolean): void {
@@ -421,9 +516,9 @@ export class OccasionService {
     this.occasions$.next(this.occasions$.value.map(o =>
       o.id !== occasionId ? o : { ...o, playerOfDayVotes: votes }
     ));
-    await (client.graphql as any)({ query: mutations.updateOccasion, variables: {
+    await gql(mutations.updateOccasion, {
       input: { id: occasionId, playerOfDayVotes: JSON.stringify(votes) }
-    }});
+    });
   }
 
   isPlayerOfDayVotingOpen(occasion: Occasion): boolean {
@@ -460,7 +555,9 @@ export class OccasionService {
   }
 
   async delete(id: string): Promise<void> {
+    this.pinnedIds.delete(id);
+    this.pinnedOnlyIds.delete(id);
     this.occasions$.next(this.occasions$.value.filter(o => o.id !== id));
-    await (client.graphql as any)({ query: mutations.deleteOccasion, variables: { input: { id } } });
+    await gql(mutations.deleteOccasion, { input: { id } });
   }
 }

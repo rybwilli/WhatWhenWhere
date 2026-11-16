@@ -27,9 +27,199 @@
     }
   },
   "Resources": {
-    "EmptyResource": {
-      "Type": "Custom::EmptyResource",
-      "Condition": "AlwaysFalse"
+    "QueryGetOccasionResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "AppSyncApiId"
+        },
+        "DataSourceName": "OccasionTable",
+        "TypeName": "Query",
+        "FieldName": "getOccasion",
+        "Kind": "UNIT",
+        "Runtime": {
+          "Name": "APPSYNC_JS",
+          "RuntimeVersion": "1.0.0"
+        },
+        "Code": {
+          "Fn::Join": [
+            "\n",
+            [
+              "// Resolver for Query.getOccasion and Query.listOccasionsForUser (OccasionTable).",
+              "// Access: owner (ownerSub == caller sub, or ownerEmail == caller email),",
+              "// respondent (respondents[].email == caller email), or allowPublic == true.",
+              "// Emails compare case-insensitively. The email comes from the Cognito ID token.",
+              "import { util } from '@aws-appsync/utils';",
+              "",
+              "function lower(s) {",
+              "  return typeof s === 'string' ? s.toLowerCase() : '';",
+              "}",
+              "",
+              "function asList(v) {",
+              "  if (!v) return [];",
+              "  if (typeof v === 'string') return JSON.parse(v);",
+              "  return v;",
+              "}",
+              "",
+              "function canAccess(o, sub, email) {",
+              "  if (!o) return false;",
+              "  if (o.allowPublic === true) return true;",
+              "  if (sub && o.ownerSub === sub) return true;",
+              "  if (!email) return false;",
+              "  if (lower(o.ownerEmail) === email) return true;",
+              "  return asList(o.respondents).some((r) => r && lower(r.email) === email);",
+              "}",
+              "",
+              "// Latest date the occasion covers: the finalized date range if set, otherwise",
+              "// the latest When option (using its end date when it spans days). '' = no dates.",
+              "function lastDate(o) {",
+              "  if (o.finalDate) {",
+              "    return o.finalEndDate && o.finalEndDate > o.finalDate ? o.finalEndDate : o.finalDate;",
+              "  }",
+              "  return asList(o.whenOptions).reduce((max, w) => {",
+              "    if (!w || !w.date) return max;",
+              "    const d = w.endDate && w.endDate > w.date ? w.endDate : w.date;",
+              "    return d > max ? d : max;",
+              "  }, '');",
+              "}",
+              "",
+              "function qualifies(o, effectiveDate) {",
+              "  const d = lastDate(o);",
+              "  return !d || d >= effectiveDate;",
+              "}",
+              "",
+              "export function request(ctx) {",
+              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "    return { operation: 'GetItem', key: util.dynamodb.toMapValues({ id: ctx.args.id }) };",
+              "  }",
+              "  const limit = ctx.args.limit && ctx.args.limit > 0 && ctx.args.limit < 1000 ? ctx.args.limit : 1000;",
+              "  return { operation: 'Scan', limit, nextToken: ctx.args.nextToken };",
+              "}",
+              "",
+              "export function response(ctx) {",
+              "  if (ctx.error) {",
+              "    util.error(ctx.error.message, ctx.error.type);",
+              "  }",
+              "  const identity = ctx.identity || {};",
+              "  const sub = identity.sub;",
+              "  const email = lower(identity.claims && identity.claims.email);",
+              "",
+              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "    const o = ctx.result;",
+              "    if (!o) return null;",
+              "    if (!canAccess(o, sub, email)) {",
+              "      util.unauthorized();",
+              "    }",
+              "    return o;",
+              "  }",
+              "",
+              "  const effectiveDate = ctx.args.effectiveDate;",
+              "  const items = (ctx.result.items || []).filter(",
+              "    (o) => canAccess(o, sub, email) && qualifies(o, effectiveDate)",
+              "  );",
+              "  return { items, nextToken: ctx.result.nextToken };",
+              "}"
+            ]
+          ]
+        }
+      }
+    },
+    "QueryListOccasionsForUserResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "AppSyncApiId"
+        },
+        "DataSourceName": "OccasionTable",
+        "TypeName": "Query",
+        "FieldName": "listOccasionsForUser",
+        "Kind": "UNIT",
+        "Runtime": {
+          "Name": "APPSYNC_JS",
+          "RuntimeVersion": "1.0.0"
+        },
+        "Code": {
+          "Fn::Join": [
+            "\n",
+            [
+              "// Resolver for Query.getOccasion and Query.listOccasionsForUser (OccasionTable).",
+              "// Access: owner (ownerSub == caller sub, or ownerEmail == caller email),",
+              "// respondent (respondents[].email == caller email), or allowPublic == true.",
+              "// Emails compare case-insensitively. The email comes from the Cognito ID token.",
+              "import { util } from '@aws-appsync/utils';",
+              "",
+              "function lower(s) {",
+              "  return typeof s === 'string' ? s.toLowerCase() : '';",
+              "}",
+              "",
+              "function asList(v) {",
+              "  if (!v) return [];",
+              "  if (typeof v === 'string') return JSON.parse(v);",
+              "  return v;",
+              "}",
+              "",
+              "function canAccess(o, sub, email) {",
+              "  if (!o) return false;",
+              "  if (o.allowPublic === true) return true;",
+              "  if (sub && o.ownerSub === sub) return true;",
+              "  if (!email) return false;",
+              "  if (lower(o.ownerEmail) === email) return true;",
+              "  return asList(o.respondents).some((r) => r && lower(r.email) === email);",
+              "}",
+              "",
+              "// Latest date the occasion covers: the finalized date range if set, otherwise",
+              "// the latest When option (using its end date when it spans days). '' = no dates.",
+              "function lastDate(o) {",
+              "  if (o.finalDate) {",
+              "    return o.finalEndDate && o.finalEndDate > o.finalDate ? o.finalEndDate : o.finalDate;",
+              "  }",
+              "  return asList(o.whenOptions).reduce((max, w) => {",
+              "    if (!w || !w.date) return max;",
+              "    const d = w.endDate && w.endDate > w.date ? w.endDate : w.date;",
+              "    return d > max ? d : max;",
+              "  }, '');",
+              "}",
+              "",
+              "function qualifies(o, effectiveDate) {",
+              "  const d = lastDate(o);",
+              "  return !d || d >= effectiveDate;",
+              "}",
+              "",
+              "export function request(ctx) {",
+              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "    return { operation: 'GetItem', key: util.dynamodb.toMapValues({ id: ctx.args.id }) };",
+              "  }",
+              "  const limit = ctx.args.limit && ctx.args.limit > 0 && ctx.args.limit < 1000 ? ctx.args.limit : 1000;",
+              "  return { operation: 'Scan', limit, nextToken: ctx.args.nextToken };",
+              "}",
+              "",
+              "export function response(ctx) {",
+              "  if (ctx.error) {",
+              "    util.error(ctx.error.message, ctx.error.type);",
+              "  }",
+              "  const identity = ctx.identity || {};",
+              "  const sub = identity.sub;",
+              "  const email = lower(identity.claims && identity.claims.email);",
+              "",
+              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "    const o = ctx.result;",
+              "    if (!o) return null;",
+              "    if (!canAccess(o, sub, email)) {",
+              "      util.unauthorized();",
+              "    }",
+              "    return o;",
+              "  }",
+              "",
+              "  const effectiveDate = ctx.args.effectiveDate;",
+              "  const items = (ctx.result.items || []).filter(",
+              "    (o) => canAccess(o, sub, email) && qualifies(o, effectiveDate)",
+              "  );",
+              "  return { items, nextToken: ctx.result.nextToken };",
+              "}"
+            ]
+          ]
+        }
+      }
     }
   },
   "Conditions": {
@@ -46,7 +236,10 @@
       ]
     },
     "AlwaysFalse": {
-      "Fn::Equals": ["true", "false"]
+      "Fn::Equals": [
+        "true",
+        "false"
+      ]
     }
   },
   "Outputs": {

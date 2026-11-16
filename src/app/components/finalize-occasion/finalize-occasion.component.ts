@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { from, of } from 'rxjs';
+import { filter, switchMap, take } from 'rxjs/operators';
 import { OccasionService } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, WhenOption, WhereOption } from '../../models/occasion.model';
@@ -36,11 +38,15 @@ export class FinalizeOccasionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userEmail = this.auth.getCurrentUser()?.email ?? '';
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.svc.getOccasions().subscribe(occasions => {
-      const found = occasions.find(o => o.id === id);
-      if (!found || !this.svc.canAccess(found, userEmail)) {
+    // The server only returns the occasion if this user can access it.
+    this.auth.user$.pipe(
+      filter(user => !!user),
+      take(1),
+      switchMap(() => from(this.svc.ensureLoaded(id))),
+      switchMap(loaded => loaded ? this.svc.watchOccasion(id) : of(undefined))
+    ).subscribe(found => {
+      if (!found) {
         this.router.navigate(['/']);
         return;
       }

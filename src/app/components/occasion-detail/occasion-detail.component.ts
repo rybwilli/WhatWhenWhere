@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
+import { from, of } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
-import { OccasionService } from '../../services/occasion.service';
+import { OccasionService, NO_EFFECTIVE_DATE } from '../../services/occasion.service';
 import { AuthService } from '../../services/auth.service';
 import { Occasion, WhenOption, Respondent, VoteResponse, Vote, OccasionType, OCCASION_TYPES } from '../../models/occasion.model';
 import { buildGoogleCalendarUrl, downloadIcsFile } from '../../utils/calendar-link.util';
@@ -20,6 +21,8 @@ interface VoteState {
 })
 export class OccasionDetailComponent implements OnInit {
   occasion: Occasion | undefined;
+  // Every occasion this user can access, past ones included, for respondent
+  // suggestions. Loaded once on demand; separate from the date-filtered list.
   private allOccasions: Occasion[] = [];
   voterName = '';
   userEmail = '';
@@ -124,14 +127,12 @@ export class OccasionDetailComponent implements OnInit {
       switchMap(user => {
         this.voterName = user!.displayName || user!.email || '';
         this.userEmail = user!.email ?? '';
-        return this.svc.getOccasions();
+        // The server only returns the occasion if this user can access it.
+        return from(this.svc.ensureLoaded(id)).pipe(
+          switchMap(loaded => loaded ? this.svc.watchOccasion(id) : of(undefined))
+        );
       })
-    ).subscribe(occasions => {
-      const found = occasions.find(o => o.id === id);
-      if (found && !this.svc.canAccess(found, this.userEmail)) {
-        this.router.navigate(['/']);
-        return;
-      }
+    ).subscribe(found => {
       if (!found && !this.occasion) {
         this.router.navigate(['/']);
         return;
@@ -139,11 +140,11 @@ export class OccasionDetailComponent implements OnInit {
       if (!found) {
         return;
       }
-      this.allOccasions = occasions;
       const isFirst = !this.occasion;
       this.occasion = found;
       this.loading = false;
       if (isFirst) this.fetchRespondentProfiles(found.respondents);
+      if (isFirst) this.loadPastOccasions();
       if (isFirst) {
         this.jumpToFirstOption();
         if (openEdit) this.startEdit();
@@ -691,6 +692,14 @@ export class OccasionDetailComponent implements OnInit {
   getRespondentImage(email: string | undefined): string | null {
     if (!email) return null;
     return this.respondentProfiles[email.toLowerCase()]?.imageUrl || null;
+  }
+
+  private async loadPastOccasions(): Promise<void> {
+    try {
+      this.allOccasions = await this.svc.listForDate(NO_EFFECTIVE_DATE);
+    } catch (e) {
+      console.error('loadPastOccasions failed', e);
+    }
   }
 
   async fetchRespondentProfiles(respondents: any[]): Promise<void> {
