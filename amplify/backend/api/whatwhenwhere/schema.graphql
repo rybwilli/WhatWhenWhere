@@ -14,7 +14,15 @@ type UserProfile @model
 #   by the custom queries below (resolver in stacks/CustomResources.json), which
 #   return only occasions the caller owns, is a respondent on, or that allow public
 #   access, and (for the list) that qualify for the effective date.
-type Occasion @model(queries: { get: null, list: null })
+# - The generated update/delete mutations are disabled. They are replaced by
+#   editOccasion/removeOccasion below: organizers (owner or co-organizers) may
+#   edit anything and delete; other participants may only change their own
+#   votes and join public occasions. Subscriptions are redefined to follow them.
+type Occasion @model(
+    queries: { get: null, list: null }
+    mutations: { create: "createOccasion", update: null, delete: null }
+    subscriptions: null
+  )
   @auth(rules: [{ allow: private }]) {
   id: ID!
   ownerSub: String!
@@ -58,4 +66,45 @@ type Query {
   # with no dates yet. Pages may be short or empty: keep calling while nextToken
   # is non-null. Call with the Cognito ID token (see getAccessibleOccasion).
   listOccasionsForUser(effectiveDate: AWSDate!, limit: Int, nextToken: String): OccasionPage! @aws_cognito_user_pools
+}
+
+input EditOccasionInput {
+  id: ID!
+  title: String
+  description: String
+  status: String
+  occasionType: String
+  respondents: AWSJSON
+  whenOptions: AWSJSON
+  whereOptions: AWSJSON
+  finalDate: String
+  finalStartTime: String
+  finalEndTime: String
+  finalEndDate: String
+  finalLocation: String
+  finalNotes: String
+  infoText: String
+  infoUrl: String
+  allowPublic: Boolean
+  playerOfDayVotes: AWSJSON
+  playerOfDayDeadline: String
+}
+
+type Mutation {
+  # Organizers (owner or co-organizers) may change any field; only the owner may
+  # change who is a co-organizer. Other participants may only send whenOptions,
+  # whereOptions, respondents or playerOfDayVotes, and only their own votes (or
+  # adding themselves to a public occasion) are taken from what they send.
+  # Fails with ConflictError if the occasion changed mid-save; retry.
+  # Call with the Cognito ID token (see getAccessibleOccasion).
+  editOccasion(input: EditOccasionInput!): Occasion @aws_cognito_user_pools
+
+  # Organizers only.
+  removeOccasion(id: ID!): Occasion @aws_cognito_user_pools
+}
+
+type Subscription {
+  onCreateOccasion: Occasion @aws_subscribe(mutations: ["createOccasion"]) @aws_cognito_user_pools
+  onUpdateOccasion: Occasion @aws_subscribe(mutations: ["editOccasion"]) @aws_cognito_user_pools
+  onDeleteOccasion: Occasion @aws_subscribe(mutations: ["removeOccasion"]) @aws_cognito_user_pools
 }

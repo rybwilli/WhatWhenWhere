@@ -100,7 +100,7 @@
       <button mat-icon-button (click)="showCopyPanel = !showCopyPanel" matTooltip="Copy occasion">
         <mat-icon>content_copy</mat-icon>
       </button>
-      <button mat-icon-button color="warn" *ngIf="isOwner()" (click)="delete()" matTooltip="Delete occasion">
+      <button mat-icon-button color="warn" *ngIf="canEdit()" (click)="delete()" matTooltip="Delete occasion">
         <mat-icon>delete</mat-icon>
       </button>
     </div>

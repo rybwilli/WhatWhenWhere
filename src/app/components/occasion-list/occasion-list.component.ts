@@ -107,6 +107,13 @@ export class OccasionListComponent implements OnInit, OnDestroy {
     return o.ownerEmail?.toLowerCase() === this.userEmail.toLowerCase();
   }
 
+  /** Owner or co-organizer: may edit and delete (enforced by the server). */
+  isOrganizer(o: Occasion): boolean {
+    const email = this.userEmail.toLowerCase();
+    return this.isOwner(o) ||
+      o.respondents.some(r => r.email.toLowerCase() === email && r.coOrganizer);
+  }
+
   deleteOccasion(id: string, event: Event): void {
     event.stopPropagation();
     if (confirm('Delete this occasion?')) {

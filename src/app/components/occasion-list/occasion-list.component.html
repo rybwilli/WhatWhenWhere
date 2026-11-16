@@ -104,7 +104,7 @@
             </mat-chip>
           </ng-container>
           <mat-chip class="status-chip" [ngClass]="'status-' + o.status">{{ o.status }}</mat-chip>
-          <button mat-icon-button color="warn" *ngIf="isOwner(o)"
+          <button mat-icon-button color="warn" *ngIf="isOrganizer(o)"
             (click)="deleteOccasion(o.id, $event)" matTooltip="Delete occasion">
             <mat-icon>delete</mat-icon>
           </button>

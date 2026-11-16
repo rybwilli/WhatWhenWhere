@@ -20,6 +20,10 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
   return (client.graphql as any)({ query, variables, authMode: 'userPool', authToken });
 }
 
+function isConflict(e: any): boolean {
+  return !!e?.errors?.some((x: any) => x?.errorType === 'ConflictError');
+}
+
 /** Local calendar date as YYYY-MM-DD. */
 export function toIsoDate(d: Date): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
@@ -308,7 +312,27 @@ export class OccasionService {
     if (changes.allowPublic    !== undefined) input.allowPublic    = changes.allowPublic;
     if (changes.playerOfDayDeadline !== undefined) input.playerOfDayDeadline = changes.playerOfDayDeadline;
 
-    await gql(mutations.updateOccasion, { input });
+    await this.saveWithRetry(() => gql(mutations.editOccasion, { input }));
+  }
+
+  /**
+   * Runs a save, retrying when the server reports a simultaneous write
+   * (ConflictError). Any other failure (e.g. the server refusing a change this
+   * user isn't allowed to make) reloads from the server to undo the optimistic
+   * update.
+   */
+  private async saveWithRetry(attempt: () => Promise<unknown>): Promise<void> {
+    for (let i = 0; ; i++) {
+      try {
+        await attempt();
+        return;
+      } catch (e) {
+        if (isConflict(e) && i < 2) continue;
+        console.error('Saving occasion failed', e);
+        await this.fetchAll();
+        return;
+      }
+    }
   }
 
   updateDetails(id: string, title: string, description: string): void {
@@ -397,25 +421,27 @@ export class OccasionService {
     occasionId: string, field: 'whenOptions' | 'whereOptions',
     optionId: string, voterId: string, voter: string, response: VoteResponse, comment: string
   ): Promise<void> {
-    const fresh = await this.fetchFreshOccasion(occasionId);
-    if (!fresh) return;
-    const newOptions = fresh[field].map((opt: any) => {
-      if (opt.id !== optionId) return opt;
-      const existing = opt.votes.find((v: any) => (v.voterId ?? v.voter) === voterId);
-      const timestamp = existing?.response === response ? existing.timestamp : new Date().toISOString();
-      return {
-        ...opt,
-        votes: [
-          ...opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
-          { voter, voterId, response, comment: comment.trim() || undefined, timestamp },
-        ],
-      };
-    });
-    this.occasions$.next(this.occasions$.value.map(o =>
-      o.id !== occasionId ? o : { ...o, [field]: newOptions }
-    ));
-    await gql(mutations.updateOccasion, {
-      input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+    await this.saveWithRetry(async () => {
+      const fresh = await this.fetchFreshOccasion(occasionId);
+      if (!fresh) return;
+      const newOptions = fresh[field].map((opt: any) => {
+        if (opt.id !== optionId) return opt;
+        const existing = opt.votes.find((v: any) => (v.voterId ?? v.voter) === voterId);
+        const timestamp = existing?.response === response ? existing.timestamp : new Date().toISOString();
+        return {
+          ...opt,
+          votes: [
+            ...opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
+            { voter, voterId, response, comment: comment.trim() || undefined, timestamp },
+          ],
+        };
+      });
+      this.occasions$.next(this.occasions$.value.map(o =>
+        o.id !== occasionId ? o : { ...o, [field]: newOptions }
+      ));
+      await gql(mutations.editOccasion, {
+        input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+      });
     });
   }
 
@@ -423,19 +449,21 @@ export class OccasionService {
     occasionId: string, field: 'whenOptions' | 'whereOptions',
     optionId: string, voterId: string
   ): Promise<void> {
-    const fresh = await this.fetchFreshOccasion(occasionId);
-    if (!fresh) return;
-    const newOptions = fresh[field].map((opt: any) =>
-      opt.id !== optionId ? opt : {
-        ...opt,
-        votes: opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
-      }
-    );
-    this.occasions$.next(this.occasions$.value.map(o =>
-      o.id !== occasionId ? o : { ...o, [field]: newOptions }
-    ));
-    await gql(mutations.updateOccasion, {
-      input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+    await this.saveWithRetry(async () => {
+      const fresh = await this.fetchFreshOccasion(occasionId);
+      if (!fresh) return;
+      const newOptions = fresh[field].map((opt: any) =>
+        opt.id !== optionId ? opt : {
+          ...opt,
+          votes: opt.votes.filter((v: any) => (v.voterId ?? v.voter) !== voterId),
+        }
+      );
+      this.occasions$.next(this.occasions$.value.map(o =>
+        o.id !== occasionId ? o : { ...o, [field]: newOptions }
+      ));
+      await gql(mutations.editOccasion, {
+        input: { id: occasionId, [field]: JSON.stringify(newOptions) }
+      });
     });
   }
 
@@ -503,21 +531,23 @@ export class OccasionService {
   }
 
   async voteForPlayerOfDay(occasionId: string, voterId: string, voter: string, votedForId: string, votedForName: string): Promise<void> {
-    const fresh = await this.fetchFreshOccasion(occasionId);
-    if (!fresh) return;
-    const votes = [...(fresh.playerOfDayVotes || [])];
-    const existingVoteIndex = votes.findIndex(v => v.voterId === voterId);
-    const newVote = { voterId, voter, votedForId, votedForName, timestamp: new Date().toISOString() };
-    if (existingVoteIndex >= 0) {
-      votes[existingVoteIndex] = newVote;
-    } else {
-      votes.push(newVote);
-    }
-    this.occasions$.next(this.occasions$.value.map(o =>
-      o.id !== occasionId ? o : { ...o, playerOfDayVotes: votes }
-    ));
-    await gql(mutations.updateOccasion, {
-      input: { id: occasionId, playerOfDayVotes: JSON.stringify(votes) }
+    await this.saveWithRetry(async () => {
+      const fresh = await this.fetchFreshOccasion(occasionId);
+      if (!fresh) return;
+      const votes = [...(fresh.playerOfDayVotes || [])];
+      const existingVoteIndex = votes.findIndex(v => v.voterId === voterId);
+      const newVote = { voterId, voter, votedForId, votedForName, timestamp: new Date().toISOString() };
+      if (existingVoteIndex >= 0) {
+        votes[existingVoteIndex] = newVote;
+      } else {
+        votes.push(newVote);
+      }
+      this.occasions$.next(this.occasions$.value.map(o =>
+        o.id !== occasionId ? o : { ...o, playerOfDayVotes: votes }
+      ));
+      await gql(mutations.editOccasion, {
+        input: { id: occasionId, playerOfDayVotes: JSON.stringify(votes) }
+      });
     });
   }
 
@@ -558,6 +588,6 @@ export class OccasionService {
     this.pinnedIds.delete(id);
     this.pinnedOnlyIds.delete(id);
     this.occasions$.next(this.occasions$.value.filter(o => o.id !== id));
-    await gql(mutations.deleteOccasion, { input: { id } });
+    await this.saveWithRetry(() => gql(mutations.removeOccasion, { id }));
   }
 }

@@ -10,14 +10,18 @@ export const createOccasion = /* GraphQL */ `
   }
 `;
 
-export const updateOccasion = /* GraphQL */ `
-  mutation UpdateOccasion($input: UpdateOccasionInput!) {
-    updateOccasion(input: $input) { ${occasionFields} }
+// Server-checked: organizers may edit anything; other participants only their
+// own votes / joining a public occasion. Fails with ConflictError on a
+// simultaneous write (retry).
+export const editOccasion = /* GraphQL */ `
+  mutation EditOccasion($input: EditOccasionInput!) {
+    editOccasion(input: $input) { ${occasionFields} }
   }
 `;
 
-export const deleteOccasion = /* GraphQL */ `
-  mutation DeleteOccasion($input: DeleteOccasionInput!) {
-    deleteOccasion(input: $input) { id }
+// Organizers only.
+export const removeOccasion = /* GraphQL */ `
+  mutation RemoveOccasion($id: ID!) {
+    removeOccasion(id: $id) { id }
   }
 `;
