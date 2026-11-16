@@ -213,10 +213,10 @@ export class OccasionService {
 
   private async fetchOne(id: string): Promise<Occasion | null> {
     try {
-      const res: any = await gql(queries.getOccasion, { id });
-      return res.data.getOccasion ? fromRecord(res.data.getOccasion) : null;
+      const res: any = await gql(queries.getAccessibleOccasion, { id });
+      return res.data.getAccessibleOccasion ? fromRecord(res.data.getAccessibleOccasion) : null;
     } catch (e) {
-      console.warn('getOccasion failed or was denied', id, e);
+      console.warn('getAccessibleOccasion failed or was denied', id, e);
       return null;
     }
   }

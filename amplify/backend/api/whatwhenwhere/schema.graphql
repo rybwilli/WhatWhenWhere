@@ -49,11 +49,13 @@ type Query {
   # Returns the occasion only if the caller can access it (owner, respondent, or
   # allowPublic). No date filter, so links to past occasions keep working.
   # Call with the Cognito ID token so the resolver can read the email claim.
-  getOccasion(id: ID!): Occasion @aws_cognito_user_pools
+  # (Named differently from the disabled generated getOccasion so the deploy
+  # doesn't collide with its resolver.)
+  getAccessibleOccasion(id: ID!): Occasion @aws_cognito_user_pools
 
   # Occasions the caller can access whose date (finalDate/finalEndDate, else the
   # latest When option date/endDate) is on or after effectiveDate, plus occasions
   # with no dates yet. Pages may be short or empty: keep calling while nextToken
-  # is non-null. Call with the Cognito ID token (see getOccasion).
+  # is non-null. Call with the Cognito ID token (see getAccessibleOccasion).
   listOccasionsForUser(effectiveDate: AWSDate!, limit: Int, nextToken: String): OccasionPage! @aws_cognito_user_pools
 }

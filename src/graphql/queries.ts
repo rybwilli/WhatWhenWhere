@@ -12,9 +12,9 @@ export const listOccasionsForUser = /* GraphQL */ `
   }
 `;
 
-export const getOccasion = /* GraphQL */ `
-  query GetOccasion($id: ID!) {
-    getOccasion(id: $id) {
+export const getAccessibleOccasion = /* GraphQL */ `
+  query GetAccessibleOccasion($id: ID!) {
+    getAccessibleOccasion(id: $id) {
       id ownerSub ownerEmail ownerName title description status occasionType
       respondents whenOptions whereOptions
       finalDate finalStartTime finalEndTime finalEndDate finalLocation finalNotes infoText infoUrl allowPublic playerOfDayVotes playerOfDayDeadline createdAt updatedAt

@@ -27,7 +27,7 @@
     }
   },
   "Resources": {
-    "QueryGetOccasionResolver": {
+    "QueryListOccasionsForUserResolver": {
       "Type": "AWS::AppSync::Resolver",
       "Properties": {
         "ApiId": {
@@ -35,7 +35,7 @@
         },
         "DataSourceName": "OccasionTable",
         "TypeName": "Query",
-        "FieldName": "getOccasion",
+        "FieldName": "listOccasionsForUser",
         "Kind": "UNIT",
         "Runtime": {
           "Name": "APPSYNC_JS",
@@ -45,7 +45,7 @@
           "Fn::Join": [
             "\n",
             [
-              "// Resolver for Query.getOccasion and Query.listOccasionsForUser (OccasionTable).",
+              "// Resolver for Query.getAccessibleOccasion and Query.listOccasionsForUser (OccasionTable).",
               "// Access: owner (ownerSub == caller sub, or ownerEmail == caller email),",
               "// respondent (respondents[].email == caller email), or allowPublic == true.",
               "// Emails compare case-insensitively. The email comes from the Cognito ID token.",
@@ -89,7 +89,7 @@
               "}",
               "",
               "export function request(ctx) {",
-              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "  if (ctx.info.fieldName === 'getAccessibleOccasion') {",
               "    return { operation: 'GetItem', key: util.dynamodb.toMapValues({ id: ctx.args.id }) };",
               "  }",
               "  const limit = ctx.args.limit && ctx.args.limit > 0 && ctx.args.limit < 1000 ? ctx.args.limit : 1000;",
@@ -104,7 +104,7 @@
               "  const sub = identity.sub;",
               "  const email = lower(identity.claims && identity.claims.email);",
               "",
-              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "  if (ctx.info.fieldName === 'getAccessibleOccasion') {",
               "    const o = ctx.result;",
               "    if (!o) return null;",
               "    if (!canAccess(o, sub, email)) {",
@@ -124,7 +124,7 @@
         }
       }
     },
-    "QueryListOccasionsForUserResolver": {
+    "QueryGetAccessibleOccasionResolver": {
       "Type": "AWS::AppSync::Resolver",
       "Properties": {
         "ApiId": {
@@ -132,7 +132,7 @@
         },
         "DataSourceName": "OccasionTable",
         "TypeName": "Query",
-        "FieldName": "listOccasionsForUser",
+        "FieldName": "getAccessibleOccasion",
         "Kind": "UNIT",
         "Runtime": {
           "Name": "APPSYNC_JS",
@@ -142,7 +142,7 @@
           "Fn::Join": [
             "\n",
             [
-              "// Resolver for Query.getOccasion and Query.listOccasionsForUser (OccasionTable).",
+              "// Resolver for Query.getAccessibleOccasion and Query.listOccasionsForUser (OccasionTable).",
               "// Access: owner (ownerSub == caller sub, or ownerEmail == caller email),",
               "// respondent (respondents[].email == caller email), or allowPublic == true.",
               "// Emails compare case-insensitively. The email comes from the Cognito ID token.",
@@ -186,7 +186,7 @@
               "}",
               "",
               "export function request(ctx) {",
-              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "  if (ctx.info.fieldName === 'getAccessibleOccasion') {",
               "    return { operation: 'GetItem', key: util.dynamodb.toMapValues({ id: ctx.args.id }) };",
               "  }",
               "  const limit = ctx.args.limit && ctx.args.limit > 0 && ctx.args.limit < 1000 ? ctx.args.limit : 1000;",
@@ -201,7 +201,7 @@
               "  const sub = identity.sub;",
               "  const email = lower(identity.claims && identity.claims.email);",
               "",
-              "  if (ctx.info.fieldName === 'getOccasion') {",
+              "  if (ctx.info.fieldName === 'getAccessibleOccasion') {",
               "    const o = ctx.result;",
               "    if (!o) return null;",
               "    if (!canAccess(o, sub, email)) {",

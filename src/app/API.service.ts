@@ -10,12 +10,86 @@ export interface SubscriptionResponse<T> {
 }
 
 export type __SubscriptionContainer = {
-  onCreateOccasion: OnCreateOccasionSubscription;
-  onUpdateOccasion: OnUpdateOccasionSubscription;
-  onDeleteOccasion: OnDeleteOccasionSubscription;
   onCreateUserProfile: OnCreateUserProfileSubscription;
   onUpdateUserProfile: OnUpdateUserProfileSubscription;
   onDeleteUserProfile: OnDeleteUserProfileSubscription;
+  onCreateOccasion: OnCreateOccasionSubscription;
+  onUpdateOccasion: OnUpdateOccasionSubscription;
+  onDeleteOccasion: OnDeleteOccasionSubscription;
+};
+
+export type CreateUserProfileInput = {
+  id?: string | null;
+  ownerSub: string;
+  phone?: string | null;
+};
+
+export type ModelUserProfileConditionInput = {
+  ownerSub?: ModelStringInput | null;
+  phone?: ModelStringInput | null;
+  and?: Array<ModelUserProfileConditionInput | null> | null;
+  or?: Array<ModelUserProfileConditionInput | null> | null;
+  not?: ModelUserProfileConditionInput | null;
+  createdAt?: ModelStringInput | null;
+  updatedAt?: ModelStringInput | null;
+};
+
+export type ModelStringInput = {
+  ne?: string | null;
+  eq?: string | null;
+  le?: string | null;
+  lt?: string | null;
+  ge?: string | null;
+  gt?: string | null;
+  contains?: string | null;
+  notContains?: string | null;
+  between?: Array<string | null> | null;
+  beginsWith?: string | null;
+  attributeExists?: boolean | null;
+  attributeType?: ModelAttributeTypes | null;
+  size?: ModelSizeInput | null;
+};
+
+export enum ModelAttributeTypes {
+  binary = "binary",
+  binarySet = "binarySet",
+  bool = "bool",
+  list = "list",
+  map = "map",
+  number = "number",
+  numberSet = "numberSet",
+  string = "string",
+  stringSet = "stringSet",
+  _null = "_null"
+}
+
+export type ModelSizeInput = {
+  ne?: number | null;
+  eq?: number | null;
+  le?: number | null;
+  lt?: number | null;
+  ge?: number | null;
+  gt?: number | null;
+  between?: Array<number | null> | null;
+};
+
+export type UserProfile = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateUserProfileInput = {
+  id: string;
+  ownerSub?: string | null;
+  phone?: string | null;
+};
+
+export type DeleteUserProfileInput = {
+  id: string;
 };
 
 export type CreateOccasionInput = {
@@ -70,45 +144,6 @@ export type ModelOccasionConditionInput = {
   not?: ModelOccasionConditionInput | null;
   createdAt?: ModelStringInput | null;
   updatedAt?: ModelStringInput | null;
-};
-
-export type ModelStringInput = {
-  ne?: string | null;
-  eq?: string | null;
-  le?: string | null;
-  lt?: string | null;
-  ge?: string | null;
-  gt?: string | null;
-  contains?: string | null;
-  notContains?: string | null;
-  between?: Array<string | null> | null;
-  beginsWith?: string | null;
-  attributeExists?: boolean | null;
-  attributeType?: ModelAttributeTypes | null;
-  size?: ModelSizeInput | null;
-};
-
-export enum ModelAttributeTypes {
-  binary = "binary",
-  binarySet = "binarySet",
-  bool = "bool",
-  list = "list",
-  map = "map",
-  number = "number",
-  numberSet = "numberSet",
-  string = "string",
-  stringSet = "stringSet",
-  _null = "_null"
-}
-
-export type ModelSizeInput = {
-  ne?: number | null;
-  eq?: number | null;
-  le?: number | null;
-  lt?: number | null;
-  ge?: number | null;
-  gt?: number | null;
-  between?: Array<number | null> | null;
 };
 
 export type ModelBooleanInput = {
@@ -175,69 +210,21 @@ export type DeleteOccasionInput = {
   id: string;
 };
 
-export type CreateUserProfileInput = {
-  id?: string | null;
-  ownerSub: string;
-  phone?: string | null;
+export type OccasionPage = {
+  __typename: "OccasionPage";
+  items: Array<Occasion>;
+  nextToken?: string | null;
 };
 
-export type ModelUserProfileConditionInput = {
-  ownerSub?: ModelStringInput | null;
-  phone?: ModelStringInput | null;
-  and?: Array<ModelUserProfileConditionInput | null> | null;
-  or?: Array<ModelUserProfileConditionInput | null> | null;
-  not?: ModelUserProfileConditionInput | null;
-  createdAt?: ModelStringInput | null;
-  updatedAt?: ModelStringInput | null;
-};
-
-export type UserProfile = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type UpdateUserProfileInput = {
-  id: string;
-  ownerSub?: string | null;
-  phone?: string | null;
-};
-
-export type DeleteUserProfileInput = {
-  id: string;
-};
-
-export type ModelOccasionFilterInput = {
+export type ModelUserProfileFilterInput = {
   id?: ModelIDInput | null;
   ownerSub?: ModelStringInput | null;
-  ownerEmail?: ModelStringInput | null;
-  ownerName?: ModelStringInput | null;
-  title?: ModelStringInput | null;
-  description?: ModelStringInput | null;
-  status?: ModelStringInput | null;
-  occasionType?: ModelStringInput | null;
-  respondents?: ModelStringInput | null;
-  whenOptions?: ModelStringInput | null;
-  whereOptions?: ModelStringInput | null;
-  finalDate?: ModelStringInput | null;
-  finalStartTime?: ModelStringInput | null;
-  finalEndTime?: ModelStringInput | null;
-  finalEndDate?: ModelStringInput | null;
-  finalLocation?: ModelStringInput | null;
-  finalNotes?: ModelStringInput | null;
-  infoText?: ModelStringInput | null;
-  infoUrl?: ModelStringInput | null;
-  allowPublic?: ModelBooleanInput | null;
-  playerOfDayVotes?: ModelStringInput | null;
-  playerOfDayDeadline?: ModelStringInput | null;
+  phone?: ModelStringInput | null;
   createdAt?: ModelStringInput | null;
   updatedAt?: ModelStringInput | null;
-  and?: Array<ModelOccasionFilterInput | null> | null;
-  or?: Array<ModelOccasionFilterInput | null> | null;
-  not?: ModelOccasionFilterInput | null;
+  and?: Array<ModelUserProfileFilterInput | null> | null;
+  or?: Array<ModelUserProfileFilterInput | null> | null;
+  not?: ModelUserProfileFilterInput | null;
 };
 
 export type ModelIDInput = {
@@ -256,56 +243,20 @@ export type ModelIDInput = {
   size?: ModelSizeInput | null;
 };
 
-export type ModelOccasionConnection = {
-  __typename: "ModelOccasionConnection";
-  items: Array<Occasion | null>;
-  nextToken?: string | null;
-};
-
-export type ModelUserProfileFilterInput = {
-  id?: ModelIDInput | null;
-  ownerSub?: ModelStringInput | null;
-  phone?: ModelStringInput | null;
-  createdAt?: ModelStringInput | null;
-  updatedAt?: ModelStringInput | null;
-  and?: Array<ModelUserProfileFilterInput | null> | null;
-  or?: Array<ModelUserProfileFilterInput | null> | null;
-  not?: ModelUserProfileFilterInput | null;
-};
-
 export type ModelUserProfileConnection = {
   __typename: "ModelUserProfileConnection";
   items: Array<UserProfile | null>;
   nextToken?: string | null;
 };
 
-export type ModelSubscriptionOccasionFilterInput = {
+export type ModelSubscriptionUserProfileFilterInput = {
   id?: ModelSubscriptionIDInput | null;
   ownerSub?: ModelSubscriptionStringInput | null;
-  ownerEmail?: ModelSubscriptionStringInput | null;
-  ownerName?: ModelSubscriptionStringInput | null;
-  title?: ModelSubscriptionStringInput | null;
-  description?: ModelSubscriptionStringInput | null;
-  status?: ModelSubscriptionStringInput | null;
-  occasionType?: ModelSubscriptionStringInput | null;
-  respondents?: ModelSubscriptionStringInput | null;
-  whenOptions?: ModelSubscriptionStringInput | null;
-  whereOptions?: ModelSubscriptionStringInput | null;
-  finalDate?: ModelSubscriptionStringInput | null;
-  finalStartTime?: ModelSubscriptionStringInput | null;
-  finalEndTime?: ModelSubscriptionStringInput | null;
-  finalEndDate?: ModelSubscriptionStringInput | null;
-  finalLocation?: ModelSubscriptionStringInput | null;
-  finalNotes?: ModelSubscriptionStringInput | null;
-  infoText?: ModelSubscriptionStringInput | null;
-  infoUrl?: ModelSubscriptionStringInput | null;
-  allowPublic?: ModelSubscriptionBooleanInput | null;
-  playerOfDayVotes?: ModelSubscriptionStringInput | null;
-  playerOfDayDeadline?: ModelSubscriptionStringInput | null;
+  phone?: ModelSubscriptionStringInput | null;
   createdAt?: ModelSubscriptionStringInput | null;
   updatedAt?: ModelSubscriptionStringInput | null;
-  and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
-  or?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
+  and?: Array<ModelSubscriptionUserProfileFilterInput | null> | null;
+  or?: Array<ModelSubscriptionUserProfileFilterInput | null> | null;
 };
 
 export type ModelSubscriptionIDInput = {
@@ -338,19 +289,65 @@ export type ModelSubscriptionStringInput = {
   notIn?: Array<string | null> | null;
 };
 
+export type ModelSubscriptionOccasionFilterInput = {
+  id?: ModelSubscriptionIDInput | null;
+  ownerSub?: ModelSubscriptionStringInput | null;
+  ownerEmail?: ModelSubscriptionStringInput | null;
+  ownerName?: ModelSubscriptionStringInput | null;
+  title?: ModelSubscriptionStringInput | null;
+  description?: ModelSubscriptionStringInput | null;
+  status?: ModelSubscriptionStringInput | null;
+  occasionType?: ModelSubscriptionStringInput | null;
+  respondents?: ModelSubscriptionStringInput | null;
+  whenOptions?: ModelSubscriptionStringInput | null;
+  whereOptions?: ModelSubscriptionStringInput | null;
+  finalDate?: ModelSubscriptionStringInput | null;
+  finalStartTime?: ModelSubscriptionStringInput | null;
+  finalEndTime?: ModelSubscriptionStringInput | null;
+  finalEndDate?: ModelSubscriptionStringInput | null;
+  finalLocation?: ModelSubscriptionStringInput | null;
+  finalNotes?: ModelSubscriptionStringInput | null;
+  infoText?: ModelSubscriptionStringInput | null;
+  infoUrl?: ModelSubscriptionStringInput | null;
+  allowPublic?: ModelSubscriptionBooleanInput | null;
+  playerOfDayVotes?: ModelSubscriptionStringInput | null;
+  playerOfDayDeadline?: ModelSubscriptionStringInput | null;
+  createdAt?: ModelSubscriptionStringInput | null;
+  updatedAt?: ModelSubscriptionStringInput | null;
+  and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
+  or?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
+};
+
 export type ModelSubscriptionBooleanInput = {
   ne?: boolean | null;
   eq?: boolean | null;
 };
 
-export type ModelSubscriptionUserProfileFilterInput = {
-  id?: ModelSubscriptionIDInput | null;
-  ownerSub?: ModelSubscriptionStringInput | null;
-  phone?: ModelSubscriptionStringInput | null;
-  createdAt?: ModelSubscriptionStringInput | null;
-  updatedAt?: ModelSubscriptionStringInput | null;
-  and?: Array<ModelSubscriptionUserProfileFilterInput | null> | null;
-  or?: Array<ModelSubscriptionUserProfileFilterInput | null> | null;
+export type CreateUserProfileMutation = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateUserProfileMutation = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DeleteUserProfileMutation = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CreateOccasionMutation = {
@@ -437,34 +434,7 @@ export type DeleteOccasionMutation = {
   updatedAt: string;
 };
 
-export type CreateUserProfileMutation = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type UpdateUserProfileMutation = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type DeleteUserProfileMutation = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type GetOccasionQuery = {
+export type GetAccessibleOccasionQuery = {
   __typename: "Occasion";
   id: string;
   ownerSub: string;
@@ -492,8 +462,8 @@ export type GetOccasionQuery = {
   updatedAt: string;
 };
 
-export type ListOccasionsQuery = {
-  __typename: "ModelOccasionConnection";
+export type ListOccasionsForUserQuery = {
+  __typename: "OccasionPage";
   items: Array<{
     __typename: "Occasion";
     id: string;
@@ -520,7 +490,7 @@ export type ListOccasionsQuery = {
     playerOfDayDeadline?: string | null;
     createdAt: string;
     updatedAt: string;
-  } | null>;
+  }>;
   nextToken?: string | null;
 };
 
@@ -544,6 +514,33 @@ export type ListUserProfilesQuery = {
     updatedAt: string;
   } | null>;
   nextToken?: string | null;
+};
+
+export type OnCreateUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OnUpdateUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OnDeleteUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type OnCreateOccasionSubscription = {
@@ -630,37 +627,85 @@ export type OnDeleteOccasionSubscription = {
   updatedAt: string;
 };
 
-export type OnCreateUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type OnUpdateUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type OnDeleteUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
 @Injectable({
   providedIn: "root"
 })
 export class APIService {
+  async CreateUserProfile(
+    input: CreateUserProfileInput,
+    condition?: ModelUserProfileConditionInput
+  ): Promise<CreateUserProfileMutation> {
+    const statement = `mutation CreateUserProfile($input: CreateUserProfileInput!, $condition: ModelUserProfileConditionInput) {
+        createUserProfile(input: $input, condition: $condition) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {
+      input
+    };
+    if (condition) {
+      gqlAPIServiceArguments.condition = condition;
+    }
+    const response = (await API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    )) as any;
+    return <CreateUserProfileMutation>response.data.createUserProfile;
+  }
+  async UpdateUserProfile(
+    input: UpdateUserProfileInput,
+    condition?: ModelUserProfileConditionInput
+  ): Promise<UpdateUserProfileMutation> {
+    const statement = `mutation UpdateUserProfile($input: UpdateUserProfileInput!, $condition: ModelUserProfileConditionInput) {
+        updateUserProfile(input: $input, condition: $condition) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {
+      input
+    };
+    if (condition) {
+      gqlAPIServiceArguments.condition = condition;
+    }
+    const response = (await API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    )) as any;
+    return <UpdateUserProfileMutation>response.data.updateUserProfile;
+  }
+  async DeleteUserProfile(
+    input: DeleteUserProfileInput,
+    condition?: ModelUserProfileConditionInput
+  ): Promise<DeleteUserProfileMutation> {
+    const statement = `mutation DeleteUserProfile($input: DeleteUserProfileInput!, $condition: ModelUserProfileConditionInput) {
+        deleteUserProfile(input: $input, condition: $condition) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {
+      input
+    };
+    if (condition) {
+      gqlAPIServiceArguments.condition = condition;
+    }
+    const response = (await API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    )) as any;
+    return <DeleteUserProfileMutation>response.data.deleteUserProfile;
+  }
   async CreateOccasion(
     input: CreateOccasionInput,
     condition?: ModelOccasionConditionInput
@@ -793,84 +838,9 @@ export class APIService {
     )) as any;
     return <DeleteOccasionMutation>response.data.deleteOccasion;
   }
-  async CreateUserProfile(
-    input: CreateUserProfileInput,
-    condition?: ModelUserProfileConditionInput
-  ): Promise<CreateUserProfileMutation> {
-    const statement = `mutation CreateUserProfile($input: CreateUserProfileInput!, $condition: ModelUserProfileConditionInput) {
-        createUserProfile(input: $input, condition: $condition) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {
-      input
-    };
-    if (condition) {
-      gqlAPIServiceArguments.condition = condition;
-    }
-    const response = (await API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    )) as any;
-    return <CreateUserProfileMutation>response.data.createUserProfile;
-  }
-  async UpdateUserProfile(
-    input: UpdateUserProfileInput,
-    condition?: ModelUserProfileConditionInput
-  ): Promise<UpdateUserProfileMutation> {
-    const statement = `mutation UpdateUserProfile($input: UpdateUserProfileInput!, $condition: ModelUserProfileConditionInput) {
-        updateUserProfile(input: $input, condition: $condition) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {
-      input
-    };
-    if (condition) {
-      gqlAPIServiceArguments.condition = condition;
-    }
-    const response = (await API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    )) as any;
-    return <UpdateUserProfileMutation>response.data.updateUserProfile;
-  }
-  async DeleteUserProfile(
-    input: DeleteUserProfileInput,
-    condition?: ModelUserProfileConditionInput
-  ): Promise<DeleteUserProfileMutation> {
-    const statement = `mutation DeleteUserProfile($input: DeleteUserProfileInput!, $condition: ModelUserProfileConditionInput) {
-        deleteUserProfile(input: $input, condition: $condition) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {
-      input
-    };
-    if (condition) {
-      gqlAPIServiceArguments.condition = condition;
-    }
-    const response = (await API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    )) as any;
-    return <DeleteUserProfileMutation>response.data.deleteUserProfile;
-  }
-  async GetOccasion(id: string): Promise<GetOccasionQuery> {
-    const statement = `query GetOccasion($id: ID!) {
-        getOccasion(id: $id) {
+  async GetAccessibleOccasion(id: string): Promise<GetAccessibleOccasionQuery> {
+    const statement = `query GetAccessibleOccasion($id: ID!) {
+        getAccessibleOccasion(id: $id) {
           __typename
           id
           ownerSub
@@ -904,15 +874,19 @@ export class APIService {
     const response = (await API.graphql(
       graphqlOperation(statement, gqlAPIServiceArguments)
     )) as any;
-    return <GetOccasionQuery>response.data.getOccasion;
+    return <GetAccessibleOccasionQuery>response.data.getAccessibleOccasion;
   }
-  async ListOccasions(
-    filter?: ModelOccasionFilterInput,
+  async ListOccasionsForUser(
+    effectiveDate: string,
     limit?: number,
     nextToken?: string
-  ): Promise<ListOccasionsQuery> {
-    const statement = `query ListOccasions($filter: ModelOccasionFilterInput, $limit: Int, $nextToken: String) {
-        listOccasions(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  ): Promise<ListOccasionsForUserQuery> {
+    const statement = `query ListOccasionsForUser($effectiveDate: AWSDate!, $limit: Int, $nextToken: String) {
+        listOccasionsForUser(
+          effectiveDate: $effectiveDate
+          limit: $limit
+          nextToken: $nextToken
+        ) {
           __typename
           items {
             __typename
@@ -944,10 +918,9 @@ export class APIService {
           nextToken
         }
       }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
+    const gqlAPIServiceArguments: any = {
+      effectiveDate
+    };
     if (limit) {
       gqlAPIServiceArguments.limit = limit;
     }
@@ -957,7 +930,7 @@ export class APIService {
     const response = (await API.graphql(
       graphqlOperation(statement, gqlAPIServiceArguments)
     )) as any;
-    return <ListOccasionsQuery>response.data.listOccasions;
+    return <ListOccasionsForUserQuery>response.data.listOccasionsForUser;
   }
   async GetUserProfile(id: string): Promise<GetUserProfileQuery> {
     const statement = `query GetUserProfile($id: ID!) {
@@ -1012,6 +985,84 @@ export class APIService {
     )) as any;
     return <ListUserProfilesQuery>response.data.listUserProfiles;
   }
+  OnCreateUserProfileListener(
+    filter?: ModelSubscriptionUserProfileFilterInput
+  ): Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateUserProfile">>
+  > {
+    const statement = `subscription OnCreateUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
+        onCreateUserProfile(filter: $filter) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {};
+    if (filter) {
+      gqlAPIServiceArguments.filter = filter;
+    }
+    return API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    ) as Observable<
+      SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateUserProfile">>
+    >;
+  }
+
+  OnUpdateUserProfileListener(
+    filter?: ModelSubscriptionUserProfileFilterInput
+  ): Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateUserProfile">>
+  > {
+    const statement = `subscription OnUpdateUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
+        onUpdateUserProfile(filter: $filter) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {};
+    if (filter) {
+      gqlAPIServiceArguments.filter = filter;
+    }
+    return API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    ) as Observable<
+      SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateUserProfile">>
+    >;
+  }
+
+  OnDeleteUserProfileListener(
+    filter?: ModelSubscriptionUserProfileFilterInput
+  ): Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteUserProfile">>
+  > {
+    const statement = `subscription OnDeleteUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
+        onDeleteUserProfile(filter: $filter) {
+          __typename
+          id
+          ownerSub
+          phone
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {};
+    if (filter) {
+      gqlAPIServiceArguments.filter = filter;
+    }
+    return API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    ) as Observable<
+      SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteUserProfile">>
+    >;
+  }
+
   OnCreateOccasionListener(
     filter?: ModelSubscriptionOccasionFilterInput
   ): Observable<
@@ -1144,84 +1195,6 @@ export class APIService {
       graphqlOperation(statement, gqlAPIServiceArguments)
     ) as Observable<
       SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteOccasion">>
-    >;
-  }
-
-  OnCreateUserProfileListener(
-    filter?: ModelSubscriptionUserProfileFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateUserProfile">>
-  > {
-    const statement = `subscription OnCreateUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
-        onCreateUserProfile(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateUserProfile">>
-    >;
-  }
-
-  OnUpdateUserProfileListener(
-    filter?: ModelSubscriptionUserProfileFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateUserProfile">>
-  > {
-    const statement = `subscription OnUpdateUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
-        onUpdateUserProfile(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateUserProfile">>
-    >;
-  }
-
-  OnDeleteUserProfileListener(
-    filter?: ModelSubscriptionUserProfileFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteUserProfile">>
-  > {
-    const statement = `subscription OnDeleteUserProfile($filter: ModelSubscriptionUserProfileFilterInput) {
-        onDeleteUserProfile(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          phone
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteUserProfile">>
     >;
   }
 }
