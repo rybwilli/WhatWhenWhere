@@ -1,5 +1,65 @@
 # this is an auto generated file. This will be overwritten
 
+mutation EditOccasion($input: EditOccasionInput!) {
+  editOccasion(input: $input) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    occasionType
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalStartTime
+    finalEndTime
+    finalEndDate
+    finalLocation
+    finalNotes
+    infoText
+    infoUrl
+    allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
+mutation RemoveOccasion($id: ID!) {
+  removeOccasion(id: $id) {
+    id
+    ownerSub
+    ownerEmail
+    ownerName
+    title
+    description
+    status
+    occasionType
+    respondents
+    whenOptions
+    whereOptions
+    finalDate
+    finalStartTime
+    finalEndTime
+    finalEndDate
+    finalLocation
+    finalNotes
+    infoText
+    infoUrl
+    allowPublic
+    playerOfDayVotes
+    playerOfDayDeadline
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+
 mutation CreateUserProfile(
   $input: CreateUserProfileInput!
   $condition: ModelUserProfileConditionInput
@@ -47,72 +107,6 @@ mutation CreateOccasion(
   $condition: ModelOccasionConditionInput
 ) {
   createOccasion(input: $input, condition: $condition) {
-    id
-    ownerSub
-    ownerEmail
-    ownerName
-    title
-    description
-    status
-    occasionType
-    respondents
-    whenOptions
-    whereOptions
-    finalDate
-    finalStartTime
-    finalEndTime
-    finalEndDate
-    finalLocation
-    finalNotes
-    infoText
-    infoUrl
-    allowPublic
-    playerOfDayVotes
-    playerOfDayDeadline
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-
-mutation UpdateOccasion(
-  $input: UpdateOccasionInput!
-  $condition: ModelOccasionConditionInput
-) {
-  updateOccasion(input: $input, condition: $condition) {
-    id
-    ownerSub
-    ownerEmail
-    ownerName
-    title
-    description
-    status
-    occasionType
-    respondents
-    whenOptions
-    whereOptions
-    finalDate
-    finalStartTime
-    finalEndTime
-    finalEndDate
-    finalLocation
-    finalNotes
-    infoText
-    infoUrl
-    allowPublic
-    playerOfDayVotes
-    playerOfDayDeadline
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-
-mutation DeleteOccasion(
-  $input: DeleteOccasionInput!
-  $condition: ModelOccasionConditionInput
-) {
-  deleteOccasion(input: $input, condition: $condition) {
     id
     ownerSub
     ownerEmail

@@ -10,12 +10,62 @@ export interface SubscriptionResponse<T> {
 }
 
 export type __SubscriptionContainer = {
-  onCreateUserProfile: OnCreateUserProfileSubscription;
-  onUpdateUserProfile: OnUpdateUserProfileSubscription;
-  onDeleteUserProfile: OnDeleteUserProfileSubscription;
   onCreateOccasion: OnCreateOccasionSubscription;
   onUpdateOccasion: OnUpdateOccasionSubscription;
   onDeleteOccasion: OnDeleteOccasionSubscription;
+  onCreateUserProfile: OnCreateUserProfileSubscription;
+  onUpdateUserProfile: OnUpdateUserProfileSubscription;
+  onDeleteUserProfile: OnDeleteUserProfileSubscription;
+};
+
+export type EditOccasionInput = {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  status?: string | null;
+  occasionType?: string | null;
+  respondents?: string | null;
+  whenOptions?: string | null;
+  whereOptions?: string | null;
+  finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
+  finalEndDate?: string | null;
+  finalLocation?: string | null;
+  finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
+  allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
+};
+
+export type Occasion = {
+  __typename: "Occasion";
+  id: string;
+  ownerSub: string;
+  ownerEmail: string;
+  ownerName: string;
+  title: string;
+  description: string;
+  status: string;
+  occasionType?: string | null;
+  respondents?: string | null;
+  whenOptions?: string | null;
+  whereOptions?: string | null;
+  finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
+  finalEndDate?: string | null;
+  finalLocation?: string | null;
+  finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
+  allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CreateUserProfileInput = {
@@ -153,63 +203,6 @@ export type ModelBooleanInput = {
   attributeType?: ModelAttributeTypes | null;
 };
 
-export type Occasion = {
-  __typename: "Occasion";
-  id: string;
-  ownerSub: string;
-  ownerEmail: string;
-  ownerName: string;
-  title: string;
-  description: string;
-  status: string;
-  occasionType?: string | null;
-  respondents?: string | null;
-  whenOptions?: string | null;
-  whereOptions?: string | null;
-  finalDate?: string | null;
-  finalStartTime?: string | null;
-  finalEndTime?: string | null;
-  finalEndDate?: string | null;
-  finalLocation?: string | null;
-  finalNotes?: string | null;
-  infoText?: string | null;
-  infoUrl?: string | null;
-  allowPublic?: boolean | null;
-  playerOfDayVotes?: string | null;
-  playerOfDayDeadline?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type UpdateOccasionInput = {
-  id: string;
-  ownerSub?: string | null;
-  ownerEmail?: string | null;
-  ownerName?: string | null;
-  title?: string | null;
-  description?: string | null;
-  status?: string | null;
-  occasionType?: string | null;
-  respondents?: string | null;
-  whenOptions?: string | null;
-  whereOptions?: string | null;
-  finalDate?: string | null;
-  finalStartTime?: string | null;
-  finalEndTime?: string | null;
-  finalEndDate?: string | null;
-  finalLocation?: string | null;
-  finalNotes?: string | null;
-  infoText?: string | null;
-  infoUrl?: string | null;
-  allowPublic?: boolean | null;
-  playerOfDayVotes?: string | null;
-  playerOfDayDeadline?: string | null;
-};
-
-export type DeleteOccasionInput = {
-  id: string;
-};
-
 export type OccasionPage = {
   __typename: "OccasionPage";
   items: Array<Occasion>;
@@ -289,38 +282,60 @@ export type ModelSubscriptionStringInput = {
   notIn?: Array<string | null> | null;
 };
 
-export type ModelSubscriptionOccasionFilterInput = {
-  id?: ModelSubscriptionIDInput | null;
-  ownerSub?: ModelSubscriptionStringInput | null;
-  ownerEmail?: ModelSubscriptionStringInput | null;
-  ownerName?: ModelSubscriptionStringInput | null;
-  title?: ModelSubscriptionStringInput | null;
-  description?: ModelSubscriptionStringInput | null;
-  status?: ModelSubscriptionStringInput | null;
-  occasionType?: ModelSubscriptionStringInput | null;
-  respondents?: ModelSubscriptionStringInput | null;
-  whenOptions?: ModelSubscriptionStringInput | null;
-  whereOptions?: ModelSubscriptionStringInput | null;
-  finalDate?: ModelSubscriptionStringInput | null;
-  finalStartTime?: ModelSubscriptionStringInput | null;
-  finalEndTime?: ModelSubscriptionStringInput | null;
-  finalEndDate?: ModelSubscriptionStringInput | null;
-  finalLocation?: ModelSubscriptionStringInput | null;
-  finalNotes?: ModelSubscriptionStringInput | null;
-  infoText?: ModelSubscriptionStringInput | null;
-  infoUrl?: ModelSubscriptionStringInput | null;
-  allowPublic?: ModelSubscriptionBooleanInput | null;
-  playerOfDayVotes?: ModelSubscriptionStringInput | null;
-  playerOfDayDeadline?: ModelSubscriptionStringInput | null;
-  createdAt?: ModelSubscriptionStringInput | null;
-  updatedAt?: ModelSubscriptionStringInput | null;
-  and?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
-  or?: Array<ModelSubscriptionOccasionFilterInput | null> | null;
+export type EditOccasionMutation = {
+  __typename: "Occasion";
+  id: string;
+  ownerSub: string;
+  ownerEmail: string;
+  ownerName: string;
+  title: string;
+  description: string;
+  status: string;
+  occasionType?: string | null;
+  respondents?: string | null;
+  whenOptions?: string | null;
+  whereOptions?: string | null;
+  finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
+  finalEndDate?: string | null;
+  finalLocation?: string | null;
+  finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
+  allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type ModelSubscriptionBooleanInput = {
-  ne?: boolean | null;
-  eq?: boolean | null;
+export type RemoveOccasionMutation = {
+  __typename: "Occasion";
+  id: string;
+  ownerSub: string;
+  ownerEmail: string;
+  ownerName: string;
+  title: string;
+  description: string;
+  status: string;
+  occasionType?: string | null;
+  respondents?: string | null;
+  whenOptions?: string | null;
+  whereOptions?: string | null;
+  finalDate?: string | null;
+  finalStartTime?: string | null;
+  finalEndTime?: string | null;
+  finalEndDate?: string | null;
+  finalLocation?: string | null;
+  finalNotes?: string | null;
+  infoText?: string | null;
+  infoUrl?: string | null;
+  allowPublic?: boolean | null;
+  playerOfDayVotes?: string | null;
+  playerOfDayDeadline?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CreateUserProfileMutation = {
@@ -351,62 +366,6 @@ export type DeleteUserProfileMutation = {
 };
 
 export type CreateOccasionMutation = {
-  __typename: "Occasion";
-  id: string;
-  ownerSub: string;
-  ownerEmail: string;
-  ownerName: string;
-  title: string;
-  description: string;
-  status: string;
-  occasionType?: string | null;
-  respondents?: string | null;
-  whenOptions?: string | null;
-  whereOptions?: string | null;
-  finalDate?: string | null;
-  finalStartTime?: string | null;
-  finalEndTime?: string | null;
-  finalEndDate?: string | null;
-  finalLocation?: string | null;
-  finalNotes?: string | null;
-  infoText?: string | null;
-  infoUrl?: string | null;
-  allowPublic?: boolean | null;
-  playerOfDayVotes?: string | null;
-  playerOfDayDeadline?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type UpdateOccasionMutation = {
-  __typename: "Occasion";
-  id: string;
-  ownerSub: string;
-  ownerEmail: string;
-  ownerName: string;
-  title: string;
-  description: string;
-  status: string;
-  occasionType?: string | null;
-  respondents?: string | null;
-  whenOptions?: string | null;
-  whereOptions?: string | null;
-  finalDate?: string | null;
-  finalStartTime?: string | null;
-  finalEndTime?: string | null;
-  finalEndDate?: string | null;
-  finalLocation?: string | null;
-  finalNotes?: string | null;
-  infoText?: string | null;
-  infoUrl?: string | null;
-  allowPublic?: boolean | null;
-  playerOfDayVotes?: string | null;
-  playerOfDayDeadline?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type DeleteOccasionMutation = {
   __typename: "Occasion";
   id: string;
   ownerSub: string;
@@ -516,33 +475,6 @@ export type ListUserProfilesQuery = {
   nextToken?: string | null;
 };
 
-export type OnCreateUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type OnUpdateUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type OnDeleteUserProfileSubscription = {
-  __typename: "UserProfile";
-  id: string;
-  ownerSub: string;
-  phone?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export type OnCreateOccasionSubscription = {
   __typename: "Occasion";
   id: string;
@@ -627,10 +559,113 @@ export type OnDeleteOccasionSubscription = {
   updatedAt: string;
 };
 
+export type OnCreateUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OnUpdateUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OnDeleteUserProfileSubscription = {
+  __typename: "UserProfile";
+  id: string;
+  ownerSub: string;
+  phone?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 @Injectable({
   providedIn: "root"
 })
 export class APIService {
+  async EditOccasion(input: EditOccasionInput): Promise<EditOccasionMutation> {
+    const statement = `mutation EditOccasion($input: EditOccasionInput!) {
+        editOccasion(input: $input) {
+          __typename
+          id
+          ownerSub
+          ownerEmail
+          ownerName
+          title
+          description
+          status
+          occasionType
+          respondents
+          whenOptions
+          whereOptions
+          finalDate
+          finalStartTime
+          finalEndTime
+          finalEndDate
+          finalLocation
+          finalNotes
+          infoText
+          infoUrl
+          allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {
+      input
+    };
+    const response = (await API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    )) as any;
+    return <EditOccasionMutation>response.data.editOccasion;
+  }
+  async RemoveOccasion(id: string): Promise<RemoveOccasionMutation> {
+    const statement = `mutation RemoveOccasion($id: ID!) {
+        removeOccasion(id: $id) {
+          __typename
+          id
+          ownerSub
+          ownerEmail
+          ownerName
+          title
+          description
+          status
+          occasionType
+          respondents
+          whenOptions
+          whereOptions
+          finalDate
+          finalStartTime
+          finalEndTime
+          finalEndDate
+          finalLocation
+          finalNotes
+          infoText
+          infoUrl
+          allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
+          createdAt
+          updatedAt
+        }
+      }`;
+    const gqlAPIServiceArguments: any = {
+      id
+    };
+    const response = (await API.graphql(
+      graphqlOperation(statement, gqlAPIServiceArguments)
+    )) as any;
+    return <RemoveOccasionMutation>response.data.removeOccasion;
+  }
   async CreateUserProfile(
     input: CreateUserProfileInput,
     condition?: ModelUserProfileConditionInput
@@ -749,94 +784,6 @@ export class APIService {
       graphqlOperation(statement, gqlAPIServiceArguments)
     )) as any;
     return <CreateOccasionMutation>response.data.createOccasion;
-  }
-  async UpdateOccasion(
-    input: UpdateOccasionInput,
-    condition?: ModelOccasionConditionInput
-  ): Promise<UpdateOccasionMutation> {
-    const statement = `mutation UpdateOccasion($input: UpdateOccasionInput!, $condition: ModelOccasionConditionInput) {
-        updateOccasion(input: $input, condition: $condition) {
-          __typename
-          id
-          ownerSub
-          ownerEmail
-          ownerName
-          title
-          description
-          status
-          occasionType
-          respondents
-          whenOptions
-          whereOptions
-          finalDate
-          finalStartTime
-          finalEndTime
-          finalEndDate
-          finalLocation
-          finalNotes
-          infoText
-          infoUrl
-          allowPublic
-          playerOfDayVotes
-          playerOfDayDeadline
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {
-      input
-    };
-    if (condition) {
-      gqlAPIServiceArguments.condition = condition;
-    }
-    const response = (await API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    )) as any;
-    return <UpdateOccasionMutation>response.data.updateOccasion;
-  }
-  async DeleteOccasion(
-    input: DeleteOccasionInput,
-    condition?: ModelOccasionConditionInput
-  ): Promise<DeleteOccasionMutation> {
-    const statement = `mutation DeleteOccasion($input: DeleteOccasionInput!, $condition: ModelOccasionConditionInput) {
-        deleteOccasion(input: $input, condition: $condition) {
-          __typename
-          id
-          ownerSub
-          ownerEmail
-          ownerName
-          title
-          description
-          status
-          occasionType
-          respondents
-          whenOptions
-          whereOptions
-          finalDate
-          finalStartTime
-          finalEndTime
-          finalEndDate
-          finalLocation
-          finalNotes
-          infoText
-          infoUrl
-          allowPublic
-          playerOfDayVotes
-          playerOfDayDeadline
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {
-      input
-    };
-    if (condition) {
-      gqlAPIServiceArguments.condition = condition;
-    }
-    const response = (await API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    )) as any;
-    return <DeleteOccasionMutation>response.data.deleteOccasion;
   }
   async GetAccessibleOccasion(id: string): Promise<GetAccessibleOccasionQuery> {
     const statement = `query GetAccessibleOccasion($id: ID!) {
@@ -985,6 +932,120 @@ export class APIService {
     )) as any;
     return <ListUserProfilesQuery>response.data.listUserProfiles;
   }
+  OnCreateOccasionListener: Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateOccasion">>
+  > = API.graphql(
+    graphqlOperation(
+      `subscription OnCreateOccasion {
+        onCreateOccasion {
+          __typename
+          id
+          ownerSub
+          ownerEmail
+          ownerName
+          title
+          description
+          status
+          occasionType
+          respondents
+          whenOptions
+          whereOptions
+          finalDate
+          finalStartTime
+          finalEndTime
+          finalEndDate
+          finalLocation
+          finalNotes
+          infoText
+          infoUrl
+          allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
+          createdAt
+          updatedAt
+        }
+      }`
+    )
+  ) as Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateOccasion">>
+  >;
+
+  OnUpdateOccasionListener: Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateOccasion">>
+  > = API.graphql(
+    graphqlOperation(
+      `subscription OnUpdateOccasion {
+        onUpdateOccasion {
+          __typename
+          id
+          ownerSub
+          ownerEmail
+          ownerName
+          title
+          description
+          status
+          occasionType
+          respondents
+          whenOptions
+          whereOptions
+          finalDate
+          finalStartTime
+          finalEndTime
+          finalEndDate
+          finalLocation
+          finalNotes
+          infoText
+          infoUrl
+          allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
+          createdAt
+          updatedAt
+        }
+      }`
+    )
+  ) as Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateOccasion">>
+  >;
+
+  OnDeleteOccasionListener: Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteOccasion">>
+  > = API.graphql(
+    graphqlOperation(
+      `subscription OnDeleteOccasion {
+        onDeleteOccasion {
+          __typename
+          id
+          ownerSub
+          ownerEmail
+          ownerName
+          title
+          description
+          status
+          occasionType
+          respondents
+          whenOptions
+          whereOptions
+          finalDate
+          finalStartTime
+          finalEndTime
+          finalEndDate
+          finalLocation
+          finalNotes
+          infoText
+          infoUrl
+          allowPublic
+          playerOfDayVotes
+          playerOfDayDeadline
+          createdAt
+          updatedAt
+        }
+      }`
+    )
+  ) as Observable<
+    SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteOccasion">>
+  >;
+
   OnCreateUserProfileListener(
     filter?: ModelSubscriptionUserProfileFilterInput
   ): Observable<
@@ -1060,141 +1121,6 @@ export class APIService {
       graphqlOperation(statement, gqlAPIServiceArguments)
     ) as Observable<
       SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteUserProfile">>
-    >;
-  }
-
-  OnCreateOccasionListener(
-    filter?: ModelSubscriptionOccasionFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateOccasion">>
-  > {
-    const statement = `subscription OnCreateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
-        onCreateOccasion(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          ownerEmail
-          ownerName
-          title
-          description
-          status
-          occasionType
-          respondents
-          whenOptions
-          whereOptions
-          finalDate
-          finalStartTime
-          finalEndTime
-          finalEndDate
-          finalLocation
-          finalNotes
-          infoText
-          infoUrl
-          allowPublic
-          playerOfDayVotes
-          playerOfDayDeadline
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onCreateOccasion">>
-    >;
-  }
-
-  OnUpdateOccasionListener(
-    filter?: ModelSubscriptionOccasionFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateOccasion">>
-  > {
-    const statement = `subscription OnUpdateOccasion($filter: ModelSubscriptionOccasionFilterInput) {
-        onUpdateOccasion(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          ownerEmail
-          ownerName
-          title
-          description
-          status
-          occasionType
-          respondents
-          whenOptions
-          whereOptions
-          finalDate
-          finalStartTime
-          finalEndTime
-          finalEndDate
-          finalLocation
-          finalNotes
-          infoText
-          infoUrl
-          allowPublic
-          playerOfDayVotes
-          playerOfDayDeadline
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onUpdateOccasion">>
-    >;
-  }
-
-  OnDeleteOccasionListener(
-    filter?: ModelSubscriptionOccasionFilterInput
-  ): Observable<
-    SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteOccasion">>
-  > {
-    const statement = `subscription OnDeleteOccasion($filter: ModelSubscriptionOccasionFilterInput) {
-        onDeleteOccasion(filter: $filter) {
-          __typename
-          id
-          ownerSub
-          ownerEmail
-          ownerName
-          title
-          description
-          status
-          occasionType
-          respondents
-          whenOptions
-          whereOptions
-          finalDate
-          finalStartTime
-          finalEndTime
-          finalEndDate
-          finalLocation
-          finalNotes
-          infoText
-          infoUrl
-          allowPublic
-          playerOfDayVotes
-          playerOfDayDeadline
-          createdAt
-          updatedAt
-        }
-      }`;
-    const gqlAPIServiceArguments: any = {};
-    if (filter) {
-      gqlAPIServiceArguments.filter = filter;
-    }
-    return API.graphql(
-      graphqlOperation(statement, gqlAPIServiceArguments)
-    ) as Observable<
-      SubscriptionResponse<Pick<__SubscriptionContainer, "onDeleteOccasion">>
     >;
   }
 }
